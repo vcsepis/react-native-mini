@@ -14,6 +14,7 @@ import {
   FONTFAMILY,
   FONTSIZE,
   SPACING,
+  widthResponsive,
 } from '../theme/theme';
 import CustomIcon from './CustomIcon';
 
@@ -163,12 +164,14 @@ const styles = StyleSheet.create({
   },
   ImageHeaderBarContainerWithBack: {
     padding: SPACING.space_30,
+    paddingTop: widthResponsive(50),
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
   ImageHeaderBarContainerWithoutBack: {
     padding: SPACING.space_30,
+    paddingTop: widthResponsive(50),
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-end',

@@ -1,3 +1,5 @@
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen'
+
 interface Spacing {
   space_2: number;
   space_4: number;
@@ -45,7 +47,10 @@ interface Color {
   primaryWhiteHex: string;
   primaryBlackRGBA: string;
   secondaryBlackRGBA: string;
+  secondaryBlackRGB: string;
   primaryPurle: string;
+  primaryBorder: string;
+  primaryLocation: string
 }
 
 export const COLORS: Color = {
@@ -61,7 +66,10 @@ export const COLORS: Color = {
   primaryWhiteHex: '#FFFFFF',
   primaryBlackRGBA: 'rgba(12,15,20,0.5)',
   secondaryBlackRGBA: 'rgba(0,0,0,0.7)',
+  secondaryBlackRGB: 'rgb(0,0,0)',
   primaryPurle: '#7080CC',
+  primaryBorder: '#F2F2F2',
+  primaryLocation: '#CE606A'
 };
 
 interface FontFamily {
@@ -131,3 +139,17 @@ export const BORDERRADIUS: BorderRadius = {
   radius_20: 20,
   radius_25: 25,
 };
+
+
+const WIDTH_IPHONE_X = 375
+const HEIGHT_IPHONE_X = 812
+
+// use when Left/Right/Width
+export const widthResponsive = (widthSize: number) => {
+  return wp((widthSize / WIDTH_IPHONE_X) * 100)
+}
+
+// use when Top/Bottom/Height
+export const heightResponsive = (heightSize: number) => {
+  return hp((heightSize / HEIGHT_IPHONE_X) * 100)
+}

@@ -14,6 +14,7 @@ import {
   FONTFAMILY,
   FONTSIZE,
   SPACING,
+  widthResponsive,
 } from '../theme/theme';
 import CustomIcon from './CustomIcon';
 
@@ -43,11 +44,7 @@ const CartItem: React.FC<CartItemProps> = ({
   return (
     <View>
       {prices.length != 1 ? (
-        <LinearGradient
-          start={{x: 0, y: 0}}
-          end={{x: 1, y: 1}}
-          colors={[COLORS.primaryGreyHex, COLORS.primaryBlackHex]}
-          style={styles.CartItemLinearGradient}>
+        <View style={styles.CartItemLinearGradient}>
           <View style={styles.CartItemRow}>
             <Image source={imagelink_square} style={styles.CartItemImage} />
             <View style={styles.CartItemInfo}>
@@ -58,7 +55,7 @@ const CartItem: React.FC<CartItemProps> = ({
                 </Text>
               </View>
               <View style={styles.CartItemRoastedContainer}>
-                <Text style={styles.CartItemRoastedText}>{roasted}</Text>
+                <Text style={styles.CartItemRoastedText}>Ghi chu</Text>
               </View>
             </View>
           </View>
@@ -92,7 +89,7 @@ const CartItem: React.FC<CartItemProps> = ({
                   }}>
                   <CustomIcon
                     name="minus"
-                    color={COLORS.primaryWhiteHex}
+                    color={COLORS.primaryBlackHex}
                     size={FONTSIZE.size_10}
                   />
                 </TouchableOpacity>
@@ -108,20 +105,16 @@ const CartItem: React.FC<CartItemProps> = ({
                   }}>
                   <CustomIcon
                     name="add"
-                    color={COLORS.primaryWhiteHex}
+                    color={COLORS.primaryBlackHex}
                     size={FONTSIZE.size_10}
                   />
                 </TouchableOpacity>
               </View>
             </View>
           ))}
-        </LinearGradient>
+        </View>
       ) : (
-        <LinearGradient
-          start={{x: 0, y: 0}}
-          end={{x: 1, y: 1}}
-          colors={[COLORS.primaryGreyHex, COLORS.primaryBlackHex]}
-          style={styles.CartItemSingleLinearGradient}>
+        <View style={styles.CartItemSingleLinearGradient}>
           <View>
             <Image
               source={imagelink_square}
@@ -159,7 +152,7 @@ const CartItem: React.FC<CartItemProps> = ({
                 }}>
                 <CustomIcon
                   name="minus"
-                  color={COLORS.primaryWhiteHex}
+                  color={COLORS.primaryLightGreyHex}
                   size={FONTSIZE.size_10}
                 />
               </TouchableOpacity>
@@ -175,13 +168,13 @@ const CartItem: React.FC<CartItemProps> = ({
                 }}>
                 <CustomIcon
                   name="add"
-                  color={COLORS.primaryWhiteHex}
+                  color={COLORS.primaryLightGreyHex}
                   size={FONTSIZE.size_10}
                 />
               </TouchableOpacity>
             </View>
           </View>
-        </LinearGradient>
+        </View>
       )}
     </View>
   );
@@ -193,6 +186,7 @@ const styles = StyleSheet.create({
     gap: SPACING.space_12,
     padding: SPACING.space_12,
     borderRadius: BORDERRADIUS.radius_25,
+    backgroundColor: '#F5F5F5',
   },
   CartItemRow: {
     flexDirection: 'row',
@@ -211,13 +205,13 @@ const styles = StyleSheet.create({
   },
   CartItemTitle: {
     fontFamily: FONTFAMILY.poppins_medium,
-    fontSize: FONTSIZE.size_18,
-    color: COLORS.primaryWhiteHex,
+    fontSize: FONTSIZE.size_16,
+    color: COLORS.primaryBlackHex,
   },
   CartItemSubtitle: {
-    fontFamily: FONTFAMILY.poppins_regular,
+    fontFamily: FONTFAMILY.poppins_medium,
     fontSize: FONTSIZE.size_12,
-    color: COLORS.secondaryLightGreyHex,
+    color: COLORS.primaryLightGreyHex,
   },
   CartItemRoastedContainer: {
     height: 50,
@@ -225,12 +219,12 @@ const styles = StyleSheet.create({
     borderRadius: BORDERRADIUS.radius_15,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: COLORS.primaryDarkGreyHex,
+    backgroundColor: COLORS.primaryWhiteHex,
   },
   CartItemRoastedText: {
-    fontFamily: FONTFAMILY.poppins_regular,
-    fontSize: FONTSIZE.size_10,
-    color: COLORS.primaryWhiteHex,
+    fontFamily: FONTFAMILY.poppins_medium,
+    fontSize: FONTSIZE.size_12,
+    color: COLORS.primaryLightGreyHex,
   },
   CartItemSizeRowContainer: {
     flex: 1,
@@ -246,7 +240,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   SizeBox: {
-    backgroundColor: COLORS.primaryBlackHex,
+    backgroundColor: COLORS.primaryWhiteHex,
     height: 40,
     width: 100,
     borderRadius: BORDERRADIUS.radius_10,
@@ -255,34 +249,35 @@ const styles = StyleSheet.create({
   },
   SizeText: {
     fontFamily: FONTFAMILY.poppins_medium,
-    color: COLORS.secondaryLightGreyHex,
+    color: COLORS.primaryLightGreyHex,
   },
   SizeCurrency: {
     fontFamily: FONTFAMILY.poppins_semibold,
     fontSize: FONTSIZE.size_18,
-    color: COLORS.primaryOrangeHex,
+    color: COLORS.primaryLightGreyHex,
   },
   SizePrice: {
-    color: COLORS.primaryWhiteHex,
+    color: COLORS.primaryLightGreyHex,
+    fontSize: FONTSIZE.size_16,
   },
   CartItemIcon: {
-    backgroundColor: COLORS.primaryOrangeHex,
+    backgroundColor: COLORS.primaryWhiteHex,
     padding: SPACING.space_12,
     borderRadius: BORDERRADIUS.radius_10,
+    borderWidth: widthResponsive(1),
+    borderColor: '#1C5915',
   },
   CartItemQuantityContainer: {
-    backgroundColor: COLORS.primaryBlackHex,
-    width: 80,
+    backgroundColor: COLORS.primaryWhiteHex,
+    width: 60,
     borderRadius: BORDERRADIUS.radius_10,
-    borderWidth: 2,
-    borderColor: COLORS.primaryOrangeHex,
     alignItems: 'center',
     paddingVertical: SPACING.space_4,
   },
   CartItemQuantityText: {
     fontFamily: FONTFAMILY.poppins_semibold,
     fontSize: FONTSIZE.size_16,
-    color: COLORS.primaryWhiteHex,
+    color: COLORS.primaryLightGreyHex,
   },
   CartItemSingleLinearGradient: {
     flexDirection: 'row',
@@ -290,6 +285,7 @@ const styles = StyleSheet.create({
     padding: SPACING.space_12,
     gap: SPACING.space_12,
     borderRadius: BORDERRADIUS.radius_25,
+    backgroundColor: '#F5F5F5',
   },
   CartItemSingleImage: {
     height: 150,

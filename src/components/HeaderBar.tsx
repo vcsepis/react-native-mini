@@ -1,4 +1,4 @@
-import {StyleSheet, Text, View} from 'react-native';
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import React from 'react';
 import {COLORS, FONTFAMILY, FONTSIZE, SPACING} from '../theme/theme';
 import GradientBGIcon from './GradientBGIcon';
@@ -6,9 +6,10 @@ import ProfilePic from './ProfilePic';
 
 interface HeaderBarProps {
   title?: string;
+  navigation?: any;
 }
 
-const HeaderBar: React.FC<HeaderBarProps> = ({title}) => {
+const HeaderBar: React.FC<HeaderBarProps> = ({title, navigation}) => {
   return (
     <View style={styles.HeaderContainer}>
       {/* <GradientBGIcon
@@ -17,9 +18,11 @@ const HeaderBar: React.FC<HeaderBarProps> = ({title}) => {
         size={FONTSIZE.size_16}
       /> */}
       <View>
-        <Text style={styles.LocationText}>
-          Your location <Text style={styles.LocationSelected}>▾</Text>
-        </Text>
+        <TouchableOpacity onPress={() => navigation.push('Store')}>
+          <Text style={styles.LocationText}>
+            Your location <Text style={styles.LocationSelected}>▾</Text>
+          </Text>
+        </TouchableOpacity>
         <Text style={styles.LocationName}>Yokohama, Japan</Text>
       </View>
       <Text style={styles.HeaderText}>{title}</Text>

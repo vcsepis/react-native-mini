@@ -15,14 +15,15 @@ import {
   FONTFAMILY,
   FONTSIZE,
   SPACING,
+  widthResponsive,
 } from '../theme/theme';
 import ImageBackgroundInfo from '../components/ImageBackgroundInfo';
 import PaymentFooter from '../components/PaymentFooter';
 
 const DetailsScreen = ({navigation, route}: any) => {
   const ItemOfIndex = useStore((state: any) =>
-    route.params.type == 'Coffee' ? state.CoffeeList : state.BeanList,
-  )[route.params.index];
+    route?.params?.type == 'Coffee' ? state.CoffeeList : state.BeanList,
+  )[route?.params?.index];
   const addToFavoriteList = useStore((state: any) => state.addToFavoriteList);
   const deleteFromFavoriteList = useStore(
     (state: any) => state.deleteFromFavoriteList,
@@ -30,7 +31,7 @@ const DetailsScreen = ({navigation, route}: any) => {
   const addToCart = useStore((state: any) => state.addToCart);
   const calculateCartPrice = useStore((state: any) => state.calculateCartPrice);
 
-  const [price, setPrice] = useState(ItemOfIndex.prices[0]);
+  const [price, setPrice] = useState(ItemOfIndex?.prices[0] || 0);
   const [fullDesc, setFullDesc] = useState(false);
 
   const ToggleFavourite = (favourite: boolean, type: string, id: string) => {

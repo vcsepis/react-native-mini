@@ -9,23 +9,30 @@ import {
   View,
   ToastAndroid,
   SafeAreaView,
+  Platform,
+  Alert,
 } from 'react-native';
 import {useStore} from '../store/store';
-import {useBottomTabBarHeight} from '@react-navigation/bottom-tabs';
 import {
   BORDERRADIUS,
   COLORS,
   FONTFAMILY,
   FONTSIZE,
   SPACING,
+  widthResponsive,
 } from '../theme/theme';
-import HeaderBar from '../components/HeaderBar';
 import CustomIcon from '../components/CustomIcon';
 import {FlatList} from 'react-native';
 import CoffeeCard from '../components/CoffeeCard';
 import {Dimensions} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import Slider from '../components/BannerSlider';
+import HeaderStore from '../components/Store/HeaderStore';
+import HeaderFood from '../components/Store/LocationInfo';
+import LocationInfo from '../components/Store/LocationInfo';
+import ShipStore from '../components/Store/ShipStore';
+import CupponStore from '../components/Store/Cuppon';
+import ProductCard from '../components/Store/ProductCard';
+import {Icon} from 'react-native-vector-icons/Icon';
 
 const getCategoriesFromData = (data: any) => {
   let temp: any = {};
@@ -50,11 +57,13 @@ const getCoffeeList = (category: string, data: any) => {
   }
 };
 
-const HomeScreen = ({navigation}: any) => {
+const StoreScreen = ({navigation}: any) => {
   const CoffeeList = useStore((state: any) => state.CoffeeList);
   const BeanList = useStore((state: any) => state.BeanList);
   const addToCart = useStore((state: any) => state.addToCart);
   const calculateCartPrice = useStore((state: any) => state.calculateCartPrice);
+  const CartList = useStore((state: any) => state.CartList);
+  const CartPrice = useStore((state: any) => state.CartPrice);
 
   const [categories, setCategories] = useState(
     getCategoriesFromData(CoffeeList),
@@ -69,7 +78,6 @@ const HomeScreen = ({navigation}: any) => {
   );
 
   const ListRef: any = useRef<FlatList>();
-  const tabBarHeight = useBottomTabBarHeight();
 
   const searchCoffee = (search: string) => {
     if (search != '') {
@@ -116,7 +124,11 @@ const HomeScreen = ({navigation}: any) => {
       type,
       prices,
     });
+
     calculateCartPrice();
+
+    if (Platform.OS) return Alert.alert(`${name} is Added to Cart`);
+
     ToastAndroid.showWithGravity(
       `${name} is Added to Cart`,
       ToastAndroid.SHORT,
@@ -125,126 +137,57 @@ const HomeScreen = ({navigation}: any) => {
   };
 
   return (
-    <LinearGradient
-      colors={['#F0EDFC', '#DFDCEB', '#DAD7E6']}
-      style={styles.linearGradient}>
-      <SafeAreaView style={styles.ScreenContainer}>
-        <StatusBar backgroundColor={COLORS.primaryBlackHex} />
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.ScrollViewFlex}>
-          {/* App Header */}
-          <HeaderBar navigation={navigation} />
+    <SafeAreaView style={styles.ScreenContainer}>
+      <StatusBar backgroundColor={COLORS.primaryBlackHex} />
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.ScrollViewFlex}>
+        {/* App Header */}
+        <HeaderStore />
 
-          {/* Search Input */}
-          <View style={styles.InputContainerComponent}>
-            <TouchableOpacity
-              onPress={() => {
-                searchCoffee(searchText);
-              }}>
-              <CustomIcon
-                style={styles.InputIcon}
-                name="search"
-                size={FONTSIZE.size_18}
-                color={
-                  searchText.length > 0
-                    ? COLORS.primaryOrangeHex
-                    : COLORS.primaryLightGreyHex
-                }
-              />
-            </TouchableOpacity>
-
-            <TextInput
-              placeholder="Find Your Foods..."
-              value={searchText}
-              onChangeText={text => {
-                setSearchText(text);
-                searchCoffee(text);
-              }}
-              placeholderTextColor={COLORS.primaryLightGreyHex}
-              style={styles.TextInputContainer}
-            />
-
-            {searchText.length > 0 ? (
-              <TouchableOpacity
-                onPress={() => {
-                  resetSearchCoffee();
-                }}>
-                <CustomIcon
-                  style={styles.InputIcon}
-                  name="close"
-                  size={FONTSIZE.size_16}
-                  color={COLORS.primaryLightGreyHex}
-                />
-              </TouchableOpacity>
-            ) : (
-              <></>
-            )}
+        {/* Good Food */}
+        <View style={styles.HeaderFoodMemo}>
+          <View style={styles.GoodFoodContainer}>
+            <Text style={styles.TextGoodFood}>GoFood Partner</Text>
           </View>
 
-          {/* Banner */}
-          {/* <Slider /> */}
+          <Text style={styles.TextGoodFoodMemo}>
+            Mon Quoc Te, Mon Han Chuan Vi
+          </Text>
+        </View>
 
-          {/* Category Scroller */}
+        {/* Location Info */}
+        <LocationInfo />
 
-          <Text style={styles.CategoriesTitle}>Categories</Text>
+        {/* Ship info */}
+        <ShipStore />
 
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.CategoryScrollViewStyle}>
-            {categories.map((data, index) => (
-              <View
-                key={index.toString()}
-                style={styles.CategoryScrollViewContainer}>
-                <TouchableOpacity
-                  style={styles.CategoryScrollViewItem}
-                  onPress={() => {
-                    ListRef?.current?.scrollToOffset({
-                      animated: true,
-                      offset: 0,
-                    });
-                    setCategoryIndex({
-                      index: index,
-                      category: categories[index],
-                    });
-                    setSortedCoffee([
-                      ...getCoffeeList(categories[index], CoffeeList),
-                    ]);
-                  }}>
-                  <Text
-                    style={[
-                      styles.CategoryText,
-                      categoryIndex.index == index
-                        ? {color: COLORS.primaryOrangeHex}
-                        : {},
-                    ]}>
-                    {data}
-                  </Text>
-                  {categoryIndex.index == index ? (
-                    <View style={styles.ActiveCategory} />
-                  ) : (
-                    <></>
-                  )}
-                </TouchableOpacity>
-              </View>
-            ))}
-          </ScrollView>
+        {/* Cuppons */}
+        <CupponStore />
 
-          {/* Coffee Flatlist */}
+        {/* Category Scroller */}
+        <Text style={styles.CategoriesTitle}>Mon Hot</Text>
 
+        {/* List Hot */}
+        <View
+          style={{
+            alignContent: 'center',
+            alignItems: 'center',
+            width: '100%',
+          }}>
           <FlatList
             ref={ListRef}
-            horizontal
             ListEmptyComponent={
               <View style={styles.EmptyListContainer}>
                 <Text style={styles.CategoryText}>No Coffee Available</Text>
               </View>
             }
+            columnWrapperStyle={{justifyContent: 'space-between'}}
             showsHorizontalScrollIndicator={false}
             data={sortedCoffee}
             contentContainerStyle={styles.FlatListContainer}
             keyExtractor={item => item.id}
+            numColumns={2}
             renderItem={({item}) => {
               return (
                 <TouchableOpacity
@@ -255,7 +198,7 @@ const HomeScreen = ({navigation}: any) => {
                       type: item.type,
                     });
                   }}>
-                  <CoffeeCard
+                  <ProductCard
                     id={item.id}
                     index={item.index}
                     type={item.type}
@@ -266,61 +209,79 @@ const HomeScreen = ({navigation}: any) => {
                     average_rating={item.average_rating}
                     price={item.prices[2]}
                     buttonPressHandler={CoffeCardAddToCart}
+                    favourite={item?.favourite}
                   />
                 </TouchableOpacity>
               );
             }}
           />
+        </View>
 
-          <Text style={styles.CoffeeBeansTitle}>Coffee Beans</Text>
+        {/* Name Products */}
+        <Text style={styles.CoffeeBeansTitle}>Coffee Beans</Text>
 
-          {/* Beans Flatlist */}
+        {/* Beans Flatlist */}
+        <FlatList
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          data={BeanList}
+          contentContainerStyle={[styles.FlatListContainer]}
+          keyExtractor={item => item.id}
+          renderItem={({item}) => {
+            return (
+              <TouchableOpacity
+                onPress={() => {
+                  navigation.push('Details', {
+                    index: item.index,
+                    id: item.id,
+                    type: item.type,
+                  });
+                }}>
+                <CoffeeCard
+                  id={item.id}
+                  index={item.index}
+                  type={item.type}
+                  roasted={item.roasted}
+                  imagelink_square={item.imagelink_square}
+                  name={item.name}
+                  special_ingredient={item.special_ingredient}
+                  average_rating={item.average_rating}
+                  price={item.prices[2]}
+                  buttonPressHandler={CoffeCardAddToCart}
+                />
+              </TouchableOpacity>
+            );
+          }}
+        />
+      </ScrollView>
 
-          <FlatList
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            data={BeanList}
-            contentContainerStyle={[
-              styles.FlatListContainer,
-              {marginBottom: tabBarHeight},
-            ]}
-            keyExtractor={item => item.id}
-            renderItem={({item}) => {
-              return (
-                <TouchableOpacity
-                  onPress={() => {
-                    navigation.push('Details', {
-                      index: item.index,
-                      id: item.id,
-                      type: item.type,
-                    });
-                  }}>
-                  <CoffeeCard
-                    id={item.id}
-                    index={item.index}
-                    type={item.type}
-                    roasted={item.roasted}
-                    imagelink_square={item.imagelink_square}
-                    name={item.name}
-                    special_ingredient={item.special_ingredient}
-                    average_rating={item.average_rating}
-                    price={item.prices[2]}
-                    buttonPressHandler={CoffeCardAddToCart}
-                  />
-                </TouchableOpacity>
-              );
-            }}
+      {/* Cart Button */}
+      <TouchableOpacity onPress={() => navigation.navigate('CartStore')}>
+        <View style={styles.CartDisplay}>
+          <View style={styles.CartContentCount}>
+            <Text style={styles.TextCountCartFood}>{CartList?.length} mon</Text>
+            <Text style={styles.TextCountCartFood} numberOfLines={1}>
+              Sasin - Mi Cay 7 Cap Do Han Quoc, Nguyen Van Qua
+            </Text>
+          </View>
+
+          <Text style={styles.TextTotalPriceCartFood}>{CartPrice} $</Text>
+          <CustomIcon
+            name={'cart'}
+            color={COLORS.primaryWhiteHex}
+            size={FONTSIZE.size_24}
           />
-        </ScrollView>
-      </SafeAreaView>
-    </LinearGradient>
+        </View>
+      </TouchableOpacity>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   ScreenContainer: {
     flex: 1,
-    // backgroundColor: COLORS.primaryBlackHex,
+    backgroundColor: COLORS.primaryWhiteHex,
+    position: 'relative',
   },
   linearGradient: {
     flex: 1,
@@ -352,6 +313,26 @@ const styles = StyleSheet.create({
     fontSize: FONTSIZE.size_14,
     color: COLORS.primaryWhiteHex,
   },
+  TextGoodFood: {
+    flex: 1,
+    fontFamily: FONTFAMILY.poppins_medium,
+    fontSize: FONTSIZE.size_12,
+    color: COLORS.primaryWhiteHex,
+    textAlign: 'center',
+  },
+  TextGoodFoodMemo: {
+    flex: 1,
+    fontFamily: FONTFAMILY.poppins_medium,
+    fontSize: FONTSIZE.size_12,
+    color: COLORS.primaryLightGreyHex,
+  },
+  GoodFoodContainer: {
+    backgroundColor: '#A80017',
+    borderRadius: 15,
+    width: widthResponsive(110),
+    padding: widthResponsive(4),
+    marginRight: widthResponsive(8),
+  },
   CategoryScrollViewStyle: {
     paddingHorizontal: SPACING.space_20,
     marginBottom: SPACING.space_20,
@@ -377,7 +358,7 @@ const styles = StyleSheet.create({
   FlatListContainer: {
     gap: SPACING.space_20,
     paddingVertical: SPACING.space_20,
-    paddingHorizontal: SPACING.space_30,
+    justifyContent: 'space-between',
   },
   EmptyListContainer: {
     width: Dimensions.get('window').width - SPACING.space_30 * 2,
@@ -394,13 +375,54 @@ const styles = StyleSheet.create({
     color: COLORS.secondaryBlackRGBA,
   },
   CategoriesTitle: {
-    fontSize: FONTSIZE.size_18,
+    fontSize: FONTSIZE.size_16,
     marginLeft: SPACING.space_30,
-    marginVertical: SPACING.space_12,
-    fontWeight: 'bold',
+    fontWeight: '600',
     fontFamily: FONTFAMILY.poppins_medium,
-    color: COLORS.secondaryBlackRGBA,
+    color: COLORS.secondaryBlackRGB,
+  },
+  HeaderFoodMemo: {
+    flexDirection: 'row',
+    height: 'auto',
+    padding: SPACING.space_20,
+    alignItems: 'center',
+    paddingBottom: SPACING.space_20,
+    justifyContent: 'center',
+  },
+  TextCountCartFood: {
+    flex: 1,
+    fontFamily: FONTFAMILY.poppins_medium,
+    fontSize: FONTSIZE.size_12,
+    color: COLORS.primaryWhiteHex,
+    fontWeight: '600',
+  },
+  TextTotalPriceCartFood: {
+    flex: 1,
+    fontFamily: FONTFAMILY.poppins_medium,
+    fontSize: FONTSIZE.size_16,
+    color: COLORS.primaryWhiteHex,
+    fontWeight: '600',
+    textAlign: 'right',
+    marginRight: widthResponsive(4),
+  },
+  CartDisplay: {
+    position: 'absolute',
+    backgroundColor: '#008810',
+    bottom: widthResponsive(4),
+    right: 0,
+    left: 0,
+    justifyContent: 'space-between',
+    marginHorizontal: widthResponsive(20),
+    borderRadius: widthResponsive(15),
+    padding: widthResponsive(8),
+    paddingHorizontal: widthResponsive(10),
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  CartContentCount: {
+    gap: widthResponsive(2),
+    width: '70%',
   },
 });
 
-export default HomeScreen;
+export default StoreScreen;

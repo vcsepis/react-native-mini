@@ -2,6 +2,8 @@ import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import React from 'react';
 import {COLORS, FONTFAMILY, FONTSIZE, SPACING} from '../../theme/theme';
 import StoreProfilePic from './StoreProfilePic';
+import GradientBGIcon from '../GradientBGIcon';
+import CustomIcon from '../CustomIcon';
 
 interface HeaderStoreProps {
   title?: string;
@@ -9,15 +11,22 @@ interface HeaderStoreProps {
 }
 
 const HeaderStore: React.FC<HeaderStoreProps> = ({title, navigation}) => {
+  const BackHandler = () => navigation.goBack();
+
   return (
     <View style={styles.HeaderContainer}>
-      <TouchableOpacity
-        style={styles.StoreTextNmContainer}
-        onPress={() => navigation.push('Store')}>
+      <TouchableOpacity onPress={BackHandler}>
+        <CustomIcon
+          name="left"
+          color={COLORS.primaryLightGreyHex}
+          size={FONTSIZE.size_16}
+        />
+      </TouchableOpacity>
+      <View style={styles.StoreTextNmContainer}>
         <Text style={styles.StoreTextNm}>
           Sasin - Mi Cay 7 Cap Do Han Quoc, Nguyen Van Qua
         </Text>
-      </TouchableOpacity>
+      </View>
       <StoreProfilePic />
     </View>
   );
@@ -32,7 +41,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   StoreTextNmContainer: {
-    width: '80%',
+    width: '70%',
   },
   StoreTextNm: {
     fontFamily: FONTFAMILY.poppins_semibold,

@@ -66,7 +66,7 @@ const CartScreen = ({navigation, _route}: any) => {
       <StatusBar backgroundColor={COLORS.primaryBlackHex} />
       <View style={styles.ImageHeaderBarContainerWithBack}>
         <TouchableOpacity onPress={BackHandler}>
-          <GradientBGIcon
+          <CustomIcon
             name="left"
             color={COLORS.primaryLightGreyHex}
             size={FONTSIZE.size_16}

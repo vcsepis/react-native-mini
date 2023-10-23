@@ -75,7 +75,7 @@ const ImageBackgroundInfo: React.FC<ImageBackgroundInfoProps> = ({
                 color={
                   favourite ? COLORS.primaryRedHex : COLORS.primaryLightGreyHex
                 }
-                size={FONTSIZE.size_16}
+                size={FONTSIZE.size_18}
               />
             </TouchableOpacity>
           </View>
@@ -105,12 +105,23 @@ const ImageBackgroundInfo: React.FC<ImageBackgroundInfoProps> = ({
                   {special_ingredient}
                 </Text>
               </View>
-              <View style={styles.ItemPropertiesContainer}>
+              <View style={styles.InfoContainerRow}>
+                <View style={styles.RatingContainer}>
+                  <CustomIcon
+                    name={'star'}
+                    color={COLORS.primaryOrangeHex}
+                    size={FONTSIZE.size_20}
+                  />
+                  <Text style={styles.RatingText}>{average_rating}</Text>
+                  <Text style={styles.RatingCountText}>({ratings_count})</Text>
+                </View>
+              </View>
+              {/* <View style={styles.ItemPropertiesContainer}>
                 <View style={styles.ProperFirst}>
                   <CustomIcon
                     name={type == 'Bean' ? 'bean' : 'beans'}
                     size={type == 'Bean' ? FONTSIZE.size_18 : FONTSIZE.size_24}
-                    color={COLORS.primaryOrangeHex}
+                    color={'#008810'}
                   />
                   <Text
                     style={[
@@ -129,13 +140,13 @@ const ImageBackgroundInfo: React.FC<ImageBackgroundInfoProps> = ({
                   <CustomIcon
                     name={type == 'Bean' ? 'location' : 'drop'}
                     size={FONTSIZE.size_16}
-                    color={COLORS.primaryOrangeHex}
+                    color={'#008810'}
                   />
                   <Text style={styles.PropertyTextLast}>{ingredients}</Text>
                 </View>
-              </View>
+              </View> */}
             </View>
-            <View style={styles.InfoContainerRow}>
+            {/* <View style={styles.InfoContainerRow}>
               <View style={styles.RatingContainer}>
                 <CustomIcon
                   name={'star'}
@@ -145,10 +156,7 @@ const ImageBackgroundInfo: React.FC<ImageBackgroundInfoProps> = ({
                 <Text style={styles.RatingText}>{average_rating}</Text>
                 <Text style={styles.RatingCountText}>({ratings_count})</Text>
               </View>
-              <View style={styles.RoastedContainer}>
-                <Text style={styles.RoastedText}>{roasted}</Text>
-              </View>
-            </View>
+            </View> */}
           </View>
         </View>
       </ImageBackground>
@@ -213,7 +221,7 @@ const styles = StyleSheet.create({
     borderRadius: BORDERRADIUS.radius_15,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: COLORS.primaryBlackHex,
+    // backgroundColor: COLORS.primaryBlackHex,
   },
   PropertyTextFirst: {
     fontFamily: FONTFAMILY.poppins_medium,
@@ -239,19 +247,6 @@ const styles = StyleSheet.create({
   RatingCountText: {
     fontFamily: FONTFAMILY.poppins_regular,
     fontSize: FONTSIZE.size_12,
-    color: COLORS.primaryWhiteHex,
-  },
-  RoastedContainer: {
-    height: 55,
-    width: 55 * 2 + SPACING.space_20,
-    borderRadius: BORDERRADIUS.radius_15,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: COLORS.primaryBlackHex,
-  },
-  RoastedText: {
-    fontFamily: FONTFAMILY.poppins_regular,
-    fontSize: FONTSIZE.size_10,
     color: COLORS.primaryWhiteHex,
   },
 });

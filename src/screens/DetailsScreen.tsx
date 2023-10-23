@@ -63,7 +63,7 @@ const DetailsScreen = ({navigation, route}: any) => {
       prices: [{...price, quantity: 1}],
     });
     calculateCartPrice();
-    navigation.navigate('Cart');
+    navigation.navigate('CartStore');
   };
 
   return (
@@ -121,9 +121,9 @@ const DetailsScreen = ({navigation, route}: any) => {
                   styles.SizeBox,
                   {
                     borderColor:
-                      data.size == price.size
-                        ? COLORS.primaryOrangeHex
-                        : COLORS.primaryDarkGreyHex,
+                      data.size == price.size ? '#008810' : '#F5F5F5',
+                    backgroundColor:
+                      data.size == price.size ? '#008810' : '#F5F5F5',
                   },
                 ]}>
                 <Text
@@ -136,7 +136,7 @@ const DetailsScreen = ({navigation, route}: any) => {
                           : FONTSIZE.size_16,
                       color:
                         data.size == price.size
-                          ? COLORS.primaryOrangeHex
+                          ? COLORS.primaryWhiteHex
                           : COLORS.secondaryLightGreyHex,
                     },
                   ]}>
@@ -170,7 +170,7 @@ const DetailsScreen = ({navigation, route}: any) => {
 const styles = StyleSheet.create({
   ScreenContainer: {
     flex: 1,
-    backgroundColor: COLORS.primaryBlackHex,
+    backgroundColor: COLORS.primaryWhiteHex,
   },
   ScrollViewFlex: {
     flexGrow: 1,
@@ -182,14 +182,14 @@ const styles = StyleSheet.create({
   InfoTitle: {
     fontFamily: FONTFAMILY.poppins_semibold,
     fontSize: FONTSIZE.size_16,
-    color: COLORS.primaryWhiteHex,
+    color: COLORS.primaryBlackHex,
     marginBottom: SPACING.space_10,
   },
   DescriptionText: {
     letterSpacing: 0.5,
     fontFamily: FONTFAMILY.poppins_regular,
     fontSize: FONTSIZE.size_14,
-    color: COLORS.primaryWhiteHex,
+    color: COLORS.primaryBlackHex,
     marginBottom: SPACING.space_30,
   },
   SizeOuterContainer: {
@@ -200,7 +200,6 @@ const styles = StyleSheet.create({
   },
   SizeBox: {
     flex: 1,
-    backgroundColor: COLORS.primaryDarkGreyHex,
     alignItems: 'center',
     justifyContent: 'center',
     height: SPACING.space_24 * 2,

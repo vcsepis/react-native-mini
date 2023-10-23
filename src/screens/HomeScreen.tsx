@@ -18,6 +18,7 @@ import {
   FONTFAMILY,
   FONTSIZE,
   SPACING,
+  widthResponsive,
 } from '../theme/theme';
 import HeaderBar from '../components/HeaderBar';
 import CustomIcon from '../components/CustomIcon';
@@ -181,6 +182,12 @@ const HomeScreen = ({navigation}: any) => {
               <></>
             )}
           </View>
+
+          <TouchableOpacity
+            style={styles.ContainerViewStore}
+            onPress={() => navigation.navigate('Store')}>
+            <Text style={styles.TextViewStore}>Store</Text>
+          </TouchableOpacity>
 
           {/* Banner */}
           {/* <Slider /> */}
@@ -400,6 +407,26 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontFamily: FONTFAMILY.poppins_medium,
     color: COLORS.secondaryBlackRGBA,
+  },
+  ContainerViewStore: {
+    backgroundColor: '#008810',
+    marginHorizontal: widthResponsive(20),
+    borderRadius: widthResponsive(15),
+    padding: widthResponsive(8),
+    paddingHorizontal: widthResponsive(10),
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'row',
+    width: widthResponsive(100),
+  },
+  TextViewStore: {
+    flex: 1,
+    fontFamily: FONTFAMILY.poppins_medium,
+    fontSize: FONTSIZE.size_16,
+    color: COLORS.primaryWhiteHex,
+    fontWeight: '600',
+    marginRight: widthResponsive(4),
+    textAlign: 'center',
   },
 });
 

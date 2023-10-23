@@ -143,7 +143,7 @@ const StoreScreen = ({navigation}: any) => {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.ScrollViewFlex}>
         {/* App Header */}
-        <HeaderStore />
+        <HeaderStore navigation={navigation} />
 
         {/* Good Food */}
         <View style={styles.HeaderFoodMemo}>
@@ -357,7 +357,8 @@ const styles = StyleSheet.create({
   },
   FlatListContainer: {
     gap: SPACING.space_20,
-    paddingVertical: SPACING.space_20,
+    padding: SPACING.space_20,
+
     justifyContent: 'space-between',
   },
   EmptyListContainer: {

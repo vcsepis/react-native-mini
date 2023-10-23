@@ -24,6 +24,7 @@ import GradientBGIcon from '../components/GradientBGIcon';
 import ShipStore from '../components/Store/ShipStore';
 import CupponStore from '../components/Store/Cuppon';
 import CustomIcon from '../components/CustomIcon';
+import MoreFoods from '../components/Store/MoreFood';
 
 const CartScreen = ({navigation, _route}: any) => {
   const CartList = useStore((state: any) => state.CartList);
@@ -181,6 +182,9 @@ const CartScreen = ({navigation, _route}: any) => {
                 ))}
               </View>
             )}
+
+            {/* More Foods */}
+            <MoreFoods />
           </View>
 
           {/* {CartList.length != 0 ? (

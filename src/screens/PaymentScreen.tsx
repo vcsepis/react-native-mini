@@ -7,6 +7,7 @@ import {
   ScrollView,
   TouchableOpacity,
   SafeAreaView,
+  Platform,
 } from 'react-native';
 import {
   BORDERRADIUS,
@@ -14,6 +15,7 @@ import {
   FONTFAMILY,
   FONTSIZE,
   SPACING,
+  widthResponsive,
 } from '../theme/theme';
 import GradientBGIcon from '../components/GradientBGIcon';
 import PaymentMethod from '../components/PaymentMethod';
@@ -22,21 +24,25 @@ import LinearGradient from 'react-native-linear-gradient';
 import CustomIcon from '../components/CustomIcon';
 import {useStore} from '../store/store';
 import PopUpAnimation from '../components/PopUpAnimation';
+import MoreFoods from '../components/Store/MoreFood';
+import ShipStore from '../components/Store/ShipStore';
 
 const PaymentList = [
+  {
+    name: 'Credit Card',
+    icon: 'icon',
+    isIcon: true,
+  },
   {
     name: 'Wallet',
     icon: 'icon',
     isIcon: true,
   },
   {
-    name: 'Google Pay',
-    icon: require('../assets/app_images/gpay.png'),
-    isIcon: false,
-  },
-  {
-    name: 'Apple Pay',
-    icon: require('../assets/app_images/applepay.png'),
+    name: Platform.OS ? 'Apple Pay' : 'Google Pay',
+    icon: Platform.OS
+      ? require('../assets/app_images/applepay.png')
+      : require('../assets/app_images/gpay.png'),
     isIcon: false,
   },
   {
@@ -86,7 +92,7 @@ const PaymentScreen = ({navigation, route}: any) => {
             onPress={() => {
               navigation.pop();
             }}>
-            <GradientBGIcon
+            <CustomIcon
               name="left"
               color={COLORS.primaryLightGreyHex}
               size={FONTSIZE.size_16}
@@ -96,8 +102,90 @@ const PaymentScreen = ({navigation, route}: any) => {
           <View style={styles.EmptyView} />
         </View>
 
+        {/* Ship Info */}
+        <ShipStore />
+
+        {/* Location */}
+        <View
+          style={{
+            paddingHorizontal: SPACING.space_20,
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexDirection: 'row',
+          }}>
+          <View style={{gap: 6}}>
+            <Text style={styles.TextLocationNmMemo}>Dia diem giao hang</Text>
+            <Text style={styles.TextGoodFoodMemo}>Ho Chi minh</Text>
+          </View>
+
+          <TouchableOpacity>
+            <View
+              style={{
+                padding: widthResponsive(10),
+                borderRadius: SPACING.space_15,
+                borderColor: '#1C5915',
+                borderWidth: widthResponsive(1),
+              }}>
+              <Text style={styles.TextChangeLocation}>Thay doi dia diem</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+
+        {/* Cuppons */}
+        {/* <CupponStore /> */}
+
+        {/* More Foods */}
+        <MoreFoods />
+
+        {/* Includes payment */}
+        <View
+          style={{
+            marginHorizontal: SPACING.space_20,
+            borderRadius: SPACING.space_15,
+            borderColor: '#DADADA',
+            borderWidth: widthResponsive(1),
+            padding: widthResponsive(10),
+            gap: widthResponsive(6),
+          }}>
+          <Text style={styles.TextIncludeBill}>Tom tat thanh toan</Text>
+
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}>
+            <Text style={styles.TextDistance}>Total</Text>
+            <Text style={styles.TextDistance}>{route.params.amount} $</Text>
+          </View>
+
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}>
+            <Text style={styles.TextDistance}>Tax</Text>
+            <Text style={styles.TextDistance}>
+              {(route.params.amount / 10)?.toFixed(0)} $
+            </Text>
+          </View>
+
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}>
+            <Text style={styles.TextDistance}>Delivery</Text>
+            <Text style={styles.TextDistance}>25 phut</Text>
+          </View>
+        </View>
+
+        <Text style={styles.TextTitleDriver}>Phuong thuc thanh toan</Text>
+
         <View style={styles.PaymentOptionsContainer}>
-          <TouchableOpacity
+          {/* <TouchableOpacity
             onPress={() => {
               setPaymentMode('Credit Card');
             }}>
@@ -108,7 +196,7 @@ const PaymentScreen = ({navigation, route}: any) => {
                   borderColor:
                     paymentMode == 'Credit Card'
                       ? COLORS.primaryOrangeHex
-                      : COLORS.primaryGreyHex,
+                      : COLORS.primaryWhiteHex,
                 },
               ]}>
               <Text style={styles.CreditCardTitle}>Credit Card</Text>
@@ -155,7 +243,7 @@ const PaymentScreen = ({navigation, route}: any) => {
                 </LinearGradient>
               </View>
             </View>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
           {PaymentList.map((data: any) => (
             <TouchableOpacity
               key={data.name}
@@ -185,7 +273,7 @@ const PaymentScreen = ({navigation, route}: any) => {
 const styles = StyleSheet.create({
   ScreenContainer: {
     flex: 1,
-    backgroundColor: COLORS.primaryBlackHex,
+    backgroundColor: COLORS.primaryWhiteHex,
   },
   LottieAnimation: {
     flex: 1,
@@ -195,22 +283,21 @@ const styles = StyleSheet.create({
   },
   HeaderContainer: {
     paddingHorizontal: SPACING.space_24,
-    paddingVertical: SPACING.space_15,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
   HeaderText: {
     fontFamily: FONTFAMILY.poppins_semibold,
-    fontSize: FONTSIZE.size_20,
-    color: COLORS.primaryWhiteHex,
+    fontSize: FONTSIZE.size_16,
+    color: COLORS.secondaryBlackRGB,
   },
   EmptyView: {
     height: SPACING.space_36,
     width: SPACING.space_36,
   },
   PaymentOptionsContainer: {
-    padding: SPACING.space_15,
+    paddingHorizontal: SPACING.space_20,
     gap: SPACING.space_15,
   },
   CreditCardContainer: {
@@ -222,7 +309,7 @@ const styles = StyleSheet.create({
   CreditCardTitle: {
     fontFamily: FONTFAMILY.poppins_semibold,
     fontSize: FONTSIZE.size_14,
-    color: COLORS.primaryWhiteHex,
+    color: COLORS.primaryBlackHex,
     marginLeft: SPACING.space_10,
   },
   CreditCardBG: {
@@ -266,6 +353,41 @@ const styles = StyleSheet.create({
   },
   CreditCardDateContainer: {
     alignItems: 'flex-end',
+  },
+  TextGoodFoodMemo: {
+    fontFamily: FONTFAMILY.poppins_medium,
+    fontSize: FONTSIZE.size_16,
+    color: COLORS.primaryBlackHex,
+    fontWeight: '600',
+  },
+  TextLocationNmMemo: {
+    fontFamily: FONTFAMILY.poppins_medium,
+    fontSize: FONTSIZE.size_12,
+    color: COLORS.primaryBlackHex,
+  },
+  TextChangeLocation: {
+    fontFamily: FONTFAMILY.poppins_medium,
+    fontSize: FONTSIZE.size_12,
+    color: '#195B00',
+    fontWeight: '700',
+  },
+  TextTitleDriver: {
+    fontFamily: FONTFAMILY.poppins_medium,
+    fontSize: FONTSIZE.size_16,
+    color: COLORS.primaryBlackHex,
+    padding: SPACING.space_20,
+    fontWeight: '600',
+  },
+  TextIncludeBill: {
+    fontFamily: FONTFAMILY.poppins_medium,
+    fontSize: FONTSIZE.size_14,
+    color: COLORS.primaryBlackHex,
+    fontWeight: '600',
+  },
+  TextDistance: {
+    fontFamily: FONTFAMILY.poppins_medium,
+    fontSize: FONTSIZE.size_12,
+    color: COLORS.primaryLightGreyHex,
   },
 });
 

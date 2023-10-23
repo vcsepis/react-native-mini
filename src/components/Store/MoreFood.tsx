@@ -8,51 +8,33 @@ import {
   widthResponsive,
 } from '../../theme/theme';
 
-interface ShipStoreProps {
+interface MoreFoodsProps {
   title?: string;
   navigation?: any;
 }
 
-const ShipStore: React.FC<ShipStoreProps> = ({}) => {
+const MoreFoods: React.FC<MoreFoodsProps> = ({}) => {
   return (
     <View style={styles.ShipContainer}>
       <View style={styles.HeaderShipContainer}>
         <View
           style={{
-            padding: widthResponsive(8),
-            backgroundColor: '#D8FFD7',
-            borderTopLeftRadius: SPACING.space_15,
-            borderTopRightRadius: SPACING.space_15,
+            padding: widthResponsive(10),
+            borderRadius: SPACING.space_15,
             borderWidth: 1,
-            borderColor: '#DADADA',
-          }}>
-          <Text style={styles.TextMemo}>
-            Ban can hen gio de chon mon? chon "thay doi" nhe
-          </Text>
-        </View>
-        <View
-          style={{
-            padding: widthResponsive(8),
-            borderBottomLeftRadius: SPACING.space_15,
-            borderBottomRightRadius: SPACING.space_15,
-            borderLeftWidth: 1,
-            borderRightWidth: 1,
-            borderBottomWidth: 1,
             borderColor: '#DADADA',
             justifyContent: 'space-between',
             flexDirection: 'row',
             alignItems: 'center',
           }}>
           <View style={{flexDirection: 'row'}}>
-            <View style={styles.ImageContainer}>
-              <Image
-                source={require('../../assets/app_images/order.png')}
-                style={styles.Image}
-              />
-            </View>
             <View style={{justifyContent: 'space-between'}}>
-              <Text style={styles.TextGoodFoodMemo}>Delivery</Text>
-              <Text style={styles.TextDistance}>Pickup</Text>
+              <Text style={styles.TextGoodFoodMemo}>
+                Ban can them gi nua khong?
+              </Text>
+              <Text style={styles.TextDistance}>
+                Chon them mon khac neu ban muon
+              </Text>
             </View>
           </View>
 
@@ -64,7 +46,7 @@ const ShipStore: React.FC<ShipStoreProps> = ({}) => {
                 borderColor: '#1C5915',
                 borderWidth: widthResponsive(1),
               }}>
-              <Text style={styles.TextChangeLocation}>Change</Text>
+              <Text style={styles.TextChangeLocation}>Chon mon</Text>
             </View>
           </TouchableOpacity>
         </View>
@@ -121,4 +103,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ShipStore;
+export default MoreFoods;

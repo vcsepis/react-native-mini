@@ -77,6 +77,13 @@ const StoreScreen = ({navigation}: any) => {
     getCoffeeList(categoryIndex.category, CoffeeList),
   );
 
+  const [viewHeight, setViewHeight] = useState(0);
+
+  const onLayout = (event: any) => {
+    const {height} = event.nativeEvent.layout;
+    setViewHeight(height + widthResponsive(10));
+  };
+
   const ListRef: any = useRef<FlatList>();
 
   const searchCoffee = (search: string) => {
@@ -135,13 +142,17 @@ const StoreScreen = ({navigation}: any) => {
       ToastAndroid.CENTER,
     );
   };
-
+  console.log(viewHeight, 'viewHeight');
   return (
     <SafeAreaView style={styles.ScreenContainer}>
       <StatusBar backgroundColor={COLORS.primaryBlackHex} />
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.ScrollViewFlex}>
+        nestedScrollEnabled={true}
+        contentContainerStyle={{
+          ...styles.ScrollViewFlex,
+          paddingBottom: viewHeight + widthResponsive(10),
+        }}>
         {/* App Header */}
         <HeaderStore navigation={navigation} />
 
@@ -163,7 +174,7 @@ const StoreScreen = ({navigation}: any) => {
         <ShipStore />
 
         {/* Cuppons */}
-        <CupponStore />
+        {/* <CupponStore /> */}
 
         {/* Category Scroller */}
         <Text style={styles.CategoriesTitle}>Mon Hot</Text>
@@ -177,6 +188,7 @@ const StoreScreen = ({navigation}: any) => {
           }}>
           <FlatList
             ref={ListRef}
+            scrollEnabled={false}
             ListEmptyComponent={
               <View style={styles.EmptyListContainer}>
                 <Text style={styles.CategoryText}>No Coffee Available</Text>
@@ -257,7 +269,7 @@ const StoreScreen = ({navigation}: any) => {
 
       {/* Cart Button */}
       <TouchableOpacity onPress={() => navigation.navigate('CartStore')}>
-        <View style={styles.CartDisplay}>
+        <View style={styles.CartDisplay} onLayout={onLayout}>
           <View style={styles.CartContentCount}>
             <Text style={styles.TextCountCartFood}>{CartList?.length} mon</Text>
             <Text style={styles.TextCountCartFood} numberOfLines={1}>

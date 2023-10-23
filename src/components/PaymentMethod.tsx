@@ -1,4 +1,4 @@
-import {StyleSheet, Text, View, Image} from 'react-native';
+import {StyleSheet, Text, View, Image, Platform} from 'react-native';
 import React from 'react';
 import LinearGradient from 'react-native-linear-gradient';
 import {
@@ -41,11 +41,20 @@ const PaymentMethod: React.FC<PaymentMethodProps> = ({
           colors={[COLORS.primaryGreyHex, COLORS.primaryBlackHex]}
           style={styles.LinearGradientWallet}>
           <View style={styles.WalletRow}>
-            <CustomIcon
-              name={'wallet'}
-              color={COLORS.primaryOrangeHex}
-              size={FONTSIZE.size_30}
-            />
+            {name === 'Credit Card' ? (
+              <CustomIcon
+                name="chip"
+                size={FONTSIZE.size_30}
+                color={COLORS.primaryOrangeHex}
+              />
+            ) : (
+              <CustomIcon
+                name={'wallet'}
+                color={COLORS.primaryOrangeHex}
+                size={FONTSIZE.size_30}
+              />
+            )}
+
             <Text style={styles.PaymentTitle}>{name}</Text>
           </View>
           <Text style={styles.PaymentPrice}>$ 100.50</Text>

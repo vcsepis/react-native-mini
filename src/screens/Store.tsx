@@ -1,10 +1,9 @@
-import React, {useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
   ScrollView,
   StatusBar,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
   ToastAndroid,
@@ -25,14 +24,10 @@ import CustomIcon from '../components/CustomIcon';
 import {FlatList} from 'react-native';
 import CoffeeCard from '../components/CoffeeCard';
 import {Dimensions} from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
 import HeaderStore from '../components/Store/HeaderStore';
-import HeaderFood from '../components/Store/LocationInfo';
 import LocationInfo from '../components/Store/LocationInfo';
 import ShipStore from '../components/Store/ShipStore';
-import CupponStore from '../components/Store/Cuppon';
 import ProductCard from '../components/Store/ProductCard';
-import {Icon} from 'react-native-vector-icons/Icon';
 
 const getCategoriesFromData = (data: any) => {
   let temp: any = {};
@@ -65,11 +60,13 @@ const StoreScreen = ({navigation}: any) => {
   const CartList = useStore((state: any) => state.CartList);
   const CartPrice = useStore((state: any) => state.CartPrice);
 
-  const [categories, setCategories] = useState(
+  const [categories, setCategories] = useState<any>(
     getCategoriesFromData(CoffeeList),
   );
   const [searchText, setSearchText] = useState('');
-  const [categoryIndex, setCategoryIndex] = useState({
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const flastListRef = useRef<any>(null);
+  const [categoryIndex, setCategoryIndex] = useState<any>({
     index: 0,
     category: categories[0],
   });
@@ -142,7 +139,14 @@ const StoreScreen = ({navigation}: any) => {
       ToastAndroid.CENTER,
     );
   };
-  console.log(viewHeight, 'viewHeight');
+
+  useEffect(() => {
+    flastListRef.current.scrollToIndex({
+      index: categoryIndex.index,
+      animated: true,
+    });
+  }, [categoryIndex.index]);
+
   return (
     <SafeAreaView style={styles.ScreenContainer}>
       <StatusBar backgroundColor={COLORS.primaryBlackHex} />
@@ -163,7 +167,7 @@ const StoreScreen = ({navigation}: any) => {
           </View>
 
           <Text style={styles.TextGoodFoodMemo}>
-            Mon Quoc Te, Mon Han Chuan Vi
+            International Dishes, Standard Dishes
           </Text>
         </View>
 
@@ -173,11 +177,62 @@ const StoreScreen = ({navigation}: any) => {
         {/* Ship info */}
         <ShipStore />
 
-        {/* Cuppons */}
-        {/* <CupponStore /> */}
+        {/* Categories */}
+
+        <FlatList
+          ref={flastListRef}
+          horizontal
+          initialScrollIndex={categoryIndex.index}
+          showsHorizontalScrollIndicator={false}
+          style={styles.CategoryScrollViewStyle}
+          keyExtractor={item => item.id}
+          data={categories}
+          renderItem={({item, index}: any) => {
+            return (
+              <View
+                key={index.toString()}
+                style={{
+                  ...styles.CategoryScrollViewContainer,
+                  backgroundColor:
+                    categoryIndex.index == index ? '#008810' : '#F5F5F5',
+                  borderRadius: 15,
+                  marginRight: widthResponsive(10),
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: widthResponsive(6),
+                }}>
+                <TouchableOpacity
+                  style={styles.CategoryScrollViewItem}
+                  onPress={() => {
+                    ListRef?.current?.scrollToOffset({
+                      animated: true,
+                      offset: 0,
+                    });
+                    setCategoryIndex({
+                      index: index,
+                      category: categories[index],
+                    });
+                    setSortedCoffee([
+                      ...getCoffeeList(categories[index], CoffeeList),
+                    ]);
+                  }}>
+                  <Text
+                    style={[
+                      styles.CategoryText,
+                      categoryIndex.index == index
+                        ? {color: COLORS.primaryWhiteHex}
+                        : {},
+                    ]}>
+                    {item}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            );
+          }}
+        />
 
         {/* Category Scroller */}
-        <Text style={styles.CategoriesTitle}>Mon Hot</Text>
+        <Text style={styles.CategoriesTitle}>Hot Foods</Text>
 
         {/* List Hot */}
         <View
@@ -234,6 +289,13 @@ const StoreScreen = ({navigation}: any) => {
 
         {/* Beans Flatlist */}
         <FlatList
+          onScroll={(event: any) => {
+            const indx = event.nativeEvent.contentOffset.y / 50;
+            setCategoryIndex({
+              ...categoryIndex,
+              index: indx.toFixed(0),
+            });
+          }}
           horizontal
           showsHorizontalScrollIndicator={false}
           data={BeanList}
@@ -271,7 +333,9 @@ const StoreScreen = ({navigation}: any) => {
       <TouchableOpacity onPress={() => navigation.navigate('CartStore')}>
         <View style={styles.CartDisplay} onLayout={onLayout}>
           <View style={styles.CartContentCount}>
-            <Text style={styles.TextCountCartFood}>{CartList?.length} mon</Text>
+            <Text style={styles.TextCountCartFood}>
+              {CartList?.length} dish
+            </Text>
             <Text style={styles.TextCountCartFood} numberOfLines={1}>
               Sasin - Mi Cay 7 Cap Do Han Quoc, Nguyen Van Qua
             </Text>

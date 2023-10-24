@@ -41,23 +41,23 @@ const styles = StyleSheet.create({
   HeaderText: {
     fontFamily: FONTFAMILY.poppins_semibold,
     fontSize: FONTSIZE.size_20,
-    color: COLORS.secondaryBlackRGBA,
+    color: COLORS.secondaryBlackRGB,
   },
   LocationText: {
     fontFamily: FONTFAMILY.poppins_semibold,
     fontSize: FONTSIZE.size_14,
-    color: COLORS.secondaryBlackRGBA,
+    color: COLORS.secondaryBlackRGB,
   },
   LocationName: {
     fontFamily: FONTFAMILY.poppins_semibold,
     fontSize: FONTSIZE.size_18,
-    color: COLORS.secondaryBlackRGBA,
+    color: COLORS.secondaryBlackRGB,
     fontWeight: 'bold',
   },
   LocationSelected: {
     fontFamily: FONTFAMILY.poppins_semibold,
     fontSize: FONTSIZE.size_18,
-    color: COLORS.secondaryBlackRGBA,
+    color: COLORS.secondaryBlackRGB,
   },
 });
 

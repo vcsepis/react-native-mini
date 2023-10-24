@@ -183,6 +183,11 @@ const HomeScreen = ({navigation}: any) => {
             )}
           </View>
 
+          {/* Banner */}
+          <View style={styles.BannerContainerComponent}>
+            <Text style={styles.TextBannerName}>Enjoy Out Service</Text>
+          </View>
+
           <TouchableOpacity
             style={styles.ContainerViewStore}
             onPress={() => navigation.navigate('Store')}>
@@ -345,8 +350,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginHorizontal: SPACING.space_30,
     marginBottom: SPACING.space_30,
-    borderRadius: BORDERRADIUS.radius_20,
-    backgroundColor: COLORS.primaryDarkGreyHex,
+    borderRadius: BORDERRADIUS.radius_25,
+    backgroundColor: COLORS.primaryWhiteHex,
+    alignItems: 'center',
+  },
+  BannerContainerComponent: {
+    marginHorizontal: SPACING.space_30,
+    marginBottom: SPACING.space_30,
+    borderRadius: BORDERRADIUS.radius_25,
+    backgroundColor: COLORS.primaryWhiteHex,
     alignItems: 'center',
   },
   InputIcon: {
@@ -357,7 +369,7 @@ const styles = StyleSheet.create({
     height: SPACING.space_20 * 3,
     fontFamily: FONTFAMILY.poppins_medium,
     fontSize: FONTSIZE.size_14,
-    color: COLORS.primaryWhiteHex,
+    color: COLORS.primaryBlackHex,
   },
   CategoryScrollViewStyle: {
     paddingHorizontal: SPACING.space_20,
@@ -427,6 +439,11 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginRight: widthResponsive(4),
     textAlign: 'center',
+  },
+  TextBannerName: {
+    fontFamily: FONTFAMILY.poppins_semibold,
+    fontSize: FONTSIZE.size_18,
+    color: COLORS.secondaryBlackRGB,
   },
 });
 

@@ -30,10 +30,10 @@ const MoreFoods: React.FC<MoreFoodsProps> = ({}) => {
           <View style={{flexDirection: 'row'}}>
             <View style={{justifyContent: 'space-between'}}>
               <Text style={styles.TextGoodFoodMemo}>
-                Ban can them gi nua khong?
+                Do you need anything else?
               </Text>
               <Text style={styles.TextDistance}>
-                Chon them mon khac neu ban muon
+                Choose additional dishes if you want
               </Text>
             </View>
           </View>
@@ -46,7 +46,7 @@ const MoreFoods: React.FC<MoreFoodsProps> = ({}) => {
                 borderColor: '#1C5915',
                 borderWidth: widthResponsive(1),
               }}>
-              <Text style={styles.TextChangeLocation}>Chon mon</Text>
+              <Text style={styles.TextChangeLocation}>Choose dish</Text>
             </View>
           </TouchableOpacity>
         </View>

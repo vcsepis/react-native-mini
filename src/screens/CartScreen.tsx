@@ -103,9 +103,7 @@ const CartScreen = ({navigation, _route}: any) => {
                 flexDirection: 'row',
               }}>
               <View style={{gap: 6}}>
-                <Text style={styles.TextLocationNmMemo}>
-                  Dia diem giao hang
-                </Text>
+                <Text style={styles.TextLocationNmMemo}>Location delivery</Text>
                 <Text style={styles.TextGoodFoodMemo}>Ho Chi minh</Text>
               </View>
 
@@ -118,7 +116,7 @@ const CartScreen = ({navigation, _route}: any) => {
                     borderWidth: widthResponsive(1),
                   }}>
                   <Text style={styles.TextChangeLocation}>
-                    Thay doi dia diem
+                    Change location delivery
                   </Text>
                 </View>
               </TouchableOpacity>
@@ -127,7 +125,7 @@ const CartScreen = ({navigation, _route}: any) => {
             {/* Note Ship */}
             <View
               style={{
-                padding: widthResponsive(8),
+                padding: widthResponsive(10),
                 backgroundColor: '#D8FFD7',
                 borderRadius: SPACING.space_15,
                 marginHorizontal: widthResponsive(20),
@@ -135,6 +133,8 @@ const CartScreen = ({navigation, _route}: any) => {
                 borderWidth: 1,
                 borderColor: '#D8FFD7',
                 flexDirection: 'row',
+                justifyContent: 'center',
+                alignItems: 'center',
               }}>
               <CustomIcon
                 name={'location'}
@@ -142,12 +142,10 @@ const CartScreen = ({navigation, _route}: any) => {
                 size={FONTSIZE.size_16}
               />
               <Text style={styles.TextMemo}>
-                Them thong tin dia diem se giup tai xe tim duong de hon.
+                Adding location information will help drivers find their way
+                more easily.
               </Text>
             </View>
-
-            {/* Cuppons */}
-            <CupponStore />
 
             {CartList.length == 0 ? (
               <EmptyListAnimation title={'Cart is Empty'} />
@@ -213,7 +211,7 @@ const CartScreen = ({navigation, _route}: any) => {
             <View style={styles.CartDisplay}>
               <View style={styles.CartContentCount}>
                 <Text style={styles.TextCountCartFood}>
-                  {CartList?.length} mon
+                  {CartList?.length} dish
                 </Text>
                 <Text style={styles.TextCountCartFood} numberOfLines={1}>
                   Sasin - Mi Cay 7 Cap Do Han Quoc, Nguyen Van Qua

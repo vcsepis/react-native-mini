@@ -114,7 +114,7 @@ const PaymentScreen = ({navigation, route}: any) => {
             flexDirection: 'row',
           }}>
           <View style={{gap: 6}}>
-            <Text style={styles.TextLocationNmMemo}>Dia diem giao hang</Text>
+            <Text style={styles.TextLocationNmMemo}>Location delivery</Text>
             <Text style={styles.TextGoodFoodMemo}>Ho Chi minh</Text>
           </View>
 
@@ -126,7 +126,9 @@ const PaymentScreen = ({navigation, route}: any) => {
                 borderColor: '#1C5915',
                 borderWidth: widthResponsive(1),
               }}>
-              <Text style={styles.TextChangeLocation}>Thay doi dia diem</Text>
+              <Text style={styles.TextChangeLocation}>
+                Change location delivery
+              </Text>
             </View>
           </TouchableOpacity>
         </View>
@@ -178,11 +180,11 @@ const PaymentScreen = ({navigation, route}: any) => {
               alignItems: 'center',
             }}>
             <Text style={styles.TextDistance}>Delivery</Text>
-            <Text style={styles.TextDistance}>25 phut</Text>
+            <Text style={styles.TextDistance}>25 minute</Text>
           </View>
         </View>
 
-        <Text style={styles.TextTitleDriver}>Phuong thuc thanh toan</Text>
+        <Text style={styles.TextTitleDriver}>Payment method</Text>
 
         <View style={styles.PaymentOptionsContainer}>
           {/* <TouchableOpacity

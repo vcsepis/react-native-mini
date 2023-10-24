@@ -44,7 +44,7 @@ const LocationInfo: React.FC<LocationInfoProps> = ({title, navigation}) => {
               />
               <Text style={styles.TextGoodFoodMemo}>4.3</Text>
             </View>
-            <Text style={styles.TextNmMemo}>Xem danh gia</Text>
+            <Text style={styles.TextNmMemo}>See reviews</Text>
           </View>
         </View>
 
@@ -73,7 +73,7 @@ const LocationInfo: React.FC<LocationInfoProps> = ({title, navigation}) => {
               />
               <Text style={styles.TextGoodFoodMemo}>2.67 km</Text>
             </View>
-            <Text style={styles.TextNmMemo}>Khoang cach</Text>
+            <Text style={styles.TextNmMemo}>Distance</Text>
           </View>
         </View>
 
@@ -124,9 +124,9 @@ const LocationInfo: React.FC<LocationInfoProps> = ({title, navigation}) => {
                 color={COLORS.primaryOrangeHex}
                 size={FONTSIZE.size_16}
               />
-              <Text style={styles.TextGoodFoodMemo}>80+ xep hang</Text>
+              <Text style={styles.TextGoodFoodMemo}>80+ rating</Text>
             </View>
-            <Text style={styles.TextNmMemo}>Tuoi ngon tuyet voi</Text>
+            <Text style={styles.TextNmMemo}>Wonderfully fresh</Text>
           </View>
         </View>
 
@@ -153,9 +153,9 @@ const LocationInfo: React.FC<LocationInfoProps> = ({title, navigation}) => {
                 color={'#A80017'}
                 size={FONTSIZE.size_16}
               />
-              <Text style={styles.TextGoodFoodMemo}>80+ xep hang</Text>
+              <Text style={styles.TextGoodFoodMemo}>80+ rating</Text>
             </View>
-            <Text style={styles.TextNmMemo}>Nem nem khoi che</Text>
+            <Text style={styles.TextNmMemo}>Seasoning is impeccable</Text>
           </View>
         </View>
       </ScrollView>

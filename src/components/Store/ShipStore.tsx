@@ -27,7 +27,7 @@ const ShipStore: React.FC<ShipStoreProps> = ({}) => {
             borderColor: '#DADADA',
           }}>
           <Text style={styles.TextMemo}>
-            Ban can hen gio de chon mon? chon "thay doi" nhe
+            Do you need a timer to choose dishes? Select "change"
           </Text>
         </View>
         <View

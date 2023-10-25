@@ -9,6 +9,7 @@ import {
   View,
   ToastAndroid,
   SafeAreaView,
+  Image,
 } from 'react-native';
 import {useStore} from '../store/store';
 import {useBottomTabBarHeight} from '@react-navigation/bottom-tabs';
@@ -23,10 +24,10 @@ import {
 import HeaderBar from '../components/HeaderBar';
 import CustomIcon from '../components/CustomIcon';
 import {FlatList} from 'react-native';
-import CoffeeCard from '../components/CoffeeCard';
 import {Dimensions} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import Slider from '../components/BannerSlider';
+import LottieView from 'lottie-react-native';
+import CategorieHomeName from '../data/CategoriesHomeData';
 
 const getCategoriesFromData = (data: any) => {
   let temp: any = {};
@@ -61,6 +62,7 @@ const HomeScreen = ({navigation}: any) => {
     getCategoriesFromData(CoffeeList),
   );
   const [searchText, setSearchText] = useState('');
+
   const [categoryIndex, setCategoryIndex] = useState({
     index: 0,
     category: categories[0],
@@ -185,30 +187,61 @@ const HomeScreen = ({navigation}: any) => {
 
           {/* Banner */}
           <View style={styles.BannerContainerComponent}>
-            <Text style={styles.TextBannerName}>Enjoy Out Service</Text>
+            <LottieView
+              style={styles.CartItemSingleImage}
+              source={require('../lottie/banner.json')}
+              autoPlay
+              loop
+            />
           </View>
 
-          <TouchableOpacity
-            style={styles.ContainerViewStore}
-            onPress={() => navigation.navigate('Store')}>
-            <Text style={styles.TextViewStore}>Store</Text>
-          </TouchableOpacity>
-
-          {/* Banner */}
-          {/* <Slider /> */}
-
           {/* Category Scroller */}
-
-          <Text style={styles.CategoriesTitle}>Categories</Text>
+          <Text style={styles.CategoriesTitle}>Service</Text>
 
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.CategoryScrollViewStyle}>
+            {CategorieHomeName.map((item: any, index: any) => (
+              <View key={item.id}>
+                <TouchableOpacity
+                  style={styles.CategoryScrollViewItem}
+                  onPress={() => {
+                    ListRef?.current?.scrollToOffset({
+                      animated: true,
+                      offset: 0,
+                    });
+                    setCategoryIndex({
+                      index: index,
+                      category: categoryIndex.category,
+                    });
+                  }}>
+                  <Text
+                    style={[
+                      styles.CategoryText,
+                      categoryIndex.index == index
+                        ? {color: COLORS.primaryOrangeHex}
+                        : {},
+                    ]}>
+                    {item.name}
+                  </Text>
+                  <LottieView
+                    style={styles.LottieStyle}
+                    source={item.source}
+                    autoPlay
+                    loop
+                  />
+                </TouchableOpacity>
+              </View>
+            ))}
+          </ScrollView>
+
+          {/* <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.CategoryScrollViewStyle}>
             {categories.map((data, index) => (
               <View
-                key={index.toString()}
-                style={styles.CategoryScrollViewContainer}>
                 <TouchableOpacity
                   style={styles.CategoryScrollViewItem}
                   onPress={() => {
@@ -241,11 +274,10 @@ const HomeScreen = ({navigation}: any) => {
                 </TouchableOpacity>
               </View>
             ))}
-          </ScrollView>
+          </ScrollView> */}
 
           {/* Coffee Flatlist */}
-
-          <FlatList
+          {/* <FlatList
             ref={ListRef}
             horizontal
             ListEmptyComponent={
@@ -282,13 +314,13 @@ const HomeScreen = ({navigation}: any) => {
                 </TouchableOpacity>
               );
             }}
-          />
+          /> */}
 
-          <Text style={styles.CoffeeBeansTitle}>Coffee Beans</Text>
+          {/* <Text style={styles.CoffeeBeansTitle}>Coffee Beans</Text> */}
 
           {/* Beans Flatlist */}
 
-          <FlatList
+          {/* <FlatList
             horizontal
             showsHorizontalScrollIndicator={false}
             data={BeanList}
@@ -322,7 +354,7 @@ const HomeScreen = ({navigation}: any) => {
                 </TouchableOpacity>
               );
             }}
-          />
+          /> */}
         </ScrollView>
       </SafeAreaView>
     </LinearGradient>
@@ -332,7 +364,6 @@ const HomeScreen = ({navigation}: any) => {
 const styles = StyleSheet.create({
   ScreenContainer: {
     flex: 1,
-    // backgroundColor: COLORS.primaryBlackHex,
   },
   linearGradient: {
     flex: 1,
@@ -344,19 +375,19 @@ const styles = StyleSheet.create({
     fontSize: FONTSIZE.size_28,
     fontFamily: FONTFAMILY.poppins_semibold,
     color: COLORS.primaryWhiteHex,
-    paddingLeft: SPACING.space_30,
+    paddingLeft: SPACING.space_20,
   },
   InputContainerComponent: {
     flexDirection: 'row',
-    marginHorizontal: SPACING.space_30,
-    marginBottom: SPACING.space_30,
+    marginHorizontal: SPACING.space_20,
+    marginBottom: SPACING.space_20,
     borderRadius: BORDERRADIUS.radius_25,
     backgroundColor: COLORS.primaryWhiteHex,
     alignItems: 'center',
   },
   BannerContainerComponent: {
-    marginHorizontal: SPACING.space_30,
-    marginBottom: SPACING.space_30,
+    marginHorizontal: SPACING.space_20,
+    marginBottom: SPACING.space_10,
     borderRadius: BORDERRADIUS.radius_25,
     backgroundColor: COLORS.primaryWhiteHex,
     alignItems: 'center',
@@ -380,12 +411,16 @@ const styles = StyleSheet.create({
   },
   CategoryScrollViewItem: {
     alignItems: 'center',
+    backgroundColor: COLORS.primaryWhiteHex,
+    marginRight: widthResponsive(15),
+    borderRadius: SPACING.space_15,
   },
   CategoryText: {
     fontFamily: FONTFAMILY.poppins_semibold,
     fontSize: FONTSIZE.size_16,
     color: COLORS.primaryLightGreyHex,
-    marginBottom: SPACING.space_4,
+    paddingHorizontal: SPACING.space_10,
+    paddingTop: SPACING.space_10,
   },
   ActiveCategory: {
     height: SPACING.space_10,
@@ -396,29 +431,29 @@ const styles = StyleSheet.create({
   FlatListContainer: {
     gap: SPACING.space_20,
     paddingVertical: SPACING.space_20,
-    paddingHorizontal: SPACING.space_30,
+    paddingHorizontal: SPACING.space_20,
   },
   EmptyListContainer: {
-    width: Dimensions.get('window').width - SPACING.space_30 * 2,
+    width: Dimensions.get('window').width - SPACING.space_20 * 2,
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: SPACING.space_36 * 3.6,
   },
   CoffeeBeansTitle: {
     fontSize: FONTSIZE.size_18,
-    marginLeft: SPACING.space_30,
+    marginLeft: SPACING.space_20,
     marginTop: SPACING.space_20,
     fontWeight: 'bold',
     fontFamily: FONTFAMILY.poppins_medium,
-    color: COLORS.secondaryBlackRGBA,
+    color: COLORS.secondaryBlackRGB,
   },
   CategoriesTitle: {
     fontSize: FONTSIZE.size_18,
-    marginLeft: SPACING.space_30,
+    marginLeft: SPACING.space_20,
     marginVertical: SPACING.space_12,
     fontWeight: 'bold',
     fontFamily: FONTFAMILY.poppins_medium,
-    color: COLORS.secondaryBlackRGBA,
+    color: COLORS.secondaryBlackRGB,
   },
   ContainerViewStore: {
     backgroundColor: '#008810',
@@ -444,6 +479,15 @@ const styles = StyleSheet.create({
     fontFamily: FONTFAMILY.poppins_semibold,
     fontSize: FONTSIZE.size_18,
     color: COLORS.secondaryBlackRGB,
+  },
+  CartItemSingleImage: {
+    height: widthResponsive(150),
+    width: '100%',
+    borderRadius: BORDERRADIUS.radius_20,
+  },
+  LottieStyle: {
+    height: widthResponsive(80),
+    width: widthResponsive(80),
   },
 });
 

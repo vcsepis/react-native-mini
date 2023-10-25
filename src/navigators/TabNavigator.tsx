@@ -1,13 +1,13 @@
 import React from 'react';
-import {StyleSheet} from 'react-native';
+import {Platform, StyleSheet, View} from 'react-native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import {COLORS} from '../theme/theme';
-import {BlurView} from '@react-native-community/blur';
+import {COLORS, SPACING, widthResponsive} from '../theme/theme';
 import HomeScreen from '../screens/HomeScreen';
 import FavoritesScreen from '../screens/FavoritesScreen';
 import CartScreen from '../screens/CartScreen';
 import OrderHistoryScreen from '../screens/OrderHistoryScreen';
 import CustomIcon from '../components/CustomIcon';
+import LottieView from 'lottie-react-native';
 
 const Tab = createBottomTabNavigator();
 
@@ -19,13 +19,6 @@ const TabNavigator = () => {
         headerShown: false,
         tabBarShowLabel: false,
         tabBarStyle: styles.tabBarStyle,
-        tabBarBackground: () => (
-          <BlurView
-            overlayColor=""
-            blurAmount={15}
-            style={styles.BlurViewStyles}
-          />
-        ),
       }}>
       <Tab.Screen
         name="Home"
@@ -35,9 +28,7 @@ const TabNavigator = () => {
             <CustomIcon
               name="home"
               size={25}
-              color={
-                focused ? COLORS.primaryOrangeHex : COLORS.primaryLightGreyHex
-              }
+              color={focused ? '#2B377D' : COLORS.primaryLightGreyHex}
             />
           ),
         }}></Tab.Screen>
@@ -49,12 +40,36 @@ const TabNavigator = () => {
             <CustomIcon
               name="cart"
               size={25}
-              color={
-                focused ? COLORS.primaryOrangeHex : COLORS.primaryLightGreyHex
-              }
+              color={focused ? '#2B377D' : COLORS.primaryLightGreyHex}
             />
           ),
         }}></Tab.Screen>
+
+      <Tab.Screen
+        name="Scan"
+        component={FavoritesScreen}
+        options={{
+          tabBarIcon: () => (
+            <View
+              style={{
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: COLORS.primaryWhiteHex,
+                width: Platform.OS == 'ios' ? 50 : 60,
+                height: Platform.OS == 'ios' ? 50 : 60,
+                top: Platform.OS == 'ios' ? -15 : -20,
+                borderRadius: Platform.OS == 'ios' ? 25 : 30,
+              }}>
+              <LottieView
+                style={styles.LottieStyle}
+                source={require('../lottie/scan.json')}
+                autoPlay
+                loop
+              />
+            </View>
+          ),
+        }}></Tab.Screen>
+
       <Tab.Screen
         name="Favorite"
         component={FavoritesScreen}
@@ -63,9 +78,7 @@ const TabNavigator = () => {
             <CustomIcon
               name="like"
               size={25}
-              color={
-                focused ? COLORS.primaryOrangeHex : COLORS.primaryLightGreyHex
-              }
+              color={focused ? '#2B377D' : COLORS.primaryLightGreyHex}
             />
           ),
         }}></Tab.Screen>
@@ -77,9 +90,7 @@ const TabNavigator = () => {
             <CustomIcon
               name="bell"
               size={25}
-              color={
-                focused ? COLORS.primaryOrangeHex : COLORS.primaryLightGreyHex
-              }
+              color={focused ? '#2B377D' : COLORS.primaryLightGreyHex}
             />
           ),
         }}></Tab.Screen>
@@ -91,17 +102,17 @@ const styles = StyleSheet.create({
   tabBarStyle: {
     height: 80,
     position: 'absolute',
-    backgroundColor: COLORS.primaryBlackRGBA,
+    backgroundColor: '#181A28',
     borderTopWidth: 0,
     elevation: 0,
     borderTopColor: 'transparent',
+    borderTopRightRadius: SPACING.space_18,
+    borderTopLeftRadius: SPACING.space_18,
+    borderWidth: 1,
   },
-  BlurViewStyles: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0,
+  LottieStyle: {
+    height: widthResponsive(35),
+    width: widthResponsive(35),
   },
 });
 

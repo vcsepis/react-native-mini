@@ -61,12 +61,18 @@ const HeaderBar: React.FC<HeaderBarProps> = ({title, navigation}) => {
     outputRange: ['60deg', '-10deg'],
   });
 
+  const handlePressStore = () => {
+    const id = 'dev-store-';
+
+    return navigation.push('Store', {id});
+  };
+
   return (
     <View style={styles.HeaderContainer}>
       <View>
         <TouchableOpacity
           style={styles.ContainerCurrentTime}
-          onPress={() => navigation.push('Store')}>
+          onPress={handlePressStore}>
           <AnimatedTyping text={[generateGreetings()]} autoPlay />
           {generateGreetings() === 'Good Morning' ||
           generateGreetings() === 'Good Afternoon' ? (
@@ -87,7 +93,7 @@ const HeaderBar: React.FC<HeaderBarProps> = ({title, navigation}) => {
             <></>
           )}
         </TouchableOpacity>
-        <Text style={styles.LocationName}>Hi, Let order now</Text>
+        <Text style={styles.LocationName}>Hi, Lets order now</Text>
       </View>
       <Text style={styles.HeaderText}>{title}</Text>
       <ProfilePic />

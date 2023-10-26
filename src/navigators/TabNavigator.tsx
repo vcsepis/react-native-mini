@@ -8,6 +8,7 @@ import CartScreen from '../screens/CartScreen';
 import OrderHistoryScreen from '../screens/OrderHistoryScreen';
 import CustomIcon from '../components/CustomIcon';
 import LottieView from 'lottie-react-native';
+import ScanScreen from '../screens/ScanScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -47,7 +48,7 @@ const TabNavigator = () => {
 
       <Tab.Screen
         name="Scan"
-        component={FavoritesScreen}
+        component={ScanScreen}
         options={{
           tabBarIcon: () => (
             <View

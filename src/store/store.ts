@@ -1,6 +1,6 @@
-import {create} from 'zustand';
-import {produce} from 'immer';
-import {persist, createJSONStorage} from 'zustand/middleware';
+import { create } from 'zustand';
+import { produce } from 'immer';
+import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CoffeeData from '../data/CoffeeData';
 import BeansData from '../data/BeansData';
@@ -8,6 +8,10 @@ import BeansData from '../data/BeansData';
 export const useStore = create(
   persist(
     (set, get) => ({
+      Store: {
+        loading: true,
+        data: []
+      },
       CoffeeList: CoffeeData,
       BeanList: BeansData,
       CartPrice: 0,
@@ -61,7 +65,7 @@ export const useStore = create(
                 tempprice =
                   tempprice +
                   parseFloat(state.CartList[i].prices[j].price) *
-                    state.CartList[i].prices[j].quantity;
+                  state.CartList[i].prices[j].quantity;
               }
               state.CartList[i].ItemPrice = tempprice.toFixed(2).toString();
               totalprice = totalprice + tempprice;
@@ -207,6 +211,16 @@ export const useStore = create(
             state.CartList = [];
           }),
         ),
+      addToStore: () => (loading: boolean, data: any) => {
+        set(
+          produce(state => {
+            state.Store = {
+              loading: loading,
+              data: data
+            }
+          })
+        )
+      }
     }),
     {
       name: 'coffee-app',

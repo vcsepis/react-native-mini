@@ -15,7 +15,6 @@ import {
   FONTFAMILY,
   FONTSIZE,
   SPACING,
-  widthResponsive,
 } from '../theme/theme';
 import ImageBackgroundInfo from '../components/ImageBackgroundInfo';
 import PaymentFooter from '../components/PaymentFooter';

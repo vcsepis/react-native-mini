@@ -205,7 +205,10 @@ const HomeScreen = ({navigation}: any) => {
             {CategorieHomeName.map((item: any, index: any) => (
               <View key={item.id}>
                 <TouchableOpacity
-                  style={styles.CategoryScrollViewItem}
+                  style={{
+                    ...styles.CategoryScrollViewItem,
+                    paddingHorizontal: widthResponsive(6),
+                  }}
                   onPress={() => {
                     ListRef?.current?.scrollToOffset({
                       animated: true,

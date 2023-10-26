@@ -28,6 +28,9 @@ import HeaderStore from '../components/Store/HeaderStore';
 import LocationInfo from '../components/Store/LocationInfo';
 import ShipStore from '../components/Store/ShipStore';
 import ProductCard from '../components/Store/ProductCard';
+import {HttpClient} from '../service/http-client';
+import PopUpAnimation from '../components/PopUpAnimation';
+import {NAME_APP} from '@env';
 
 const getCategoriesFromData = (data: any) => {
   let temp: any = {};
@@ -52,7 +55,18 @@ const getCoffeeList = (category: string, data: any) => {
   }
 };
 
-const StoreScreen = ({navigation}: any) => {
+const StoreScreen = ({navigation, route}: any) => {
+  // Store
+  const {id} = route?.params;
+
+  const addToStore = useStore((state: any) => state.addToStore);
+  const StateStore = useStore((state: any) => state.Store);
+
+  const [StoreData, setStoredata] = useState<any>({
+    data: [],
+    loading: false,
+  });
+
   const CoffeeList = useStore((state: any) => state.CoffeeList);
   const BeanList = useStore((state: any) => state.BeanList);
   const addToCart = useStore((state: any) => state.addToCart);
@@ -141,11 +155,38 @@ const StoreScreen = ({navigation}: any) => {
   };
 
   useEffect(() => {
-    flastListRef.current.scrollToIndex({
-      index: categoryIndex.index,
-      animated: true,
-    });
-  }, [categoryIndex.index]);
+    handleGetStore();
+  }, []);
+
+  const handleGetStore = async () => {
+    setStoredata({loading: true, data: []});
+
+    const res = await HttpClient.get(`/stores/${id}`, null);
+
+    if (!res) return setStoredata({loading: false, data: []});
+
+    return setTimeout(
+      () => setStoredata({loading: false, data: res?.result?.store}),
+      500,
+    );
+  };
+
+  if (StoreData.loading)
+    return (
+      <PopUpAnimation
+        style={styles.LottieAnimation}
+        source={require('../lottie/loading.json')}
+      />
+    );
+
+  if (StoreData?.data?.length === 0)
+    return (
+      <PopUpAnimation
+        style={styles.LottieAnimation}
+        source={require('../lottie/empty.json')}
+        navigation={() => navigation.goBack()}
+      />
+    );
 
   return (
     <SafeAreaView style={styles.ScreenContainer}>
@@ -158,16 +199,16 @@ const StoreScreen = ({navigation}: any) => {
           paddingBottom: viewHeight + widthResponsive(10),
         }}>
         {/* App Header */}
-        <HeaderStore navigation={navigation} />
+        <HeaderStore navigation={navigation} data={StoreData?.data} />
 
         {/* Good Food */}
         <View style={styles.HeaderFoodMemo}>
           <View style={styles.GoodFoodContainer}>
-            <Text style={styles.TextGoodFood}>GoFood Partner</Text>
+            <Text style={styles.TextGoodFood}>{NAME_APP} Partner</Text>
           </View>
 
           <Text style={styles.TextGoodFoodMemo}>
-            International Dishes, Standard Dishes
+            {StoreData?.data?.address}
           </Text>
         </View>
 
@@ -397,9 +438,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   TextGoodFoodMemo: {
-    flex: 1,
     fontFamily: FONTFAMILY.poppins_medium,
-    fontSize: FONTSIZE.size_12,
+    fontSize: FONTSIZE.size_14,
     color: COLORS.primaryLightGreyHex,
   },
   GoodFoodContainer: {
@@ -459,12 +499,10 @@ const styles = StyleSheet.create({
     color: COLORS.secondaryBlackRGB,
   },
   HeaderFoodMemo: {
-    flexDirection: 'row',
     height: 'auto',
     padding: SPACING.space_20,
-    alignItems: 'center',
     paddingBottom: SPACING.space_20,
-    justifyContent: 'center',
+    gap: widthResponsive(10),
   },
   TextCountCartFood: {
     flex: 1,
@@ -499,6 +537,9 @@ const styles = StyleSheet.create({
   CartContentCount: {
     gap: widthResponsive(2),
     width: '70%',
+  },
+  LottieAnimation: {
+    flex: 1,
   },
 });
 

@@ -8,11 +8,11 @@ import CustomIcon from '../CustomIcon';
 interface HeaderStoreProps {
   title?: string;
   navigation?: any;
+  data?: any;
 }
 
-const HeaderStore: React.FC<HeaderStoreProps> = ({title, navigation}) => {
+const HeaderStore: React.FC<HeaderStoreProps> = ({title, navigation, data}) => {
   const BackHandler = () => navigation.goBack();
-
   return (
     <View style={styles.HeaderContainer}>
       <TouchableOpacity onPress={BackHandler}>
@@ -23,9 +23,7 @@ const HeaderStore: React.FC<HeaderStoreProps> = ({title, navigation}) => {
         />
       </TouchableOpacity>
       <View style={styles.StoreTextNmContainer}>
-        <Text style={styles.StoreTextNm}>
-          Sasin - Mi Cay 7 Cap Do Han Quoc, Nguyen Van Qua
-        </Text>
+        <Text style={styles.StoreTextNm}>{data?.name}</Text>
       </View>
       <StoreProfilePic />
     </View>

@@ -17,7 +17,7 @@ const ShipStore: React.FC<ShipStoreProps> = ({}) => {
   return (
     <View style={styles.ShipContainer}>
       <View style={styles.HeaderShipContainer}>
-        <View
+        {/* <View
           style={{
             padding: widthResponsive(8),
             backgroundColor: '#D8FFD7',
@@ -29,15 +29,12 @@ const ShipStore: React.FC<ShipStoreProps> = ({}) => {
           <Text style={styles.TextMemo}>
             Do you need a timer to choose dishes? Select "change"
           </Text>
-        </View>
+        </View> */}
         <View
           style={{
             padding: widthResponsive(8),
-            borderBottomLeftRadius: SPACING.space_15,
-            borderBottomRightRadius: SPACING.space_15,
-            borderLeftWidth: 1,
-            borderRightWidth: 1,
-            borderBottomWidth: 1,
+            borderRadius: SPACING.space_15,
+            borderWidth: 1,
             borderColor: '#DADADA',
             justifyContent: 'space-between',
             flexDirection: 'row',

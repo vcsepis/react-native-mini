@@ -43,7 +43,7 @@ const styles = StyleSheet.create({
   },
   StoreTextNm: {
     fontFamily: FONTFAMILY.poppins_semibold,
-    fontSize: FONTSIZE.size_16,
+    fontSize: FONTSIZE.size_20,
     color: COLORS.secondaryBlackRGB,
   },
   LocationName: {

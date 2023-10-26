@@ -213,7 +213,7 @@ const StoreScreen = ({navigation, route}: any) => {
         </View>
 
         {/* Location Info */}
-        <LocationInfo />
+        {/* <LocationInfo /> */}
 
         {/* Ship info */}
         <ShipStore />

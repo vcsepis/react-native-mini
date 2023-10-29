@@ -7,6 +7,8 @@ import PaymentScreen from './src/screens/PaymentScreen';
 import SplashScreen from 'react-native-splash-screen';
 import StoreScreen from './src/screens/Store';
 import CartScreen from './src/screens/CartScreen';
+import LoginScreen from './src/screens/AuthScreen/Login';
+import HomeStoreScreen from './src/screens/HomeStoreScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -18,6 +20,14 @@ const App = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{headerShown: false}}>
+        <Stack.Screen
+          name="Login"
+          component={LoginScreen}
+          options={{animation: 'slide_from_bottom'}}></Stack.Screen>
+        <Stack.Screen
+          name="Home"
+          component={HomeStoreScreen}
+          options={{animation: 'slide_from_bottom'}}></Stack.Screen>
         <Stack.Screen
           name="Tab"
           component={TabNavigator}

@@ -7,16 +7,23 @@ interface PopUpAnimationProps {
   style: any;
   source: any;
   navigation?: any;
+  isBg?: any;
 }
 
 const PopUpAnimation: React.FC<PopUpAnimationProps> = ({
   style,
   source,
   navigation,
+  isBg = false,
 }) => {
   return (
     <TouchableOpacity
-      style={styles.LottieAnimationContainer}
+      style={{
+        ...styles.LottieAnimationContainer,
+        backgroundColor: isBg
+          ? COLORS.primaryWhiteHex
+          : COLORS.secondaryBlackRGBA,
+      }}
       onPress={navigation}>
       <LottieView style={style} source={source} autoPlay loop={false} />
     </TouchableOpacity>
@@ -32,7 +39,6 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     zIndex: 1000,
-    backgroundColor: COLORS.secondaryBlackRGBA,
     justifyContent: 'center',
   },
 });

@@ -15,6 +15,9 @@ import CustomIcon from '../components/CustomIcon';
 import {HttpClient} from '../service/http-client';
 import {CacheUtil} from '../utils';
 import FoodComponent from '../components/Food';
+import {useStore} from '../store/store';
+import PopUpProduct from '../components/PopupProduct';
+import StoreCart from '../components/StoreCart';
 
 enum TAB {
   TAB_HOME,
@@ -24,7 +27,7 @@ enum TAB {
   TAB_SETTING,
 }
 
-const RENDER_VIEW = (tab: any) => {
+const RENDER_VIEW = (tab: any, stateProduct?: any) => {
   switch (tab) {
     case TAB.TAB_HOME:
       return <Text style={styles.TextCommon}>TODO CART</Text>;
@@ -41,10 +44,40 @@ const RENDER_VIEW = (tab: any) => {
   }
 };
 
+const INIT_STATE_PRODUCT = {
+  product: [],
+  categories: [],
+};
+
 const HomeStoreScreen = ({navigation}: any) => {
   const [tab, setTab] = useState(TAB.TAB_HOME);
+  const [stateProduct, setStateProduct] = useState(INIT_STATE_PRODUCT);
+  const AddCategory = useStore((state: any) => state.addCategory);
+  const IsShowProduct = useStore((state: any) => state.IsShowProduct);
+  const onIsShowProduct = useStore((state: any) => state.onIsShowProduct);
 
   const handleChangeTab = (tabSelected: any) => setTab(tabSelected);
+
+  useEffect(() => {
+    handleGetStore();
+  }, []);
+
+  const handleGetStore = async () => {
+    const token = await CacheUtil.Token;
+    const resCategories = await HttpClient.get(
+      `/v1/e-commerce/categories?category=&page=&limit=&keyword=`,
+      null,
+      token,
+    );
+
+    if (!resCategories) return setStateProduct(INIT_STATE_PRODUCT);
+
+    AddCategory(resCategories?.result?.categories);
+    return setStateProduct({
+      ...stateProduct,
+      categories: resCategories?.result?.categories,
+    });
+  };
 
   return (
     <LinearGradient
@@ -130,16 +163,17 @@ const HomeStoreScreen = ({navigation}: any) => {
             </View>
 
             {/* Contain */}
-            <View style={styles.Contain}>{RENDER_VIEW(tab)}</View>
+            <View style={styles.Contain}>{RENDER_VIEW(tab, stateProduct)}</View>
           </View>
 
           {/* Cart */}
           <View style={styles.CartView}>
-            <TouchableOpacity>
-              <Text style={styles.TextCommon}>TODO CART</Text>
-            </TouchableOpacity>
+            <StoreCart />
           </View>
+
+          {/* Product Popup */}
         </ScrollView>
+        {IsShowProduct && <PopUpProduct />}
       </SafeAreaView>
     </LinearGradient>
   );
@@ -197,10 +231,10 @@ const styles = StyleSheet.create({
   CartView: {
     backgroundColor: COLORS.primaryWhiteHex,
     width: '30%',
-    alignItems: 'center',
-    justifyContent: 'center',
     borderTopLeftRadius: SPACING.space_15,
     borderBottomStartRadius: SPACING.space_15,
+    padding: SPACING.space_20,
+    flex: 1,
   },
 });
 

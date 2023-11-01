@@ -68,7 +68,7 @@ export const COLORS: Color = {
   primaryBlackRGBA: 'rgba(12,15,20,0.5)',
   secondaryBlackRGBA: 'rgba(0,0,0,0.7)',
   secondaryBlackRGB: 'rgb(0,0,0)',
-  primaryGreenRGB: 'rgb(0, 159, 127)',
+  primaryGreenRGB: '#008810',
   primaryPurle: '#7080CC',
   primaryBorder: '#F2F2F2',
   primaryLocation: '#CE606A'

@@ -12,9 +12,9 @@ import {
 
 import {COLORS, FONTFAMILY, FONTSIZE, SPACING} from '../../theme/theme';
 import LottieView from 'lottie-react-native';
-import {HttpClient} from '../../service/http-client';
 import {CacheUtil} from '../../utils';
 import PopUpAnimation from '../../components/PopUpAnimation';
+import {HttpClient} from '../../service/http-client';
 
 const initStateLogin = {
   countries: [],

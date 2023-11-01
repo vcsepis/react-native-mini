@@ -8,16 +8,16 @@ import BeansData from '../data/BeansData';
 export const useStore = create(
   persist(
     (set, get) => ({
-      Store: {
-        loading: true,
-        data: []
-      },
       CoffeeList: CoffeeData,
       BeanList: BeansData,
       CartPrice: 0,
       FavoritesList: [],
       CartList: [],
       OrderHistoryList: [],
+      Category: [],
+      IsShowProduct: false,
+      ProductCurrent: {},
+      StoreCart: [],
       addToCart: (cartItem: any) =>
         set(
           produce(state => {
@@ -220,7 +220,11 @@ export const useStore = create(
             }
           })
         )
-      }
+      },
+      addCategory: (data: any) => set({ Category: data }),
+      addProductCurrent: (data: any) => set({ ProductCurrent: data }),
+      onIsShowProduct: (data: any) => set({ IsShowProduct: data }),
+      onAddStoreCart: (data: any) => set({ StoreCart: data }),
     }),
     {
       name: 'coffee-app',

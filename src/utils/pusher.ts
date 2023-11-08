@@ -10,5 +10,11 @@ export const handleConnectPusher = async () => {
 
   pusher.connect();
 
-  return pusher
+  return pusher;
+};
+
+export const handleDisconnectPusher = async () => {
+  const pusher = Pusher.getInstance();
+
+  pusher.disconnect();
 };

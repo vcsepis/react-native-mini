@@ -27,6 +27,8 @@ import EscPosPrinter from 'react-native-esc-pos-printer';
 import moment from 'moment';
 import HistoryScreen from './HistoryScreen';
 import OnlineStoreScreen from './OnlineStore';
+import { Pusher, PusherEvent } from '@pusher/pusher-websocket-react-native';
+import { handleConnectPusher } from '../utils/pusher';
 
 enum TAB {
   TAB_HOME,
@@ -79,6 +81,37 @@ const HomeStoreScreen = ({navigation}: any) => {
   const handleToggle = () => setIsShow(!isShow);
   const handleToggleConfirm = () => setIsShowOrderConfirm(!isShowOrderConfirm);
   const handleChangeTab = (tabSelected: any) => setTab(tabSelected);
+
+  const [pusher, setPusher] = useState<Pusher>();
+
+  const connectPusher = async () => {
+    const instance = await handleConnectPusher();
+    setPusher(instance);
+  };
+
+  const handleEvents = async () => {
+    if (!pusher) {
+      return;
+    }
+
+    console.log('connected')
+
+    await pusher.subscribe({
+      channelName: 'my-channel',
+      onEvent: (event: PusherEvent) => {
+        console.log(`onEvent: ${event}`);
+      },
+    });
+  };
+
+  useEffect(() => {
+    connectPusher();
+  }, []);
+
+  useEffect(() => {
+    handleEvents();
+  }, [pusher]);
+
 
   const onPressShowConected = () => setStatusConnected(!statusConnected);
 

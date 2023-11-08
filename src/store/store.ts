@@ -25,6 +25,10 @@ export const useStore = create(
       DetailStore: {},
       TargetDevice: {},
       StoreViewCart: [],
+      StoreRealTime: {
+        isShow: false,
+        data: {}
+      },
       addToCart: (cartItem: any) =>
         set(
           produce(state => {
@@ -236,6 +240,7 @@ export const useStore = create(
       onDetailStore: (data: any) => set({ DetailStore: data }),
       onAddTargetDevice: (data: any) => set({ TargetDevice: data }),
       onAddStoreViewCart: (data: any) => set({ StoreViewCart: data }),
+      onAddStoreRealTime: (data: any) => set({ StoreRealTime: data }),
     }),
     {
       name: 'coffee-app',

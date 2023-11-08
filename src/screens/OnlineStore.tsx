@@ -14,7 +14,6 @@ import {
   widthResponsive,
 } from '../theme/theme';
 import {useEffect, useState} from 'react';
-import ConnectChannel from '../components/Pusher';
 import {Pusher, PusherEvent} from '@pusher/pusher-websocket-react-native';
 import {handleConnectPusher} from '../utils/pusher';
 
@@ -31,41 +30,11 @@ const PROCESS_STATUS_DATA = [
 
 const OnlineStoreScreen = () => {
   const [selectedId, setSelectedId] = useState(1);
-  const [pusher, setPusher] = useState<Pusher>();
   const handleSelectedId = (id: any) => setSelectedId(id);
-
-  const connectPusher = async () => {
-    const instance = await handleConnectPusher();
-    setPusher(instance);
-  };
-
-  const handleEvents = async () => {
-    if (!pusher) {
-      return;
-    }
-
-    console.log('connected')
-
-    await pusher.subscribe({
-      channelName: 'my-channel',
-      onEvent: (event: PusherEvent) => {
-        console.log(`onEvent: ${event}`);
-      },
-    });
-  };
-
-  useEffect(() => {
-    connectPusher();
-  }, []);
-
-  useEffect(() => {
-    handleEvents();
-  }, [pusher]);
 
   return (
     <View style={styles.Root}>
-      <ConnectChannel />
-      {/* <View style={styles.HeaderContain}>
+      <View style={styles.HeaderContain}>
         {PROCESS_STATUS_DATA.map((item: any) => (
           <TouchableOpacity
             style={{
@@ -119,7 +88,7 @@ const OnlineStoreScreen = () => {
             </View>
           </View>
         </ScrollView>
-      </View> */}
+      </View>
     </View>
   );
 };

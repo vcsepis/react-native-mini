@@ -1,4 +1,4 @@
-import {Pusher} from '@pusher/pusher-websocket-react-native';
+import { Pusher } from '@pusher/pusher-websocket-react-native';
 
 export const handleConnectPusher = async () => {
   const pusher = Pusher.getInstance();

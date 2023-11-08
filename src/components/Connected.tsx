@@ -1,10 +1,8 @@
 import {
-  Alert,
   Modal,
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   ToastAndroid,
   TouchableOpacity,
   View,
@@ -43,14 +41,10 @@ const ConnectedPopup: React.FC<PopUpConnectedProps> = ({
   onToggle,
   onSubmit,
 }) => {
-  const StoreCart = useStore((state: any) => state.StoreCart);
-  const CaculateCart = useStore((state: any) => state.CaculateCart);
-
   const [note, setNote] = useState('');
   const [listDevice, setListDevice] = useState(MOCK);
   const [printer, setPrinter] = React.useState<any>(null);
 
-  const TargetDevice = useStore((state: any) => state.TargetDevice);
   const onAddTargetDevice = useStore((state: any) => state.onAddTargetDevice);
 
   const getStatusConnect = () => {

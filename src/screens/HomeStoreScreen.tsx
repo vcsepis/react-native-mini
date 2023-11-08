@@ -28,7 +28,12 @@ import moment from 'moment';
 import HistoryScreen from './HistoryScreen';
 import OnlineStoreScreen from './OnlineStore';
 import {Pusher, PusherEvent} from '@pusher/pusher-websocket-react-native';
-import {getPusherInstance, handleConnectPusher, handleDisconnectPusher} from '../utils/pusher';
+import {
+  getPusherInstance,
+  handleConnectPusher,
+  handleDisconnectPusher,
+} from '../utils/pusher';
+import CommingPopup from '../components/CommingPopup';
 
 enum TAB {
   TAB_HOME,
@@ -71,12 +76,18 @@ const HomeStoreScreen = ({navigation}: any) => {
 
   const AddCategory = useStore((state: any) => state.addCategory);
   const onDetailStore = useStore((state: any) => state.onDetailStore);
+  const DetailStore = useStore((state: any) => state.DetailStore);
   const IsShowProduct = useStore((state: any) => state.IsShowProduct);
   const onAddCaculateCart = useStore((state: any) => state.onAddCaculateCart);
   const CaculateCart = useStore((state: any) => state.CaculateCart);
   const StoreCartData = useStore((state: any) => state.StoreCart);
   const onAddStoreCart = useStore((state: any) => state.onAddStoreCart);
   const TargetDevice = useStore((state: any) => state.TargetDevice);
+  const onAddStoreRealTime = useStore((state: any) => state.onAddStoreRealTime);
+  const StoreRealTime = useStore((state: any) => state.StoreRealTime);
+
+  console.log(StoreRealTime, '123');
+  console.log(DetailStore?.id, '123');
 
   const handleToggle = () => setIsShow(!isShow);
   const handleToggleConfirm = () => setIsShowOrderConfirm(!isShowOrderConfirm);
@@ -86,7 +97,7 @@ const HomeStoreScreen = ({navigation}: any) => {
 
   const connectPusher = async () => {
     await handleConnectPusher();
-    const instance = getPusherInstance()
+    const instance = getPusherInstance();
     setPusher(instance);
   };
 
@@ -98,24 +109,32 @@ const HomeStoreScreen = ({navigation}: any) => {
     console.log('connected');
 
     await pusher.subscribe({
-      channelName: 'my-channel', //change channel
+      channelName: DetailStore?.id, //change channel
       onEvent: (event: PusherEvent) => {
         console.log(`onEvent: ${event}`);
+        onAddStoreRealTime({
+          isShow: true,
+          data: event,
+        });
       },
     });
   };
 
   useEffect(() => {
-    connectPusher();
+    if (DetailStore?.id?.length > 0) {
+      connectPusher();
+    }
 
     () => {
       return handleDisconnectPusher();
     };
-  }, []);
+  }, [DetailStore?.id]);
 
   useEffect(() => {
-    handleEvents();
-  }, [pusher]);
+    if (DetailStore?.id?.length > 0) {
+      handleEvents();
+    }
+  }, [pusher, DetailStore?.id]);
 
   const onPressShowConected = () => setStatusConnected(!statusConnected);
 
@@ -528,6 +547,8 @@ const HomeStoreScreen = ({navigation}: any) => {
               onSubmit={onPressShowConected}
             />
           )}
+
+          {StoreRealTime.isShow && <CommingPopup />}
         </View>
         {/* Product Popup */}
       </SafeAreaView>

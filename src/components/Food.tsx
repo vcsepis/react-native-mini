@@ -1,4 +1,11 @@
-import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import React, {Fragment, useEffect, useState} from 'react';
 import {
   BORDERRADIUS,
@@ -11,19 +18,22 @@ import {
 import {useStore} from '../store/store';
 import LottieView from 'lottie-react-native';
 
-interface Iprops {}
+interface Iprops {
+  handleGetStore?: any;
+}
 
 const handleFilter = (data: any, id: any) => {
   if (id === 0) return data;
   return data?.filter((item: any) => item?.id === id);
 };
 
-const FoodComponent: React.FC<Iprops> = ({}) => {
+const FoodComponent: React.FC<Iprops> = ({handleGetStore}) => {
   const [product, setProduct] = useState([]);
   const [categoryId, setCategoryId] = useState(0);
   const Category = useStore((state: any) => state.Category);
   const onIsShowProduct = useStore((state: any) => state.onIsShowProduct);
   const addProductCurrent = useStore((state: any) => state.addProductCurrent);
+  const [refreshing, setRefreshing] = React.useState(false);
 
   useEffect(() => {
     if (Category?.length) {
@@ -42,20 +52,21 @@ const FoodComponent: React.FC<Iprops> = ({}) => {
     onIsShowProduct(true);
     addProductCurrent({
       ...product,
+      index: undefined,
       price: product?.price,
       quantity: 1,
       variants: product?.variants?.length
         ? product?.variants?.map((item: any) => ({
             ...item,
             options: item?.options?.length
-              ? item?.options?.map((option: any) => ({...option, quantity: 1}))
+              ? item?.options?.map((option: any) => ({...option, quantity: 0}))
               : [],
           }))
         : [],
     });
   };
 
-  if (Category?.length === 0)
+  if (!Category)
     return (
       <View style={styles.Root}>
         <View style={styles.CategoryGoContainer}>
@@ -69,59 +80,80 @@ const FoodComponent: React.FC<Iprops> = ({}) => {
       </View>
     );
 
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    handleGetStore();
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 2000);
+  }, []);
+
   return (
     <View style={styles.Root}>
       <View style={styles.Container}>
         <View style={styles.Categories}>
-          {Category?.length && (
-            <TouchableOpacity
-              style={{
-                ...styles.Item,
-                backgroundColor:
-                  categoryId === 0
-                    ? COLORS.primaryGreenRGB
-                    : COLORS.primaryWhiteHex,
-              }}
-              onPress={() => handleCategory(0)}>
-              <Text
+          <ScrollView
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }>
+            {Category?.length ? (
+              <TouchableOpacity
                 style={{
-                  ...styles.TextCommon,
-                  color:
+                  ...styles.Item,
+                  marginBottom: SPACING.space_20,
+                  backgroundColor:
                     categoryId === 0
-                      ? COLORS.primaryWhiteHex
-                      : COLORS.primaryBlackHex,
-                }}>
-                All
-              </Text>
-            </TouchableOpacity>
-          )}
+                      ? COLORS.primaryGreenRGB
+                      : COLORS.primaryWhiteHex,
+                }}
+                onPress={() => handleCategory(0)}>
+                <Text
+                  style={{
+                    ...styles.TextCommon,
+                    color:
+                      categoryId === 0
+                        ? COLORS.primaryWhiteHex
+                        : COLORS.primaryBlackHex,
+                  }}>
+                  All
+                </Text>
+              </TouchableOpacity>
+            ) : (
+              <></>
+            )}
 
-          {Category?.map((item: any) => (
-            <TouchableOpacity
-              key={item.id}
-              style={{
-                ...styles.Item,
-                backgroundColor:
-                  categoryId === item.id
-                    ? COLORS.primaryGreenRGB
-                    : COLORS.primaryWhiteHex,
-              }}
-              onPress={() => handleCategory(item?.id)}>
-              <Text
+            {Category?.map((item: any) => (
+              <TouchableOpacity
+                key={item.id}
                 style={{
-                  ...styles.TextCommon,
-                  color:
+                  ...styles.Item,
+                  marginBottom: SPACING.space_20,
+                  backgroundColor:
                     categoryId === item.id
-                      ? COLORS.primaryWhiteHex
-                      : COLORS.primaryBlackHex,
-                }}>
-                {item.name}
-              </Text>
-            </TouchableOpacity>
-          ))}
+                      ? COLORS.primaryGreenRGB
+                      : COLORS.primaryWhiteHex,
+                }}
+                onPress={() => handleCategory(item?.id)}>
+                <Text
+                  style={{
+                    ...styles.TextCommon,
+                    color:
+                      categoryId === item.id
+                        ? COLORS.primaryWhiteHex
+                        : COLORS.primaryBlackHex,
+                  }}>
+                  {item.name}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
         </View>
 
-        <View style={styles.Product}>
+        <ScrollView
+          style={styles.Product}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }>
           <View style={styles.ProductContainer}>
             {product?.length ? (
               product?.map((item: any) => (
@@ -150,7 +182,7 @@ const FoodComponent: React.FC<Iprops> = ({}) => {
               <></>
             )}
           </View>
-        </View>
+        </ScrollView>
       </View>
     </View>
   );
@@ -168,7 +200,6 @@ const styles = StyleSheet.create({
   },
   Categories: {
     width: '25%',
-    gap: SPACING.space_20,
   },
   Product: {
     width: '75%',

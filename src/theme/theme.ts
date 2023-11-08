@@ -50,6 +50,7 @@ interface Color {
   primaryGreenRGB: string;
   secondaryBlackRGB: string;
   primaryPurle: string;
+  primaryBlueHex: string;
   primaryBorder: string;
   primaryLocation: string
 }
@@ -69,6 +70,7 @@ export const COLORS: Color = {
   secondaryBlackRGBA: 'rgba(0,0,0,0.7)',
   secondaryBlackRGB: 'rgb(0,0,0)',
   primaryGreenRGB: '#008810',
+  primaryBlueHex: '#3b82f6',
   primaryPurle: '#7080CC',
   primaryBorder: '#F2F2F2',
   primaryLocation: '#CE606A'

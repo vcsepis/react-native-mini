@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {Fragment} from 'react';
+import React, {Fragment, useState} from 'react';
 import {
   BORDERRADIUS,
   COLORS,
@@ -19,113 +19,355 @@ import CustomIcon from './CustomIcon';
 import {useStore} from '../store/store';
 import LottieView from 'lottie-react-native';
 
-interface StoreCartProps {}
+interface StoreCartProps {
+  handleToggle?: any;
+  onPressShowConected?: any;
+  tab?: any;
+  onHandlePrint?: any;
+}
 
-const StoreCart: React.FC<StoreCartProps> = ({}) => {
+const StoreCart: React.FC<StoreCartProps> = ({
+  handleToggle,
+  onPressShowConected,
+  tab = false,
+  onHandlePrint,
+}) => {
   const StoreCart = useStore((state: any) => state.StoreCart);
   const onIsShowProduct = useStore((state: any) => state.onIsShowProduct);
   const addProductCurrent = useStore((state: any) => state.addProductCurrent);
+  const onAddStoreCart = useStore((state: any) => state.onAddStoreCart);
+  const onAddCaculateCart = useStore((state: any) => state.onAddCaculateCart);
+  const StoreViewCart = useStore((state: any) => state.StoreViewCart);
 
-  const handlePressProduct = (product: any) => {
-    addProductCurrent(product);
+  const handlePressProduct = (product: any, index: any) => {
+    addProductCurrent({...product, index: index});
     onIsShowProduct(true);
   };
 
-  const onSubmit = () => {};
+  const handleRemoveItem = (index: any) => {
+    const updateData = StoreCart?.filter(
+      (_: any, idx: number) => idx !== index,
+    );
+    onAddStoreCart(updateData);
+  };
+
+  const handleAddQuanity = (index: any) => {
+    const updatedData = [...StoreCart];
+    updatedData[index].quantity += 1;
+    onAddStoreCart(updatedData);
+  };
+
+  const handleMinusQuanity = (index: any) => {
+    const updatedData = [...StoreCart];
+    updatedData[index].quantity -= 1;
+    onAddStoreCart(updatedData);
+  };
+
+  // Variants
+  const handleVariantAddQuanity = (
+    index: any,
+    variantIdx: any,
+    optionIdx: any,
+  ) => {
+    const updatedData = [...StoreCart];
+    updatedData[index].variants[variantIdx].options[optionIdx].quantity += 1;
+    onAddStoreCart(updatedData);
+  };
+
+  const handleVariantMinusQuanity = (
+    index: any,
+    variantIdx: any,
+    optionIdx: any,
+  ) => {
+    const updatedData = [...StoreCart];
+    updatedData[index].variants[variantIdx].options[optionIdx].quantity -= 1;
+    onAddStoreCart(updatedData);
+  };
+
+  const totalPrice = () => {
+    const price = StoreCart.reduce((accumulator: any, item: any) => {
+      // Tính tổng tiền cho cấp độ options trong từng variant
+      const variantTotal = item.variants.reduce(
+        (variantAcc: any, variant: any) => {
+          return (
+            variantAcc +
+            variant.options.reduce((optionAcc: any, option: any) => {
+              return optionAcc + option.price * option.quantity;
+            }, 0)
+          );
+        },
+        0,
+      );
+
+      // Tổng tiền của mỗi phần tử là price * quantity + variantTotal
+      return (
+        accumulator + (item.price * item.quantity) / 100 + variantTotal / 100
+      );
+    }, 0);
+
+    return price.toFixed(2);
+  };
+
+  const onSubmit = () => {
+    const total = totalPrice();
+    onAddCaculateCart({total, data: StoreCart});
+    handleToggle();
+  };
+
+  const dataCart = tab ? StoreViewCart[0] : StoreCart;
 
   return (
     <View style={styles.Root}>
       <View style={styles.Header}>
-        <Text style={styles.TextTitle}>Current Printer</Text>
+        <View style={styles.Printer}>
+          <Text style={styles.TextTitle}>Current Printer:</Text>
+
+          <TouchableOpacity onPress={onPressShowConected}>
+            <Text style={styles.TextTotalPriceCartFood}>Connected</Text>
+          </TouchableOpacity>
+        </View>
         <Text style={styles.TextTotalPriceCartFood}>
-          items {`(${StoreCart?.length})`}
+          items {`(${tab ? dataCart?.products?.length : dataCart?.length})`}
         </Text>
       </View>
 
-      {StoreCart?.length ? (
+      <View
+        style={{
+          flexDirection: 'row',
+          gap: SPACING.space_10,
+          width: '100%',
+          paddingTop: SPACING.space_10,
+        }}>
+        <View style={styles.PickupStatusContainer}>
+          <Text style={styles.TextPickUpStatus}>{'Take Away'}</Text>
+        </View>
+      </View>
+
+      {(tab ? dataCart.products?.length : dataCart?.length) ? (
         <ScrollView style={styles.CartContainer}>
-          {StoreCart?.map((item: any) => (
-            <TouchableOpacity
-              onPress={() => handlePressProduct(item)}
-              style={{
-                backgroundColor: '#ddd',
-                borderRadius: SPACING.space_15,
-                padding: SPACING.space_10,
-                width: '100%',
-                marginBottom: SPACING.space_10,
-              }}>
+          {(tab ? dataCart.products : dataCart)?.map(
+            (item: any, index: any) => (
               <View
                 style={{
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
+                  backgroundColor: '#ddd',
+                  borderRadius: SPACING.space_15,
+                  padding: SPACING.space_10,
+                  width: '100%',
+                  marginBottom:
+                    index === dataCart?.length - 1
+                      ? SPACING.space_20 * 8
+                      : SPACING.space_10,
                 }}>
-                <Image
-                  source={require('../assets/app_images/discout.png')}
-                  style={styles.ItemImage}
-                />
                 <View
                   style={{
+                    flexDirection: 'row',
                     justifyContent: 'space-between',
-                    alignItems: 'flex-end',
-                    width: '60%',
+                    alignItems: 'center',
+                    marginBottom: SPACING.space_10,
                   }}>
                   <Text style={styles.TextNameProduct} numberOfLines={1}>
-                    {item.name}
+                    {tab ? item.id : item.name}
                   </Text>
-                  <View style={styles.DescriptionContainer}>
-                    <Text style={styles.TextDescription}>
-                      {item.description || 'Do descrption'}
-                    </Text>
-                  </View>
-                </View>
-              </View>
-
-              <View
-                style={{
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  width: '100%',
-                  paddingTop: SPACING.space_20,
-                }}>
-                <View style={{flexDirection: 'row'}}>
                   <View
                     style={{
-                      justifyContent: 'space-between',
-                      marginLeft: SPACING.space_10,
+                      width: '50%',
+                      flexDirection: 'row',
+                      justifyContent: 'flex-end',
+                      gap: SPACING.space_10,
                     }}>
-                    <View>
-                      <Text style={styles.TextCommon}>Price</Text>
-                      <Text style={styles.TextPrice}>123 $</Text>
+                    {tab ? (
+                      <Fragment>
+                        <Text style={styles.TextPrice}>{item.paymentType}</Text>
+                      </Fragment>
+                    ) : (
+                      <Fragment>
+                        <TouchableOpacity
+                          style={styles.ContainerEditAction}
+                          onPress={() => handlePressProduct(item, index)}>
+                          <CustomIcon
+                            name="add"
+                            color={COLORS.primaryWhiteHex}
+                            size={FONTSIZE.size_10}
+                          />
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          style={styles.ContainerRemoveAction}
+                          onPress={() => (tab ? {} : handleRemoveItem(index))}>
+                          <CustomIcon
+                            name="close"
+                            color={COLORS.primaryWhiteHex}
+                            size={FONTSIZE.size_10}
+                          />
+                        </TouchableOpacity>
+                      </Fragment>
+                    )}
+                  </View>
+                </View>
+                <View
+                  style={{
+                    alignItems: 'flex-end',
+                    width: '80%',
+                    flexDirection: 'row',
+                    gap: SPACING.space_10,
+                    marginBottom: SPACING.space_10,
+                  }}></View>
+
+                <View style={styles.DescriptionContainer}>
+                  <Text style={styles.TextDescription}>
+                    {item.description || item?.note || 'Do descrption'}
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    width: '100%',
+                    paddingTop: SPACING.space_20,
+                  }}>
+                  <View style={{flexDirection: 'row'}}>
+                    <View
+                      style={{
+                        justifyContent: 'space-between',
+                        marginLeft: SPACING.space_10,
+                      }}>
+                      <View>
+                        <Text style={styles.TextCommon}>Price</Text>
+                        <Text style={styles.TextPrice}>
+                          $ {(item.price / 100).toFixed(2)}
+                        </Text>
+                      </View>
                     </View>
                   </View>
-                </View>
 
-                <View style={styles.ContainerInputSpiner}>
-                  <TouchableOpacity
-                    style={styles.InputSpinerAction}
-                    onPress={() => {}}>
-                    <CustomIcon
-                      name="minus"
-                      color={COLORS.primaryLightGreyHex}
-                      size={FONTSIZE.size_10}
-                    />
-                  </TouchableOpacity>
-                  <View style={styles.CartItemQuantityContainer}>
-                    <Text style={styles.CartItemQuantityText}>{1}</Text>
+                  <View style={styles.ContainerInputSpiner}>
+                    {!tab && (
+                      <TouchableOpacity
+                        disabled={item.quantity === 1}
+                        style={styles.InputSpinerAction}
+                        onPress={() => handleMinusQuanity(index)}>
+                        <CustomIcon
+                          name="minus"
+                          color={COLORS.primaryLightGreyHex}
+                          size={FONTSIZE.size_10}
+                        />
+                      </TouchableOpacity>
+                    )}
+
+                    <View style={styles.CartItemQuantityContainer}>
+                      <Text style={styles.CartItemQuantityText}>
+                        {item.quantity}
+                      </Text>
+                    </View>
+
+                    {!tab && (
+                      <TouchableOpacity
+                        style={styles.InputSpinerAction}
+                        onPress={() => handleAddQuanity(index)}>
+                        <CustomIcon
+                          name="add"
+                          color={COLORS.primaryLightGreyHex}
+                          size={FONTSIZE.size_10}
+                        />
+                      </TouchableOpacity>
+                    )}
                   </View>
-                  <TouchableOpacity
-                    style={styles.InputSpinerAction}
-                    onPress={() => {}}>
-                    <CustomIcon
-                      name="add"
-                      color={COLORS.primaryLightGreyHex}
-                      size={FONTSIZE.size_10}
-                    />
-                  </TouchableOpacity>
                 </View>
+                {item?.variants?.length ? (
+                  <Text style={styles.TextVariant}>Variant</Text>
+                ) : (
+                  <></>
+                )}
+
+                {item?.variants?.length ? (
+                  item?.variants?.map((variant: any, variantIdx: any) => (
+                    <Fragment key={variant?.id}>
+                      <View style={styles.ContainerVariant}>
+                        <View style={styles.TextSpaceVariant} />
+                      </View>
+
+                      {variant?.options?.length ? (
+                        variant?.options?.map((option: any, optionIdx: any) => (
+                          <View
+                            key={option?.id}
+                            style={{
+                              flexDirection: 'row',
+                              justifyContent: 'space-between',
+                              width: '100%',
+                            }}>
+                            <View style={{flexDirection: 'row'}}>
+                              <View
+                                style={{
+                                  justifyContent: 'space-between',
+                                  marginLeft: SPACING.space_10,
+                                }}>
+                                <View>
+                                  <Text style={styles.TextCommon}>
+                                    {option?.value}
+                                  </Text>
+                                  <Text style={styles.TextPrice}>
+                                    $ {(option.price / 100).toFixed(2)}
+                                  </Text>
+                                </View>
+                              </View>
+                            </View>
+
+                            <View style={styles.ContainerInputSpiner}>
+                              {!tab && (
+                                <TouchableOpacity
+                                  disabled={option.quantity === 0}
+                                  style={styles.InputSpinerAction}
+                                  onPress={() =>
+                                    handleVariantMinusQuanity(
+                                      index,
+                                      variantIdx,
+                                      optionIdx,
+                                    )
+                                  }>
+                                  <CustomIcon
+                                    name="minus"
+                                    color={COLORS.primaryLightGreyHex}
+                                    size={FONTSIZE.size_10}
+                                  />
+                                </TouchableOpacity>
+                              )}
+
+                              <View style={styles.CartItemQuantityContainer}>
+                                <Text style={styles.CartItemQuantityText}>
+                                  {option.quantity}
+                                </Text>
+                              </View>
+
+                              {!tab && (
+                                <TouchableOpacity
+                                  style={styles.InputSpinerAction}
+                                  onPress={() =>
+                                    handleVariantAddQuanity(
+                                      index,
+                                      variantIdx,
+                                      optionIdx,
+                                    )
+                                  }>
+                                  <CustomIcon
+                                    name="add"
+                                    color={COLORS.primaryLightGreyHex}
+                                    size={FONTSIZE.size_10}
+                                  />
+                                </TouchableOpacity>
+                              )}
+                            </View>
+                          </View>
+                        ))
+                      ) : (
+                        <></>
+                      )}
+                    </Fragment>
+                  ))
+                ) : (
+                  <></>
+                )}
               </View>
-            </TouchableOpacity>
-          ))}
+            ),
+          )}
         </ScrollView>
       ) : (
         <TouchableOpacity style={styles.ContainerAnimationPrettie}>
@@ -138,14 +380,13 @@ const StoreCart: React.FC<StoreCartProps> = ({}) => {
         </TouchableOpacity>
       )}
 
-      <TouchableOpacity
+      <View
         style={{
           position: 'absolute',
           bottom: 0,
           right: 0,
           left: 0,
-        }}
-        onPress={onSubmit}>
+        }}>
         <View
           style={{
             backgroundColor: COLORS.primaryWhiteHex,
@@ -166,7 +407,9 @@ const StoreCart: React.FC<StoreCartProps> = ({}) => {
               </Text>
             </View>
 
-            <Text style={styles.TextTotalPriceCartFood}>{100} $</Text>
+            <Text style={styles.TextTotalPriceCartFood}>
+              {tab ? dataCart.total / 100 : totalPrice()} $
+            </Text>
             <CustomIcon
               name={'cart'}
               color={'#008810'}
@@ -174,11 +417,15 @@ const StoreCart: React.FC<StoreCartProps> = ({}) => {
             />
           </View>
 
-          <View style={styles.CartPaymentDisplay}>
-            <Text style={styles.TextTotalPaymentCartFood}>Pay Now</Text>
-          </View>
+          <TouchableOpacity
+            onPress={() => (tab ? onHandlePrint(dataCart) : onSubmit())}
+            style={styles.CartPaymentDisplay}>
+            <Text style={styles.TextTotalPaymentCartFood}>
+              {tab ? 'Print Now' : 'Pay Now'}
+            </Text>
+          </TouchableOpacity>
         </View>
-      </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -192,13 +439,45 @@ const styles = StyleSheet.create({
     color: COLORS.primaryBlackHex,
     fontSize: FONTSIZE.size_16,
   },
+  ContainerVariant: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+    gap: SPACING.space_8,
+    paddingVertical: SPACING.space_10,
+  },
+  TextVariant: {
+    fontFamily: FONTFAMILY.poppins_regular,
+    color: COLORS.primaryBlackHex,
+    fontSize: FONTSIZE.size_16,
+    paddingTop: SPACING.space_10,
+    textAlign: 'right',
+  },
+  TextSpaceVariant: {
+    height: SPACING.space_2 / 2,
+    width: '100%',
+    backgroundColor: COLORS.primaryWhiteHex,
+  },
   TextNameProduct: {
     fontFamily: FONTFAMILY.poppins_regular,
     color: COLORS.primaryBlackHex,
     fontSize: FONTSIZE.size_16,
     fontWeight: '500',
+    width: '50%',
   },
   DescriptionContainer: {
+    padding: SPACING.space_10,
+    backgroundColor: COLORS.primaryWhiteHex,
+    borderRadius: SPACING.space_15,
+  },
+  PickupStatusContainer: {
+    padding: SPACING.space_10,
+    backgroundColor: COLORS.primaryOrangeHex,
+    borderRadius: SPACING.space_15,
+    flex: 1,
+    alignItems: 'center',
+  },
+  PickUpContainer: {
     padding: SPACING.space_10,
     backgroundColor: COLORS.primaryWhiteHex,
     borderRadius: SPACING.space_15,
@@ -206,6 +485,11 @@ const styles = StyleSheet.create({
   TextDescription: {
     fontFamily: FONTFAMILY.poppins_regular,
     color: COLORS.primaryBlackHex,
+    fontSize: FONTSIZE.size_16,
+  },
+  TextPickUpStatus: {
+    fontFamily: FONTFAMILY.poppins_regular,
+    color: COLORS.primaryWhiteHex,
     fontSize: FONTSIZE.size_16,
   },
   TextTitle: {
@@ -224,7 +508,6 @@ const styles = StyleSheet.create({
   },
   CartContainer: {
     paddingVertical: SPACING.space_20,
-    paddingBottom: widthResponsive(40),
   },
   CartDisplay: {
     justifyContent: 'space-between',
@@ -242,7 +525,7 @@ const styles = StyleSheet.create({
   },
   CartContentCount: {
     gap: widthResponsive(2),
-    width: '70%',
+    width: '20%',
   },
   CartPaymentDisplay: {
     backgroundColor: '#008810',
@@ -296,6 +579,16 @@ const styles = StyleSheet.create({
     padding: SPACING.space_15,
     borderRadius: BORDERRADIUS.radius_10,
   },
+  ContainerEditAction: {
+    backgroundColor: COLORS.primaryBlueHex,
+    padding: SPACING.space_15,
+    borderRadius: BORDERRADIUS.radius_10,
+  },
+  ContainerRemoveAction: {
+    backgroundColor: COLORS.primaryRedHex,
+    padding: SPACING.space_15,
+    borderRadius: BORDERRADIUS.radius_10,
+  },
   CartItemQuantityContainer: {
     backgroundColor: COLORS.primaryWhiteHex,
     width: 40,
@@ -313,6 +606,11 @@ const styles = StyleSheet.create({
     height: widthResponsive(26),
     width: widthResponsive(26),
     borderRadius: BORDERRADIUS.radius_15,
+  },
+  Printer: {
+    flexDirection: 'row',
+    gap: SPACING.space_10,
+    alignItems: 'center',
   },
 });
 

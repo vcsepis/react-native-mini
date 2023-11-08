@@ -32,8 +32,8 @@ const initStateSuccess = {
 
 const LoginScreen = ({navigation}: any) => {
   const [stateLogin, setStateLogin] = useState(initStateLogin);
-  const [password, setPassword] = useState('');
-  const [phone, setPhone] = useState<any>('');
+  const [password, setPassword] = useState('Th@i12022022');
+  const [phone, setPhone] = useState<any>('484894945');
   const [stateSuccess, setStateSuccess] = useState<any>(initStateSuccess);
 
   // State variable to track password visibility

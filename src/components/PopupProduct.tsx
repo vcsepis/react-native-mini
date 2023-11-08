@@ -113,22 +113,15 @@ const PopUpProduct: React.FC<PopUpProductProps> = ({onToggle}) => {
     }
 
     const total = totalPrice();
-
+    const StoreCartUpdate = [...StoreCart];
     const productUpdate = {...products, total: total};
 
-    const productId = products?.id;
-
-    const index = StoreCart.findIndex((item: any) => item.id === productId);
-
-    const updateData = [...StoreCart];
-
-    // if (index === -1) {
-    //   updateData[index] = productUpdate;
-    //   onAddStoreCart(updateData);
-
-    //   return onIsShowProduct(false);
-    // } else {
-    onAddStoreCart([productUpdate, ...StoreCart]);
+    if (productUpdate?.index !== undefined) {
+      StoreCartUpdate[productUpdate?.index] = productUpdate;
+      onAddStoreCart(StoreCartUpdate);
+    } else {
+      onAddStoreCart([productUpdate, ...StoreCart]);
+    }
 
     return onIsShowProduct(false);
     // }
@@ -136,7 +129,7 @@ const PopUpProduct: React.FC<PopUpProductProps> = ({onToggle}) => {
 
   return (
     <View style={styles.CenteredView}>
-      <Modal animationType="slide" transparent={true} visible={IsShowProduct}>
+      <Modal animationType="fade" transparent={true} visible={IsShowProduct}>
         <View style={styles.CenteredView}>
           <View style={styles.ModalView}>
             <View
@@ -194,7 +187,7 @@ const PopUpProduct: React.FC<PopUpProductProps> = ({onToggle}) => {
                         <View>
                           <Text style={styles.TextCommon}>Price</Text>
                           <Text style={styles.TextPrice}>
-                            {products?.price / 100} $
+                            {(products?.price / 100).toFixed(2)} $
                           </Text>
                         </View>
                       </View>
@@ -283,7 +276,6 @@ const PopUpProduct: React.FC<PopUpProductProps> = ({onToggle}) => {
                     }}
                     placeholderTextColor={COLORS.primaryLightGreyHex}
                     editable={false}
-                    // value={this.state.text}
                   />
                 </View>
 
@@ -310,6 +302,7 @@ const PopUpProduct: React.FC<PopUpProductProps> = ({onToggle}) => {
                                 flexDirection: 'row',
                                 justifyContent: 'space-between',
                                 width: '100%',
+                                marginBottom: SPACING.space_10,
                               }}>
                               <View style={{flexDirection: 'row'}}>
                                 <View
@@ -330,6 +323,7 @@ const PopUpProduct: React.FC<PopUpProductProps> = ({onToggle}) => {
 
                               <View style={styles.ContainerInputSpiner}>
                                 <TouchableOpacity
+                                  disabled={option.quantity === 0}
                                   style={styles.InputSpinerAction}
                                   onPress={() =>
                                     handleMinusVariantQuantity(
@@ -424,10 +418,12 @@ const PopUpProduct: React.FC<PopUpProductProps> = ({onToggle}) => {
 
 const styles = StyleSheet.create({
   CenteredView: {
-    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
   },
   ModalView: {
     width: '80%',
@@ -546,7 +542,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginHorizontal: widthResponsive(20),
     borderRadius: widthResponsive(15),
-    padding: widthResponsive(8),
+    padding: widthResponsive(2),
     paddingHorizontal: widthResponsive(10),
     flexDirection: 'row',
     alignItems: 'center',
@@ -559,7 +555,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#008810',
     marginHorizontal: widthResponsive(20),
     borderRadius: widthResponsive(15),
-    padding: widthResponsive(8),
+    padding: widthResponsive(3),
     paddingHorizontal: widthResponsive(10),
     justifyContent: 'center',
     alignItems: 'center',

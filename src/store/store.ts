@@ -18,6 +18,13 @@ export const useStore = create(
       IsShowProduct: false,
       ProductCurrent: {},
       StoreCart: [],
+      CaculateCart: {
+        total: 0,
+        data: {}
+      },
+      DetailStore: {},
+      TargetDevice: {},
+      StoreViewCart: [],
       addToCart: (cartItem: any) =>
         set(
           produce(state => {
@@ -225,6 +232,10 @@ export const useStore = create(
       addProductCurrent: (data: any) => set({ ProductCurrent: data }),
       onIsShowProduct: (data: any) => set({ IsShowProduct: data }),
       onAddStoreCart: (data: any) => set({ StoreCart: data }),
+      onAddCaculateCart: (data: any) => set({ CaculateCart: data }),
+      onDetailStore: (data: any) => set({ DetailStore: data }),
+      onAddTargetDevice: (data: any) => set({ TargetDevice: data }),
+      onAddStoreViewCart: (data: any) => set({ StoreViewCart: data }),
     }),
     {
       name: 'coffee-app',

@@ -17,7 +17,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  activesupport (~> 7.0.8)
+  activesupport (= 7.0.8)
 
 RUBY VERSION
    ruby 2.7.5p203

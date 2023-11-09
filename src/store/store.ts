@@ -29,6 +29,8 @@ export const useStore = create(
         isShow: false,
         data: {}
       },
+      OrderOnline: [],
+      OrderOnlineCart: [],
       addToCart: (cartItem: any) =>
         set(
           produce(state => {
@@ -239,8 +241,10 @@ export const useStore = create(
       onAddCaculateCart: (data: any) => set({ CaculateCart: data }),
       onDetailStore: (data: any) => set({ DetailStore: data }),
       onAddTargetDevice: (data: any) => set({ TargetDevice: data }),
-      onAddStoreViewCart: (data: any) => set({ StoreViewCart: data }),
-      onAddStoreRealTime: (data: any) => set({ StoreRealTime: data }),
+      onAddStoreViewCart: (data: any) => set({ StoreViewCart: data }), // add order for tab history
+      onAddStoreRealTime: (data: any) => set({ StoreRealTime: data }), // add current order from pusher
+      onAddOrderOnline: (data: any) => set({ OrderOnline: data }), // add order tab online
+      onAddOrderOnlineCart: (data: any) => set({ OrderOnlineCart: data }), // add order for tab online
     }),
     {
       name: 'coffee-app',

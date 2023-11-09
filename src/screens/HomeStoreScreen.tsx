@@ -35,7 +35,7 @@ import {
 } from '../utils/pusher';
 import CommingPopup from '../components/CommingPopup';
 
-enum TAB {
+export enum TAB {
   TAB_HOME,
   TAB_MENU,
   TAB_FOOD,
@@ -83,11 +83,8 @@ const HomeStoreScreen = ({navigation}: any) => {
   const StoreCartData = useStore((state: any) => state.StoreCart);
   const onAddStoreCart = useStore((state: any) => state.onAddStoreCart);
   const TargetDevice = useStore((state: any) => state.TargetDevice);
-  const onAddStoreRealTime = useStore((state: any) => state.onAddStoreRealTime);
-  const StoreRealTime = useStore((state: any) => state.StoreRealTime);
-
-  console.log(StoreRealTime, '123');
-  console.log(DetailStore?.id, '123');
+  const onAddStoreRealTime = useStore((state: any) => state.onAddStoreRealTime); // add current noti
+  const StoreRealTime = useStore((state: any) => state.StoreRealTime); // current noti
 
   const handleToggle = () => setIsShow(!isShow);
   const handleToggleConfirm = () => setIsShowOrderConfirm(!isShowOrderConfirm);
@@ -114,7 +111,7 @@ const HomeStoreScreen = ({navigation}: any) => {
         console.log(`onEvent: ${event}`);
         onAddStoreRealTime({
           isShow: true,
-          data: event,
+          data: event?.data,
         });
       },
     });
@@ -518,7 +515,8 @@ const HomeStoreScreen = ({navigation}: any) => {
           {/* Cart */}
           <View style={styles.CartView}>
             <StoreCart
-              tab={tab === TAB.TAB_MENU}
+              tab={tab === TAB.TAB_MENU || tab === TAB.TAB_FOOD}
+              currentTab={tab}
               handleToggle={handleToggle}
               onPressShowConected={onPressShowConected}
               onHandlePrint={onHandlePrint}

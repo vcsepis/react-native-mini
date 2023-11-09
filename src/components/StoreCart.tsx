@@ -18,12 +18,14 @@ import {
 import CustomIcon from './CustomIcon';
 import {useStore} from '../store/store';
 import LottieView from 'lottie-react-native';
+import {TAB} from '../screens/HomeStoreScreen';
 
 interface StoreCartProps {
   handleToggle?: any;
   onPressShowConected?: any;
   tab?: any;
   onHandlePrint?: any;
+  currentTab?: any;
 }
 
 const StoreCart: React.FC<StoreCartProps> = ({
@@ -31,6 +33,7 @@ const StoreCart: React.FC<StoreCartProps> = ({
   onPressShowConected,
   tab = false,
   onHandlePrint,
+  currentTab,
 }) => {
   const StoreCart = useStore((state: any) => state.StoreCart);
   const onIsShowProduct = useStore((state: any) => state.onIsShowProduct);
@@ -38,6 +41,7 @@ const StoreCart: React.FC<StoreCartProps> = ({
   const onAddStoreCart = useStore((state: any) => state.onAddStoreCart);
   const onAddCaculateCart = useStore((state: any) => state.onAddCaculateCart);
   const StoreViewCart = useStore((state: any) => state.StoreViewCart);
+  const OrderOnlineCart = useStore((state: any) => state.OrderOnlineCart);
 
   const handlePressProduct = (product: any, index: any) => {
     addProductCurrent({...product, index: index});
@@ -114,7 +118,19 @@ const StoreCart: React.FC<StoreCartProps> = ({
     handleToggle();
   };
 
-  const dataCart = tab ? StoreViewCart[0] : StoreCart;
+  const dataCart =
+    currentTab === TAB.TAB_FOOD
+      ? OrderOnlineCart[0]
+      : tab
+      ? StoreViewCart[0]
+      : StoreCart;
+
+  const total = () => {
+    if (currentTab === TAB.TAB_FOOD)
+      return (OrderOnlineCart[0].total / 100).toFixed(2);
+    if (tab) return (dataCart?.total / 100).toFixed(2);
+    else return totalPrice();
+  };
 
   return (
     <View style={styles.Root}>
@@ -127,7 +143,8 @@ const StoreCart: React.FC<StoreCartProps> = ({
           </TouchableOpacity>
         </View>
         <Text style={styles.TextTotalPriceCartFood}>
-          items {`(${tab ? dataCart?.products?.length : dataCart?.length})`}
+          items{' '}
+          {`(${tab ? dataCart?.products?.length : dataCart?.length || 0})`}
         </Text>
       </View>
 
@@ -143,231 +160,237 @@ const StoreCart: React.FC<StoreCartProps> = ({
         </View>
       </View>
 
-      {(tab ? dataCart.products?.length : dataCart?.length) ? (
+      {(tab ? dataCart?.products?.length : dataCart?.length) ? (
         <ScrollView style={styles.CartContainer}>
-          {(tab ? dataCart.products : dataCart)?.map(
-            (item: any, index: any) => (
-              <View
-                style={{
-                  backgroundColor: '#ddd',
-                  borderRadius: SPACING.space_15,
-                  padding: SPACING.space_10,
-                  width: '100%',
-                  marginBottom:
-                    index === dataCart?.length - 1
-                      ? SPACING.space_20 * 8
-                      : SPACING.space_10,
-                }}>
+          <View style={{marginBottom: SPACING.space_20 * 10}}>
+            {(tab ? dataCart.products : dataCart)?.map(
+              (item: any, index: any) => (
                 <View
                   style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
+                    backgroundColor: '#ddd',
+                    borderRadius: SPACING.space_15,
+                    padding: SPACING.space_10,
+                    width: '100%',
                     marginBottom: SPACING.space_10,
                   }}>
-                  <Text style={styles.TextNameProduct} numberOfLines={1}>
-                    {tab ? item.id : item.name}
-                  </Text>
                   <View
                     style={{
-                      width: '50%',
                       flexDirection: 'row',
-                      justifyContent: 'flex-end',
-                      gap: SPACING.space_10,
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      marginBottom: SPACING.space_10,
                     }}>
-                    {tab ? (
-                      <Fragment>
-                        <Text style={styles.TextPrice}>{item.paymentType}</Text>
-                      </Fragment>
-                    ) : (
-                      <Fragment>
-                        <TouchableOpacity
-                          style={styles.ContainerEditAction}
-                          onPress={() => handlePressProduct(item, index)}>
-                          <CustomIcon
-                            name="add"
-                            color={COLORS.primaryWhiteHex}
-                            size={FONTSIZE.size_10}
-                          />
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                          style={styles.ContainerRemoveAction}
-                          onPress={() => (tab ? {} : handleRemoveItem(index))}>
-                          <CustomIcon
-                            name="close"
-                            color={COLORS.primaryWhiteHex}
-                            size={FONTSIZE.size_10}
-                          />
-                        </TouchableOpacity>
-                      </Fragment>
-                    )}
-                  </View>
-                </View>
-                <View
-                  style={{
-                    alignItems: 'flex-end',
-                    width: '80%',
-                    flexDirection: 'row',
-                    gap: SPACING.space_10,
-                    marginBottom: SPACING.space_10,
-                  }}></View>
-
-                <View style={styles.DescriptionContainer}>
-                  <Text style={styles.TextDescription}>
-                    {item.description || item?.note || 'Do descrption'}
-                  </Text>
-                </View>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    width: '100%',
-                    paddingTop: SPACING.space_20,
-                  }}>
-                  <View style={{flexDirection: 'row'}}>
+                    <Text style={styles.TextNameProduct} numberOfLines={1}>
+                      {tab ? item.id : item.name}
+                    </Text>
                     <View
                       style={{
-                        justifyContent: 'space-between',
-                        marginLeft: SPACING.space_10,
+                        width: '50%',
+                        flexDirection: 'row',
+                        justifyContent: 'flex-end',
+                        gap: SPACING.space_10,
                       }}>
-                      <View>
-                        <Text style={styles.TextCommon}>Price</Text>
-                        <Text style={styles.TextPrice}>
-                          $ {(item.price / 100).toFixed(2)}
+                      {tab ? (
+                        <Fragment>
+                          <Text style={styles.TextPrice}>
+                            {item.paymentType}
+                          </Text>
+                        </Fragment>
+                      ) : (
+                        <Fragment>
+                          <TouchableOpacity
+                            style={styles.ContainerEditAction}
+                            onPress={() => handlePressProduct(item, index)}>
+                            <CustomIcon
+                              name="add"
+                              color={COLORS.primaryWhiteHex}
+                              size={FONTSIZE.size_10}
+                            />
+                          </TouchableOpacity>
+                          <TouchableOpacity
+                            style={styles.ContainerRemoveAction}
+                            onPress={() =>
+                              tab ? {} : handleRemoveItem(index)
+                            }>
+                            <CustomIcon
+                              name="close"
+                              color={COLORS.primaryWhiteHex}
+                              size={FONTSIZE.size_10}
+                            />
+                          </TouchableOpacity>
+                        </Fragment>
+                      )}
+                    </View>
+                  </View>
+                  <View
+                    style={{
+                      alignItems: 'flex-end',
+                      width: '80%',
+                      flexDirection: 'row',
+                      gap: SPACING.space_10,
+                      marginBottom: SPACING.space_10,
+                    }}></View>
+
+                  <View style={styles.DescriptionContainer}>
+                    <Text style={styles.TextDescription}>
+                      {item.description || item?.note || 'Do descrption'}
+                    </Text>
+                  </View>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      width: '100%',
+                      paddingTop: SPACING.space_20,
+                    }}>
+                    <View style={{flexDirection: 'row'}}>
+                      <View
+                        style={{
+                          justifyContent: 'space-between',
+                          marginLeft: SPACING.space_10,
+                        }}>
+                        <View>
+                          <Text style={styles.TextCommon}>Price</Text>
+                          <Text style={styles.TextPrice}>
+                            $ {(item.price / 100).toFixed(2)}
+                          </Text>
+                        </View>
+                      </View>
+                    </View>
+
+                    <View style={styles.ContainerInputSpiner}>
+                      {!tab && (
+                        <TouchableOpacity
+                          disabled={item.quantity === 1}
+                          style={styles.InputSpinerAction}
+                          onPress={() => handleMinusQuanity(index)}>
+                          <CustomIcon
+                            name="minus"
+                            color={COLORS.primaryLightGreyHex}
+                            size={FONTSIZE.size_10}
+                          />
+                        </TouchableOpacity>
+                      )}
+
+                      <View style={styles.CartItemQuantityContainer}>
+                        <Text style={styles.CartItemQuantityText}>
+                          {item.quantity}
                         </Text>
                       </View>
+
+                      {!tab && (
+                        <TouchableOpacity
+                          style={styles.InputSpinerAction}
+                          onPress={() => handleAddQuanity(index)}>
+                          <CustomIcon
+                            name="add"
+                            color={COLORS.primaryLightGreyHex}
+                            size={FONTSIZE.size_10}
+                          />
+                        </TouchableOpacity>
+                      )}
                     </View>
                   </View>
+                  {item?.variants?.length ? (
+                    <Text style={styles.TextVariant}>Variant</Text>
+                  ) : (
+                    <></>
+                  )}
 
-                  <View style={styles.ContainerInputSpiner}>
-                    {!tab && (
-                      <TouchableOpacity
-                        disabled={item.quantity === 1}
-                        style={styles.InputSpinerAction}
-                        onPress={() => handleMinusQuanity(index)}>
-                        <CustomIcon
-                          name="minus"
-                          color={COLORS.primaryLightGreyHex}
-                          size={FONTSIZE.size_10}
-                        />
-                      </TouchableOpacity>
-                    )}
+                  {item?.variants?.length ? (
+                    item?.variants?.map((variant: any, variantIdx: any) => (
+                      <Fragment key={variant?.id}>
+                        <View style={styles.ContainerVariant}>
+                          <View style={styles.TextSpaceVariant} />
+                        </View>
 
-                    <View style={styles.CartItemQuantityContainer}>
-                      <Text style={styles.CartItemQuantityText}>
-                        {item.quantity}
-                      </Text>
-                    </View>
-
-                    {!tab && (
-                      <TouchableOpacity
-                        style={styles.InputSpinerAction}
-                        onPress={() => handleAddQuanity(index)}>
-                        <CustomIcon
-                          name="add"
-                          color={COLORS.primaryLightGreyHex}
-                          size={FONTSIZE.size_10}
-                        />
-                      </TouchableOpacity>
-                    )}
-                  </View>
-                </View>
-                {item?.variants?.length ? (
-                  <Text style={styles.TextVariant}>Variant</Text>
-                ) : (
-                  <></>
-                )}
-
-                {item?.variants?.length ? (
-                  item?.variants?.map((variant: any, variantIdx: any) => (
-                    <Fragment key={variant?.id}>
-                      <View style={styles.ContainerVariant}>
-                        <View style={styles.TextSpaceVariant} />
-                      </View>
-
-                      {variant?.options?.length ? (
-                        variant?.options?.map((option: any, optionIdx: any) => (
-                          <View
-                            key={option?.id}
-                            style={{
-                              flexDirection: 'row',
-                              justifyContent: 'space-between',
-                              width: '100%',
-                            }}>
-                            <View style={{flexDirection: 'row'}}>
+                        {variant?.options?.length ? (
+                          variant?.options?.map(
+                            (option: any, optionIdx: any) => (
                               <View
+                                key={option?.id}
                                 style={{
+                                  flexDirection: 'row',
                                   justifyContent: 'space-between',
-                                  marginLeft: SPACING.space_10,
+                                  width: '100%',
                                 }}>
-                                <View>
-                                  <Text style={styles.TextCommon}>
-                                    {option?.value}
-                                  </Text>
-                                  <Text style={styles.TextPrice}>
-                                    $ {(option.price / 100).toFixed(2)}
-                                  </Text>
+                                <View style={{flexDirection: 'row'}}>
+                                  <View
+                                    style={{
+                                      justifyContent: 'space-between',
+                                      marginLeft: SPACING.space_10,
+                                    }}>
+                                    <View>
+                                      <Text style={styles.TextCommon}>
+                                        {option?.value}
+                                      </Text>
+                                      <Text style={styles.TextPrice}>
+                                        $ {(option.price / 100).toFixed(2)}
+                                      </Text>
+                                    </View>
+                                  </View>
+                                </View>
+
+                                <View style={styles.ContainerInputSpiner}>
+                                  {!tab && (
+                                    <TouchableOpacity
+                                      disabled={option.quantity === 0}
+                                      style={styles.InputSpinerAction}
+                                      onPress={() =>
+                                        handleVariantMinusQuanity(
+                                          index,
+                                          variantIdx,
+                                          optionIdx,
+                                        )
+                                      }>
+                                      <CustomIcon
+                                        name="minus"
+                                        color={COLORS.primaryLightGreyHex}
+                                        size={FONTSIZE.size_10}
+                                      />
+                                    </TouchableOpacity>
+                                  )}
+
+                                  <View
+                                    style={styles.CartItemQuantityContainer}>
+                                    <Text style={styles.CartItemQuantityText}>
+                                      {option.quantity}
+                                    </Text>
+                                  </View>
+
+                                  {!tab && (
+                                    <TouchableOpacity
+                                      style={styles.InputSpinerAction}
+                                      onPress={() =>
+                                        handleVariantAddQuanity(
+                                          index,
+                                          variantIdx,
+                                          optionIdx,
+                                        )
+                                      }>
+                                      <CustomIcon
+                                        name="add"
+                                        color={COLORS.primaryLightGreyHex}
+                                        size={FONTSIZE.size_10}
+                                      />
+                                    </TouchableOpacity>
+                                  )}
                                 </View>
                               </View>
-                            </View>
-
-                            <View style={styles.ContainerInputSpiner}>
-                              {!tab && (
-                                <TouchableOpacity
-                                  disabled={option.quantity === 0}
-                                  style={styles.InputSpinerAction}
-                                  onPress={() =>
-                                    handleVariantMinusQuanity(
-                                      index,
-                                      variantIdx,
-                                      optionIdx,
-                                    )
-                                  }>
-                                  <CustomIcon
-                                    name="minus"
-                                    color={COLORS.primaryLightGreyHex}
-                                    size={FONTSIZE.size_10}
-                                  />
-                                </TouchableOpacity>
-                              )}
-
-                              <View style={styles.CartItemQuantityContainer}>
-                                <Text style={styles.CartItemQuantityText}>
-                                  {option.quantity}
-                                </Text>
-                              </View>
-
-                              {!tab && (
-                                <TouchableOpacity
-                                  style={styles.InputSpinerAction}
-                                  onPress={() =>
-                                    handleVariantAddQuanity(
-                                      index,
-                                      variantIdx,
-                                      optionIdx,
-                                    )
-                                  }>
-                                  <CustomIcon
-                                    name="add"
-                                    color={COLORS.primaryLightGreyHex}
-                                    size={FONTSIZE.size_10}
-                                  />
-                                </TouchableOpacity>
-                              )}
-                            </View>
-                          </View>
-                        ))
-                      ) : (
-                        <></>
-                      )}
-                    </Fragment>
-                  ))
-                ) : (
-                  <></>
-                )}
-              </View>
-            ),
-          )}
+                            ),
+                          )
+                        ) : (
+                          <></>
+                        )}
+                      </Fragment>
+                    ))
+                  ) : (
+                    <></>
+                  )}
+                </View>
+              ),
+            )}
+          </View>
         </ScrollView>
       ) : (
         <TouchableOpacity style={styles.ContainerAnimationPrettie}>
@@ -407,9 +430,7 @@ const StoreCart: React.FC<StoreCartProps> = ({
               </Text>
             </View>
 
-            <Text style={styles.TextTotalPriceCartFood}>
-              {tab ? dataCart.total / 100 : totalPrice()} $
-            </Text>
+            <Text style={styles.TextTotalPriceCartFood}>{total()} $</Text>
             <CustomIcon
               name={'cart'}
               color={'#008810'}

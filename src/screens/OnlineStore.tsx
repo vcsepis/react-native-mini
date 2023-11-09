@@ -13,9 +13,8 @@ import {
   SPACING,
   widthResponsive,
 } from '../theme/theme';
-import {useEffect, useState} from 'react';
-import {Pusher, PusherEvent} from '@pusher/pusher-websocket-react-native';
-import {handleConnectPusher} from '../utils/pusher';
+import {useState} from 'react';
+import {useStore} from '../store/store';
 
 const PROCESS_STATUS_DATA = [
   {
@@ -30,13 +29,25 @@ const PROCESS_STATUS_DATA = [
 
 const OnlineStoreScreen = () => {
   const [selectedId, setSelectedId] = useState(1);
+  const [selectedOrder, setSelectedOrder] = useState(1);
   const handleSelectedId = (id: any) => setSelectedId(id);
+
+  const OrderOnline = useStore((state: any) => state.OrderOnline); // data from noti process
+  const onAddOrderOnlineCart = useStore(
+    (state: any) => state.onAddOrderOnlineCart,
+  ); // handle add view detail order
+
+  const handleDetailOnlineCart = (item: any) => {
+    onAddOrderOnlineCart([item?.detailOrder]);
+    setSelectedOrder(item.resourceId);
+  };
 
   return (
     <View style={styles.Root}>
       <View style={styles.HeaderContain}>
         {PROCESS_STATUS_DATA.map((item: any) => (
           <TouchableOpacity
+            key={item.id}
             style={{
               ...styles.StatusOrder,
               backgroundColor:
@@ -58,34 +69,70 @@ const OnlineStoreScreen = () => {
       </View>
       <View>
         <ScrollView>
-          <View style={styles.TableOrder}>
-            <View style={styles.Row} key={1}>
-              <View style={styles.OrderInfo}>
-                <Text style={styles.TextOrderId}>Orders: 1231231</Text>
-                <Text style={styles.TextNumber}>Tabel: 7</Text>
-              </View>
-              <Text style={styles.TextNumber}>20.30pm</Text>
-            </View>
-
-            <View style={styles.Row}>
-              <Text style={styles.TextCommon}>Qta: 7</Text>
-              <View style={styles.StatusPrice}>
-                <Text style={styles.TextOrderId}>$ 100</Text>
-                <TouchableOpacity
+          <View style={styles.CurrentOrder}>
+            {OrderOnline?.length > 0 &&
+              OrderOnline?.map((item: any) => (
+                <View
+                  key={item?.resourceId}
                   style={{
-                    ...styles.StatusOrder,
-                    backgroundColor: COLORS.primaryGreenRGB,
+                    ...styles.TableOrder,
+                    borderColor:
+                      item?.resourceId === selectedOrder
+                        ? COLORS.primaryGreenRGB
+                        : '#ddd',
                   }}>
-                  <Text
-                    style={{
-                      ...styles.TextCommon,
-                      color: COLORS.primaryWhiteHex,
-                    }}>
-                    {'Dine-in'}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            </View>
+                  <View style={styles.Row} key={1}>
+                    <View style={styles.OrderInfo}>
+                      <Text style={styles.TextOrderId}>
+                        Orders: {item?.resourceId}
+                      </Text>
+                      <Text style={styles.TextNumber}>{item?.type}</Text>
+                    </View>
+                    <Text style={styles.TextNumber}>{item.time}</Text>
+                  </View>
+
+                  <View style={styles.Row}>
+                    <Text style={styles.TextCommon}>
+                      Qta: {item?.detailOrder?.products?.length}
+                    </Text>
+                    <View style={styles.StatusPrice}>
+                      <Text style={styles.TextOrderId}>
+                        $ {(item?.detailOrder?.total / 100).toFixed(2)}
+                      </Text>
+                      <TouchableOpacity
+                        style={{
+                          ...styles.StatusOrder,
+                          backgroundColor: COLORS.primaryGreenRGB,
+                        }}
+                        onPress={() => handleDetailOnlineCart(item)}>
+                        <Text
+                          style={{
+                            ...styles.TextCommon,
+                            color: COLORS.primaryWhiteHex,
+                            paddingHorizontal: SPACING.space_10,
+                          }}>
+                          View
+                        </Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={{
+                          ...styles.StatusOrder,
+                          backgroundColor: COLORS.primaryOrangeHex,
+                        }}
+                        onPress={() => handleDetailOnlineCart(item)}>
+                        <Text
+                          style={{
+                            ...styles.TextCommon,
+                            color: COLORS.primaryWhiteHex,
+                            paddingHorizontal: SPACING.space_10,
+                          }}>
+                          Print Now
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                </View>
+              ))}
           </View>
         </ScrollView>
       </View>
@@ -145,6 +192,7 @@ const styles = StyleSheet.create({
     borderRadius: SPACING.space_15,
     borderColor: '#ddd',
     borderWidth: SPACING.space_2,
+    marginBottom: SPACING.space_10,
   },
   ContainerTableHeaderNumber: {
     width: '20%',
@@ -207,9 +255,12 @@ const styles = StyleSheet.create({
   },
   StatusPrice: {
     flexDirection: 'row',
-    gap: SPACING.space_10,
+    gap: SPACING.space_16,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  CurrentOrder: {
+    marginBottom: widthResponsive(24),
   },
 });
 

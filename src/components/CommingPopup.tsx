@@ -260,12 +260,28 @@ const CommingPopup: React.FC<PopUpCommingProps> = ({onToggle, onSubmit}) => {
               <View style={styles.CartDisplay}>
                 <View style={styles.CartContentCount}>
                   <Text style={styles.TextCountCartFood} numberOfLines={1}>
+                    Tax
+                  </Text>
+                </View>
+
+                <Text style={styles.TextTotalPriceCartFood}>
+                  $ {(detailOrder?.vat / 100).toFixed(2)}
+                </Text>
+              </View>
+
+              <View
+                style={{
+                  ...styles.CartDisplay,
+                  paddingVertical: SPACING.space_4,
+                }}>
+                <View style={styles.CartContentCount}>
+                  <Text style={styles.TextCountCartFood} numberOfLines={1}>
                     Total
                   </Text>
                 </View>
 
                 <Text style={styles.TextTotalPriceCartFood}>
-                  {detailOrder?.total} ${' ' + ' '}
+                  $ {(detailOrder?.total / 100).toFixed(2)} {' ' + ' '}
                   <CustomIcon
                     name={'cart'}
                     color={'#008810'}
@@ -312,7 +328,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.primaryWhiteHex,
     borderRadius: SPACING.space_15,
     padding: SPACING.space_30,
-    height: '90%',
+    height: '95%',
   },
   TextCommon: {
     fontFamily: FONTFAMILY.poppins_regular,
@@ -440,7 +456,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: SPACING.space_4,
   },
   CartContentCount: {
     gap: widthResponsive(2),

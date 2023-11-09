@@ -132,6 +132,12 @@ const StoreCart: React.FC<StoreCartProps> = ({
     else return totalPrice();
   };
 
+  const handleButtonName = () => {
+    if (currentTab === TAB.TAB_FOOD) return `Readly to ${dataCart?.type}`;
+    if (tab) return 'Print Now';
+    else return 'Pay Now';
+  };
+
   return (
     <View style={styles.Root}>
       <View style={styles.Header}>
@@ -442,7 +448,7 @@ const StoreCart: React.FC<StoreCartProps> = ({
             onPress={() => (tab ? onHandlePrint(dataCart) : onSubmit())}
             style={styles.CartPaymentDisplay}>
             <Text style={styles.TextTotalPaymentCartFood}>
-              {tab ? 'Print Now' : 'Pay Now'}
+              {handleButtonName()}
             </Text>
           </TouchableOpacity>
         </View>

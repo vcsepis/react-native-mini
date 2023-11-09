@@ -160,12 +160,12 @@ const styles = StyleSheet.create({
   TextNumber: {
     fontFamily: FONTFAMILY.poppins_semibold,
     color: COLORS.primaryBlackHex,
-    fontSize: FONTSIZE.size_24,
+    fontSize: FONTSIZE.size_20,
   },
   TextOrderId: {
     fontFamily: FONTFAMILY.poppins_semibold,
     color: COLORS.primaryGreenRGB,
-    fontSize: FONTSIZE.size_28,
+    fontSize: FONTSIZE.size_24,
   },
   Row: {
     maxWidth: '100%',

@@ -3,6 +3,7 @@ import {NavigationContainer} from '@react-navigation/native';
 import SplashScreen from 'react-native-splash-screen';
 import {AuthProvider} from './src/utils';
 import Navigation from './src/navigation';
+import Toast from 'react-native-toast-message';
 
 const App = () => {
   useEffect(() => {
@@ -10,11 +11,14 @@ const App = () => {
   }, []);
 
   return (
-    <AuthProvider>
-      <NavigationContainer>
-        <Navigation />
-      </NavigationContainer>
-    </AuthProvider>
+    <>
+      <AuthProvider>
+        <NavigationContainer>
+          <Navigation />
+        </NavigationContainer>
+      </AuthProvider>
+      <Toast />
+    </>
   );
 };
 

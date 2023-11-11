@@ -12,7 +12,7 @@ import {
 
 import {COLORS, FONTFAMILY, FONTSIZE, SPACING} from '../../theme/theme';
 import LottieView from 'lottie-react-native';
-import {CacheUtil} from '../../utils';
+import {Cache} from '../../utils';
 import PopUpAnimation from '../../components/PopUpAnimation';
 import {HttpClient} from '../../service/http-client';
 
@@ -129,8 +129,8 @@ const LoginScreen = ({navigation}: any) => {
   };
 
   const handleLoginSuccess = async (res: any) => {
-    CacheUtil.Token = res?.result?.accessToken;
-    CacheUtil.RefreshToken = res?.result?.refreshToken;
+    Cache.Token = res?.result?.accessToken;
+    Cache.RefreshToken = res?.result?.refreshToken;
 
     // setStateSuccess({...initStateLogin, step1: true});
 

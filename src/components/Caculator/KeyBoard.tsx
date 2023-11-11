@@ -7,91 +7,55 @@ import {COLORS, SPACING} from '../../theme/theme';
 import {useStore} from '../../store/store';
 
 export default function MyKeyboard({setChange}: any) {
-  const CaculateCart = useStore((state: any) => state.CaculateCart);
+  const CalculateCart = useStore((state: any) => state.CalculateCart);
 
-  const [firstNumber, setFirstNumber] = React.useState('');
+  const [cash, setCash] = React.useState('');
   const [secondNumber, setSecondNumber] = React.useState('');
   const [operation, setOperation] = React.useState('');
   const [result, setResult] = React.useState<number>(0);
 
   const handleNumberPress = (buttonValue: string) => {
-    if (firstNumber.length < 10) {
-      setFirstNumber(firstNumber + buttonValue);
+    if (cash.length < 10) {
+      setCash(cash + buttonValue);
     }
   };
 
   const handleOperationPress = (buttonValue: string) => {
     setOperation(buttonValue);
-    setSecondNumber(firstNumber);
-    setFirstNumber('');
+    setSecondNumber(cash);
+    setCash('');
   };
 
   const clear = () => {
-    setFirstNumber('');
+    setCash('');
     setSecondNumber('');
     setOperation('');
     setResult(0);
   };
 
-  const firstNumberDisplay = () => {
-    if (result !== 0) {
-      return (
-        <Text
-          style={
-            result < 99999
-              ? [Styles.screenFirstNumber, {color: myColors.result}]
-              : [
-                  Styles.screenFirstNumber,
-                  {fontSize: 18, color: myColors.result},
-                ]
-          }>
-          {result?.toString()}
-        </Text>
-      );
-    }
-    if (firstNumber && firstNumber.length < 6) {
-      return (
-        <Text style={Styles.screenFirstNumber}>
-          {(Number(firstNumber) / 100).toFixed(2)}
-        </Text>
-      );
-    }
-    if (firstNumber === '') {
-      return <Text style={Styles.screenFirstNumber}>{'0'}</Text>;
-    }
-    if (firstNumber.length > 5 && firstNumber.length < 8) {
-      return (
-        <Text style={[Styles.screenFirstNumber, {fontSize: 70}]}>
-          {(Number(firstNumber) / 100).toFixed(2)}
-        </Text>
-      );
-    }
-    if (firstNumber.length > 7) {
-      return (
-        <Text style={[Styles.screenFirstNumber, {fontSize: 50}]}>
-          {(Number(firstNumber) / 100).toFixed(2)}
-        </Text>
-      );
-    }
+  const cashDisplay = () => {
+    return (
+      <Text style={[Styles.screenFirstNumber]}>{(+cash / 100).toFixed(2)}</Text>
+    );
   };
 
   const getResult = () => {
     switch (operation) {
       case '+':
         clear();
-        setResult(parseInt(secondNumber) + parseInt(firstNumber));
+        setResult(parseInt(secondNumber) + parseInt(cash));
         break;
       case '-':
         clear();
-        setResult(parseInt(secondNumber) - parseInt(firstNumber));
+        setResult(parseInt(secondNumber) - parseInt(cash));
         break;
       case '*':
         clear();
-        setResult(parseInt(secondNumber) * parseInt(firstNumber));
+        setResult(parseInt(secondNumber) * parseInt(cash));
         break;
       case '/':
         clear();
-        setResult(parseInt(secondNumber) / parseInt(firstNumber));
+        setResult(parseInt(secondNumber) / parseInt(cash));
         break;
       default:
         clear();
@@ -101,11 +65,16 @@ export default function MyKeyboard({setChange}: any) {
   };
 
   React.useEffect(() => {
+    const tempChange =
+      +cash / 100 - CalculateCart?.total
+        ? 0
+        : (+cash / 100 - CalculateCart?.total);
+
     setChange({
-      change: (CaculateCart?.total - Number(firstNumber) / 100).toFixed(2),
-      cash: Number(firstNumber) / 100,
+      change: tempChange,
+      cash: +cash / 100,
     });
-  }, [firstNumber]);
+  }, [cash]);
 
   return (
     <View style={Styles.viewBottom}>
@@ -121,7 +90,7 @@ export default function MyKeyboard({setChange}: any) {
             borderRadius: SPACING.space_15,
             padding: SPACING.space_10,
           }}>
-          {firstNumberDisplay()}
+          {cashDisplay()}
         </View>
         <Text style={Styles.screenChange}>Change</Text>
         <View
@@ -137,9 +106,9 @@ export default function MyKeyboard({setChange}: any) {
           </Text>
         </Text> */}
           <Text style={Styles.screenFirstNumber}>
-            {Number(firstNumber) === 0
+            {+cash / 100 - CalculateCart?.total <= 0
               ? 0
-              : (CaculateCart?.total - Number(firstNumber) / 100).toFixed(2)}
+              : (+cash / 100 - CalculateCart?.total).toFixed(2)}
           </Text>
         </View>
       </View>
@@ -178,13 +147,8 @@ export default function MyKeyboard({setChange}: any) {
         /> */}
         </View>
         <View style={Styles.row}>
-          <Button isGray title="." onPress={() => handleNumberPress('.')} />
           <Button isGray title="0" onPress={() => handleNumberPress('0')} />
-          <Button
-            isGray
-            title="⌫"
-            onPress={() => setFirstNumber(firstNumber.slice(0, -1))}
-          />
+          <Button isGray title="⌫" onPress={() => setCash(cash.slice(0, -1))} />
           {/* <Button title="=" isBlue onPress={() => getResult()} /> */}
         </View>
       </View>

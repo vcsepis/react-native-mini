@@ -1,18 +1,16 @@
 import {
-  Alert,
   Image,
   Modal,
-  Platform,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
-  ToastAndroid,
   TouchableOpacity,
   View,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import LottieView from 'lottie-react-native';
+import Toast from 'react-native-toast-message';
 import {
   BORDERRADIUS,
   COLORS,
@@ -25,13 +23,11 @@ import CustomIcon from './CustomIcon';
 import {useStore} from '../store/store';
 
 interface PopUpProductProps {
-  onToggle?: any;
-  onSubmit?: any;
 }
 
-const PopUpProduct: React.FC<PopUpProductProps> = ({onToggle}) => {
+const PopUpProduct: React.FC<PopUpProductProps> = ({}) => {
   const [viewHeight, setViewHeight] = useState(0);
-  const IsShowProduct = useStore((state: any) => state.IsShowProduct);
+  const isShowProduct = useStore((state: any) => state.IsShowProduct);
   const onIsShowProduct = useStore((state: any) => state.onIsShowProduct);
   const ProductCurrent = useStore((state: any) => state.ProductCurrent);
   const StoreCart = useStore((state: any) => state.StoreCart);
@@ -66,15 +62,15 @@ const PopUpProduct: React.FC<PopUpProductProps> = ({onToggle}) => {
     setProducts(updatedData);
   };
 
-  const handleAddVariantQuantity = (idxVariant: any, idxOpition: any) => {
+  const handleAddVariantQuantity = (idxVariant: any, idxOption: any) => {
     const updatedData = {...products};
-    updatedData.variants[idxVariant].options[idxOpition].quantity += 1;
+    updatedData.variants[idxVariant].options[idxOption].quantity += 1;
     setProducts(updatedData);
   };
 
-  const handleMinusVariantQuantity = (idxVariant: any, idxOpition: any) => {
+  const handleMinusVariantQuantity = (idxVariant: any, idxOption: any) => {
     const updatedData = {...products};
-    updatedData.variants[idxVariant].options[idxOpition].quantity -= 1;
+    updatedData.variants[idxVariant].options[idxOption].quantity -= 1;
     setProducts(updatedData);
   };
 
@@ -97,20 +93,15 @@ const PopUpProduct: React.FC<PopUpProductProps> = ({onToggle}) => {
 
   const handleChangeNote = (text: any) => {
     const updatedData = {...products};
-    updatedData.discription = text;
+    updatedData.description = text;
     setProducts(updatedData);
   };
 
   const onSubmit = () => {
-    if (Platform.OS) {
-      Alert.alert(`${products.name} is Added to Cart`);
-    } else {
-      ToastAndroid.showWithGravity(
-        `${products.name} is Added to Cart`,
-        ToastAndroid.SHORT,
-        ToastAndroid.CENTER,
-      );
-    }
+    Toast.show({
+      type: 'success',
+      text1: `${products.name} is Added to cart`,
+    });
 
     const total = totalPrice();
     const StoreCartUpdate = [...StoreCart];
@@ -124,295 +115,294 @@ const PopUpProduct: React.FC<PopUpProductProps> = ({onToggle}) => {
     }
 
     return onIsShowProduct(false);
-    // }
   };
 
   return (
+    <Modal animationType="fade" transparent={true} visible={isShowProduct} onRequestClose={()=>{
+      onIsShowProduct(false);
+    }}>
     <View style={styles.CenteredView}>
-      <Modal animationType="fade" transparent={true} visible={IsShowProduct}>
-        <View style={styles.CenteredView}>
-          <View style={styles.ModalView}>
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-              }}>
-              <Text style={styles.TextTitle}>Add Product</Text>
+      <View style={styles.ModalView}>
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}>
+          <Text style={styles.TextTitle}>Add Product</Text>
 
-              <TouchableOpacity
-                style={styles.InputSpinerAction}
-                onPress={handleToggleProduct}>
-                <CustomIcon
-                  name="close"
-                  color={COLORS.primaryLightGreyHex}
-                  size={FONTSIZE.size_18}
-                />
-              </TouchableOpacity>
-            </View>
+          <TouchableOpacity
+            style={styles.InputSpinerAction}
+            onPress={handleToggleProduct}>
+            <CustomIcon
+              name="close"
+              color={COLORS.primaryLightGreyHex}
+              size={FONTSIZE.size_18}
+            />
+          </TouchableOpacity>
+        </View>
 
-            {/* Container Product*/}
-            <ScrollView>
+        {/* Container Product*/}
+        <ScrollView>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              marginVertical: SPACING.space_20,
+              paddingBottom: viewHeight + SPACING.space_30,
+              gap: SPACING.space_20,
+            }}>
+            {/* Contain */}
+            <View style={{width: '65%'}}>
+              {/* Product */}
               <View
                 style={{
+                  backgroundColor: '#ddd',
+                  borderRadius: SPACING.space_15,
+                  padding: SPACING.space_10,
                   flexDirection: 'row',
                   justifyContent: 'space-between',
-                  marginVertical: SPACING.space_20,
-                  paddingBottom: viewHeight + SPACING.space_30,
-                  gap: SPACING.space_20,
                 }}>
-                {/* Contain */}
-                <View style={{width: '65%'}}>
-                  {/* Product */}
+                <View style={{flexDirection: 'row'}}>
+                  <Image
+                    source={require('../assets/app_images/discout.png')}
+                    style={styles.ItemImage}
+                  />
+
                   <View
                     style={{
-                      backgroundColor: '#ddd',
-                      borderRadius: SPACING.space_15,
-                      padding: SPACING.space_10,
-                      flexDirection: 'row',
                       justifyContent: 'space-between',
+                      marginLeft: SPACING.space_10,
                     }}>
-                    <View style={{flexDirection: 'row'}}>
-                      <Image
-                        source={require('../assets/app_images/discout.png')}
-                        style={styles.ItemImage}
-                      />
-
-                      <View
-                        style={{
-                          justifyContent: 'space-between',
-                          marginLeft: SPACING.space_10,
-                        }}>
-                        <Text style={styles.TextTitle}>{products?.name}</Text>
-                        <View>
-                          <Text style={styles.TextCommon}>Price</Text>
-                          <Text style={styles.TextPrice}>
-                            {(products?.price / 100).toFixed(2)} $
-                          </Text>
-                        </View>
-                      </View>
-                    </View>
-
-                    <View style={styles.ContainerInputSpiner}>
-                      <TouchableOpacity
-                        disabled={quantity === 1}
-                        style={styles.InputSpinerAction}
-                        onPress={handleMinusQuanity}>
-                        <CustomIcon
-                          name="minus"
-                          color={COLORS.primaryLightGreyHex}
-                          size={FONTSIZE.size_10}
-                        />
-                      </TouchableOpacity>
-                      <View style={styles.CartItemQuantityContainer}>
-                        <Text style={styles.CartItemQuantityText}>
-                          {products.quantity}
-                        </Text>
-                      </View>
-                      <TouchableOpacity
-                        style={styles.InputSpinerAction}
-                        onPress={handleAddQuanity}>
-                        <CustomIcon
-                          name="add"
-                          color={COLORS.primaryLightGreyHex}
-                          size={FONTSIZE.size_10}
-                        />
-                      </TouchableOpacity>
+                    <Text style={styles.TextTitle}>{products?.name}</Text>
+                    <View>
+                      <Text style={styles.TextCommon}>Price</Text>
+                      <Text style={styles.TextPrice}>
+                        {(products?.price / 100).toFixed(2)} $
+                      </Text>
                     </View>
                   </View>
-
-                  {/* Note */}
-                  <Text
-                    style={{
-                      ...styles.TextCommon,
-                      paddingTop: SPACING.space_20,
-                      paddingBottom: SPACING.space_10,
-                    }}>
-                    Add Note
-                  </Text>
-
-                  <TextInput
-                    multiline={true}
-                    numberOfLines={4}
-                    onChangeText={text => handleChangeNote(text)}
-                    style={{
-                      backgroundColor: '#ddd',
-                      borderRadius: SPACING.space_15,
-                      padding: SPACING.space_10,
-                      fontFamily: FONTFAMILY.poppins_regular,
-                      fontSize: FONTSIZE.size_18,
-                      color: COLORS.primaryGreyHex,
-                      height: SPACING.space_30 * 3,
-                    }}
-                    placeholderTextColor={COLORS.primaryGreyHex}
-                    placeholder="Do you want to note something?"
-                    editable={true}
-                    value={products?.description}
-                  />
-
-                  {/* Description */}
-                  <Text
-                    style={{
-                      ...styles.TextCommon,
-                      paddingTop: SPACING.space_20,
-                      paddingBottom: SPACING.space_10,
-                    }}>
-                    Decription
-                  </Text>
-
-                  <TextInput
-                    multiline={true}
-                    numberOfLines={4}
-                    onChangeText={text => {}}
-                    value={products?.description}
-                    style={{
-                      backgroundColor: '#ddd',
-                      borderRadius: SPACING.space_15,
-                      padding: SPACING.space_10,
-                      fontFamily: FONTFAMILY.poppins_regular,
-                      fontSize: FONTSIZE.size_18,
-                      color: COLORS.primaryGreyHex,
-                      height: SPACING.space_30 * 3,
-                    }}
-                    placeholderTextColor={COLORS.primaryLightGreyHex}
-                    editable={false}
-                  />
                 </View>
 
-                {/* Variant */}
-                <View style={{width: '35%', flex: 1}}>
-                  <Text
-                    style={{
-                      ...styles.TextCommon,
-                      paddingBottom: SPACING.space_20,
-                    }}>
-                    Add Additional {`(${products?.variants?.length})`}
-                  </Text>
+                <View style={styles.ContainerInputSpiner}>
+                  <TouchableOpacity
+                    disabled={quantity === 1}
+                    style={styles.InputSpinerAction}
+                    onPress={handleMinusQuanity}>
+                    <CustomIcon
+                      name="minus"
+                      color={COLORS.primaryLightGreyHex}
+                      size={FONTSIZE.size_10}
+                    />
+                  </TouchableOpacity>
+                  <View style={styles.CartItemQuantityContainer}>
+                    <Text style={styles.CartItemQuantityText}>
+                      {products.quantity}
+                    </Text>
+                  </View>
+                  <TouchableOpacity
+                    style={styles.InputSpinerAction}
+                    onPress={handleAddQuanity}>
+                    <CustomIcon
+                      name="add"
+                      color={COLORS.primaryLightGreyHex}
+                      size={FONTSIZE.size_10}
+                    />
+                  </TouchableOpacity>
+                </View>
+              </View>
 
-                  {products?.variants?.length ? (
-                    products?.variants?.map((item: any, idxVariant: number) =>
-                      item?.options?.length ? (
-                        item?.options?.map(
-                          (option: any, idxOpition: number) => (
+              {/* Note */}
+              <Text
+                style={{
+                  ...styles.TextCommon,
+                  paddingTop: SPACING.space_20,
+                  paddingBottom: SPACING.space_10,
+                }}>
+                Add Note
+              </Text>
+
+              <TextInput
+                multiline={true}
+                numberOfLines={4}
+                onChangeText={text => handleChangeNote(text)}
+                style={{
+                  backgroundColor: '#ddd',
+                  borderRadius: SPACING.space_15,
+                  padding: SPACING.space_10,
+                  fontFamily: FONTFAMILY.poppins_regular,
+                  fontSize: FONTSIZE.size_18,
+                  color: COLORS.primaryGreyHex,
+                  height: SPACING.space_30 * 3,
+                }}
+                placeholderTextColor={COLORS.primaryGreyHex}
+                placeholder="Do you want to note something?"
+                editable={true}
+                value={products?.description}
+              />
+
+              {/* Description */}
+              <Text
+                style={{
+                  ...styles.TextCommon,
+                  paddingTop: SPACING.space_20,
+                  paddingBottom: SPACING.space_10,
+                }}>
+                Decription
+              </Text>
+
+              <TextInput
+                multiline={true}
+                numberOfLines={4}
+                onChangeText={text => {}}
+                value={products?.description}
+                style={{
+                  backgroundColor: '#ddd',
+                  borderRadius: SPACING.space_15,
+                  padding: SPACING.space_10,
+                  fontFamily: FONTFAMILY.poppins_regular,
+                  fontSize: FONTSIZE.size_18,
+                  color: COLORS.primaryGreyHex,
+                  height: SPACING.space_30 * 3,
+                }}
+                placeholderTextColor={COLORS.primaryLightGreyHex}
+                editable={false}
+              />
+            </View>
+
+            {/* Variant */}
+            <View style={{width: '35%', flex: 1}}>
+              <Text
+                style={{
+                  ...styles.TextCommon,
+                  paddingBottom: SPACING.space_20,
+                }}>
+                Add Additional {`(${products?.variants?.length})`}
+              </Text>
+
+              {products?.variants?.length ? (
+                products?.variants?.map((item: any, idxVariant: number) =>
+                  item?.options?.length ? (
+                    item?.options?.map(
+                      (option: any, idxOption: number) => (
+                        <View
+                          style={{
+                            backgroundColor: '#ddd',
+                            borderRadius: SPACING.space_15,
+                            padding: SPACING.space_10,
+                            flexDirection: 'row',
+                            justifyContent: 'space-between',
+                            width: '100%',
+                            marginBottom: SPACING.space_10,
+                          }}>
+                          <View style={{flexDirection: 'row'}}>
                             <View
                               style={{
-                                backgroundColor: '#ddd',
-                                borderRadius: SPACING.space_15,
-                                padding: SPACING.space_10,
-                                flexDirection: 'row',
                                 justifyContent: 'space-between',
-                                width: '100%',
-                                marginBottom: SPACING.space_10,
+                                marginLeft: SPACING.space_10,
                               }}>
-                              <View style={{flexDirection: 'row'}}>
-                                <View
-                                  style={{
-                                    justifyContent: 'space-between',
-                                    marginLeft: SPACING.space_10,
-                                  }}>
-                                  <View>
-                                    <Text style={styles.TextCommon}>
-                                      {option?.value}
-                                    </Text>
-                                    <Text style={styles.TextPrice}>
-                                      {(option?.price / 100).toFixed(1)}$
-                                    </Text>
-                                  </View>
-                                </View>
-                              </View>
-
-                              <View style={styles.ContainerInputSpiner}>
-                                <TouchableOpacity
-                                  disabled={option.quantity === 0}
-                                  style={styles.InputSpinerAction}
-                                  onPress={() =>
-                                    handleMinusVariantQuantity(
-                                      idxVariant,
-                                      idxOpition,
-                                    )
-                                  }>
-                                  <CustomIcon
-                                    name="minus"
-                                    color={COLORS.primaryLightGreyHex}
-                                    size={FONTSIZE.size_10}
-                                  />
-                                </TouchableOpacity>
-                                <View style={styles.CartItemQuantityContainer}>
-                                  <Text style={styles.CartItemQuantityText}>
-                                    {option.quantity}
-                                  </Text>
-                                </View>
-                                <TouchableOpacity
-                                  style={styles.InputSpinerAction}
-                                  onPress={() =>
-                                    handleAddVariantQuantity(
-                                      idxVariant,
-                                      idxOpition,
-                                    )
-                                  }>
-                                  <CustomIcon
-                                    name="add"
-                                    color={COLORS.primaryLightGreyHex}
-                                    size={FONTSIZE.size_10}
-                                  />
-                                </TouchableOpacity>
+                              <View>
+                                <Text style={styles.TextCommon}>
+                                  {option?.value}
+                                </Text>
+                                <Text style={styles.TextPrice}>
+                                  {(option?.price / 100).toFixed(1)}$
+                                </Text>
                               </View>
                             </View>
-                          ),
-                        )
-                      ) : (
-                        <></>
+                          </View>
+
+                          <View style={styles.ContainerInputSpiner}>
+                            <TouchableOpacity
+                              disabled={option.quantity === 0}
+                              style={styles.InputSpinerAction}
+                              onPress={() =>
+                                handleMinusVariantQuantity(
+                                  idxVariant,
+                                  idxOption,
+                                )
+                              }>
+                              <CustomIcon
+                                name="minus"
+                                color={COLORS.primaryLightGreyHex}
+                                size={FONTSIZE.size_10}
+                              />
+                            </TouchableOpacity>
+                            <View style={styles.CartItemQuantityContainer}>
+                              <Text style={styles.CartItemQuantityText}>
+                                {option.quantity}
+                              </Text>
+                            </View>
+                            <TouchableOpacity
+                              style={styles.InputSpinerAction}
+                              onPress={() =>
+                                handleAddVariantQuantity(
+                                  idxVariant,
+                                  idxOption,
+                                )
+                              }>
+                              <CustomIcon
+                                name="add"
+                                color={COLORS.primaryLightGreyHex}
+                                size={FONTSIZE.size_10}
+                              />
+                            </TouchableOpacity>
+                          </View>
+                        </View>
                       ),
                     )
                   ) : (
-                    <LottieView
-                      style={styles.AdditionalPrettie}
-                      source={require('../lottie/empty.json')}
-                      autoPlay
-                      loop
-                    />
-                  )}
-                </View>
-              </View>
-            </ScrollView>
-
-            <TouchableOpacity onPress={onSubmit}>
-              <View
-                style={{
-                  backgroundColor: COLORS.primaryWhiteHex,
-                  position: 'absolute',
-                  bottom: 0,
-                  right: 0,
-                  left: 0,
-                }}>
-                <View onLayout={onLayout} style={styles.CartDisplay}>
-                  <View style={styles.CartContentCount}>
-                    <Text style={styles.TextCountCartFood} numberOfLines={1}>
-                      Price
-                    </Text>
-                  </View>
-
-                  <Text style={styles.TextTotalPriceCartFood}>
-                    {totalPrice()} $
-                  </Text>
-                  <CustomIcon
-                    name={'cart'}
-                    color={'#008810'}
-                    size={FONTSIZE.size_24}
-                  />
-                </View>
-
-                <View style={styles.CartPaymentDisplay}>
-                  <Text style={styles.TextTotalPaymentCartFood}>
-                    Add To Order
-                  </Text>
-                </View>
-              </View>
-            </TouchableOpacity>
+                    <></>
+                  ),
+                )
+              ) : (
+                <LottieView
+                  style={styles.AdditionalPrettie}
+                  source={require('../lottie/empty.json')}
+                  autoPlay
+                  loop
+                />
+              )}
+            </View>
           </View>
-        </View>
-      </Modal>
+        </ScrollView>
+
+        <TouchableOpacity onPress={onSubmit}>
+          <View
+            style={{
+              backgroundColor: COLORS.primaryWhiteHex,
+              position: 'absolute',
+              bottom: 0,
+              right: 0,
+              left: 0,
+            }}>
+            <View onLayout={onLayout} style={styles.CartDisplay}>
+              <View style={styles.CartContentCount}>
+                <Text style={styles.TextCountCartFood} numberOfLines={1}>
+                  Price
+                </Text>
+              </View>
+
+              <Text style={styles.TextTotalPriceCartFood}>
+                {totalPrice()} $
+              </Text>
+              <CustomIcon
+                name={'cart'}
+                color={'#008810'}
+                size={FONTSIZE.size_24}
+              />
+            </View>
+
+            <View style={styles.CartPaymentDisplay}>
+              <Text style={styles.TextTotalPaymentCartFood}>
+                Add to cart
+              </Text>
+            </View>
+          </View>
+        </TouchableOpacity>
+      </View>
     </View>
+  </Modal>
   );
 };
 

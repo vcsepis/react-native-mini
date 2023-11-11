@@ -29,7 +29,7 @@ const OrderConfirm: React.FC<PopUpOrderConfirmProps> = ({
   onSubmit,
 }) => {
   const StoreCart = useStore((state: any) => state.StoreCart);
-  const CaculateCart = useStore((state: any) => state.CaculateCart);
+  const CalculateCart = useStore((state: any) => state.CalculateCart);
 
   const [note, setNote] = useState('');
 
@@ -131,7 +131,7 @@ const OrderConfirm: React.FC<PopUpOrderConfirmProps> = ({
                   <View style={styles.Order}>
                     <Text style={styles.TextOrderName}>Sub total</Text>
                     <Text style={styles.TextNumber}>
-                      $ {CaculateCart?.total}
+                      $ {CalculateCart?.total}
                     </Text>
                   </View>
                   <View style={styles.Order}>
@@ -149,7 +149,7 @@ const OrderConfirm: React.FC<PopUpOrderConfirmProps> = ({
                   <View style={styles.Order}>
                     <Text style={styles.TextOrderName}>Change Amount</Text>
                     <Text style={styles.TextNumber}>
-                      $ {CaculateCart?.change}
+                      $ {CalculateCart?.change}
                     </Text>
                   </View>
                 </View>
@@ -164,7 +164,7 @@ const OrderConfirm: React.FC<PopUpOrderConfirmProps> = ({
                   color={COLORS.primaryOrangeHex}
                 />
                 <Text style={styles.TextPaymentMethod}>
-                  {CaculateCart?.paymentMethod}
+                  {CalculateCart?.paymentMethod}
                 </Text>
               </View>
               <TouchableOpacity

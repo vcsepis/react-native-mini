@@ -18,7 +18,7 @@ export const useStore = create(
       IsShowProduct: false,
       ProductCurrent: {},
       StoreCart: [],
-      CaculateCart: {
+      CalculateCart: {
         total: 0,
         data: {}
       },
@@ -238,7 +238,7 @@ export const useStore = create(
       addProductCurrent: (data: any) => set({ ProductCurrent: data }),
       onIsShowProduct: (data: any) => set({ IsShowProduct: data }),
       onAddStoreCart: (data: any) => set({ StoreCart: data }),
-      onAddCaculateCart: (data: any) => set({ CaculateCart: data }),
+      onAddCalculateCart: (data: any) => set({ CalculateCart: data }),
       onDetailStore: (data: any) => set({ DetailStore: data }),
       onAddTargetDevice: (data: any) => set({ TargetDevice: data }),
       onAddStoreViewCart: (data: any) => set({ StoreViewCart: data }), // add order for tab history

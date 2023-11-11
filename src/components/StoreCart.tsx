@@ -9,7 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {Fragment, useState} from 'react';
+import React, {Fragment, useEffect} from 'react';
 import {
   BORDERRADIUS,
   COLORS,
@@ -23,11 +23,11 @@ import {useStore} from '../store/store';
 import LottieView from 'lottie-react-native';
 import {TAB} from '../screens/HomeStoreScreen';
 import {HttpClient} from '../service/http-client';
-import {CacheUtil} from '../utils';
+import {Cache} from '../utils';
 
 interface StoreCartProps {
   handleToggle?: any;
-  onPressShowConected?: any;
+  onPressShowConnected?: any;
   tab?: any;
   onHandlePrint?: any;
   currentTab?: any;
@@ -35,7 +35,7 @@ interface StoreCartProps {
 
 const StoreCart: React.FC<StoreCartProps> = ({
   handleToggle,
-  onPressShowConected,
+  onPressShowConnected,
   tab = false,
   onHandlePrint,
   currentTab,
@@ -44,7 +44,7 @@ const StoreCart: React.FC<StoreCartProps> = ({
   const onIsShowProduct = useStore((state: any) => state.onIsShowProduct);
   const addProductCurrent = useStore((state: any) => state.addProductCurrent);
   const onAddStoreCart = useStore((state: any) => state.onAddStoreCart);
-  const onAddCaculateCart = useStore((state: any) => state.onAddCaculateCart);
+  const onAddCalculateCart = useStore((state: any) => state.onAddCalculateCart);
   const StoreViewCart = useStore((state: any) => state.StoreViewCart);
   const OrderOnlineCart = useStore((state: any) => state.OrderOnlineCart);
   const onAddOrderOnline = useStore((state: any) => state.onAddOrderOnline); // add data process when accepted
@@ -65,7 +65,7 @@ const StoreCart: React.FC<StoreCartProps> = ({
     onAddStoreCart(updateData);
   };
 
-  const handleAddQuanity = (index: any) => {
+  const handleAddQuantity = (index: any) => {
     const updatedData = [...StoreCart];
     updatedData[index].quantity += 1;
     onAddStoreCart(updatedData);
@@ -78,7 +78,7 @@ const StoreCart: React.FC<StoreCartProps> = ({
   };
 
   // Variants
-  const handleVariantAddQuanity = (
+  const handleVariantAddQuantity = (
     index: any,
     variantIdx: any,
     optionIdx: any,
@@ -88,7 +88,7 @@ const StoreCart: React.FC<StoreCartProps> = ({
     onAddStoreCart(updatedData);
   };
 
-  const handleVariantMinusQuanity = (
+  const handleVariantMinusQuantity = (
     index: any,
     variantIdx: any,
     optionIdx: any,
@@ -138,7 +138,7 @@ const StoreCart: React.FC<StoreCartProps> = ({
       return;
     }
 
-    onAddCaculateCart({total, data: StoreCart});
+    onAddCalculateCart({total, data: StoreCart});
     handleToggle();
   };
 
@@ -179,7 +179,7 @@ const StoreCart: React.FC<StoreCartProps> = ({
     if (!dataCart?.resourceId)
       return handleAlert({message: 'Please view order before print'});
 
-    const token = await CacheUtil.Token;
+    const token = await Cache.Token;
 
     const endpoint =
       dataCart?.status === 'completed'
@@ -248,16 +248,19 @@ const StoreCart: React.FC<StoreCartProps> = ({
   return (
     <View style={styles.Root}>
       <View style={styles.Header}>
-        <View style={styles.Printer}>
-          <Text style={styles.TextTitle}>Current Printer:</Text>
+        <View>
+          <View style={styles.Printer}>
+            <Text style={styles.TextTitle}>Current Printer:</Text>
 
-          <TouchableOpacity onPress={onPressShowConected}>
-            <Text style={styles.TextTotalPriceCartFood}>Connected</Text>
-          </TouchableOpacity>
+            <TouchableOpacity onPress={onPressShowConnected}>
+              <Text style={styles.TextTotalPriceCartFood}>Connect</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View>
+            <Text>Device text</Text>
+          </View>
         </View>
-        <Text style={styles.TextTotalPriceCartFood}>
-          items {`(${dataCart?.products?.length || dataCart?.length || 0})`}
-        </Text>
       </View>
 
       <View
@@ -394,7 +397,7 @@ const StoreCart: React.FC<StoreCartProps> = ({
                       {!tab && (
                         <TouchableOpacity
                           style={styles.InputSpinerAction}
-                          onPress={() => handleAddQuanity(index)}>
+                          onPress={() => handleAddQuantity(index)}>
                           <CustomIcon
                             name="add"
                             color={COLORS.primaryLightGreyHex}
@@ -450,7 +453,7 @@ const StoreCart: React.FC<StoreCartProps> = ({
                                       disabled={option.quantity === 0}
                                       style={styles.InputSpinerAction}
                                       onPress={() =>
-                                        handleVariantMinusQuanity(
+                                        handleVariantMinusQuantity(
                                           index,
                                           variantIdx,
                                           optionIdx,
@@ -475,7 +478,7 @@ const StoreCart: React.FC<StoreCartProps> = ({
                                     <TouchableOpacity
                                       style={styles.InputSpinerAction}
                                       onPress={() =>
-                                        handleVariantAddQuanity(
+                                        handleVariantAddQuantity(
                                           index,
                                           variantIdx,
                                           optionIdx,

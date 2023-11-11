@@ -1,2 +1,2 @@
-export {default as CacheUtil} from './cache';
+export {Cache} from './cache';
 export {AuthProvider, AuthContext} from './authen';

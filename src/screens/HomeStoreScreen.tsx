@@ -15,11 +15,11 @@ import {COLORS, FONTFAMILY, FONTSIZE, SPACING} from '../theme/theme';
 import LinearGradient from 'react-native-linear-gradient';
 import CustomIcon from '../components/CustomIcon';
 import {HttpClient} from '../service/http-client';
-import {CacheUtil} from '../utils';
+import {Cache} from '../utils';
 import FoodComponent from '../components/Food';
 import {useStore} from '../store/store';
 import PopUpProduct from '../components/PopupProduct';
-import PopUpCaculateCart from '../components/CaculateCart';
+import PopUpCalculateCart from '../components/CalculateCart';
 import OrderConfirm from '../components/OrderConfirm';
 import StoreCart from '../components/StoreCart';
 import ConnectedPopup from '../components/Connected';
@@ -33,7 +33,8 @@ import {
   handleConnectPusher,
   handleDisconnectPusher,
 } from '../utils/pusher';
-import CommingPopup from '../components/CommingPopup';
+import InComingPopup from '../components/InComingPopup';
+import Toast from 'react-native-toast-message';
 
 export enum TAB {
   TAB_HOME,
@@ -70,16 +71,17 @@ const INIT_STATE_PRODUCT = {
 const HomeStoreScreen = ({navigation}: any) => {
   const [tab, setTab] = useState(TAB.TAB_HOME);
   const [stateProduct, setStateProduct] = useState(INIT_STATE_PRODUCT);
-  const [isShow, setIsShow] = useState(false);
+  const [showCalculate, setShowCalculate] = useState(false);
   const [isShowOrderConfirm, setIsShowOrderConfirm] = useState(false);
-  const [statusConnected, setStatusConnected] = useState(false);
+  const [showConnectPrinter, setShowConnectPrinter] = useState(false);
+  const [connectedDevice, setConnectedDevice] = useState({});
 
   const AddCategory = useStore((state: any) => state.addCategory);
   const onDetailStore = useStore((state: any) => state.onDetailStore);
   const DetailStore = useStore((state: any) => state.DetailStore);
-  const IsShowProduct = useStore((state: any) => state.IsShowProduct);
-  const onAddCaculateCart = useStore((state: any) => state.onAddCaculateCart);
-  const CaculateCart = useStore((state: any) => state.CaculateCart);
+  const isShowProduct = useStore((state: any) => state.IsShowProduct);
+  const onAddCalculateCart = useStore((state: any) => state.onAddCalculateCart);
+  const CalculateCart = useStore((state: any) => state.CalculateCart);
   const StoreCartData = useStore((state: any) => state.StoreCart);
   const onAddStoreCart = useStore((state: any) => state.onAddStoreCart);
   const TargetDevice = useStore((state: any) => state.TargetDevice);
@@ -90,7 +92,7 @@ const HomeStoreScreen = ({navigation}: any) => {
   ); // handle add view detail order
   const onAddStoreViewCart = useStore((state: any) => state.onAddStoreViewCart);
 
-  const handleToggle = () => setIsShow(!isShow);
+  const handleShowCalculate = () => setShowCalculate(!showCalculate);
   const handleToggleConfirm = () => setIsShowOrderConfirm(!isShowOrderConfirm);
   const handleChangeTab = (tabSelected: any) => {
     setTab(tabSelected);
@@ -108,48 +110,59 @@ const HomeStoreScreen = ({navigation}: any) => {
   };
 
   const handleEvents = async () => {
-    if (!pusher) {
-      return;
-    }
+    // if (!pusher) {
+    //   return;
+    // }
 
-    console.log('connected');
-
-    await pusher.subscribe({
+    await pusher?.subscribe({
       channelName: DetailStore?.id, //change channel
-      onEvent: (event: PusherEvent) => {
-        console.log(`onEvent: ${event}`);
-        onAddStoreRealTime({
-          isShow: true,
-          data: event?.data,
-        });
+      onEvent: async (event: PusherEvent) => {
+        const token = await Cache.Token;
+        switch (event.eventName) {
+          case 'order-paid':
+            const data = JSON.parse(event.data);
+            const response = await HttpClient.get(
+              `/v1/e-commerce/orders/${data?.code}`,
+              null,
+              token,
+            );
+            console.log(response.result.order)
+            // onAddStoreRealTime({
+            //   isShow: true,
+            //   data: response.result.order,
+            // });
+            break;
+        }
       },
     });
   };
 
   useEffect(() => {
-    if (DetailStore?.id?.length > 0) {
+    if (DetailStore?.id) {
       connectPusher();
     }
 
     () => {
       return handleDisconnectPusher();
     };
-  }, [DetailStore?.id]);
+  }, [DetailStore]);
 
   useEffect(() => {
-    if (DetailStore?.id?.length > 0) {
-      handleEvents();
-    }
-  }, [pusher, DetailStore?.id]);
+    if (pusher?.connectionState === 'DISCONNECTED') return;
 
-  const onPressShowConected = () => setStatusConnected(!statusConnected);
+    handleEvents();
+  }, [pusher?.connectionState]);
+
+  const onPressShowConnected = (selectedDevice: any) => {
+    setShowConnectPrinter(!showConnectPrinter);
+  };
 
   useEffect(() => {
     handleGetStore();
   }, []);
 
   const handleGetStore = async () => {
-    const token = await CacheUtil.Token;
+    const token = await Cache.Token;
     const resCategories = await HttpClient.get(
       `/v1/e-commerce/categories?category=&page=&limit=&keyword=`,
       null,
@@ -176,16 +189,16 @@ const HomeStoreScreen = ({navigation}: any) => {
     });
   };
 
-  const handleSubmitCaculator = (change: any, paymentCd: any) => {
-    onAddCaculateCart({...CaculateCart, ...change, paymentMethod: paymentCd});
-    setIsShow(!isShow);
+  const handleSubmitCalculator = (change: any, paymentCd: any) => {
+    onAddCalculateCart({...CalculateCart, ...change, paymentMethod: paymentCd});
+    setShowCalculate(!showCalculate);
     setTimeout(() => {
       setIsShowOrderConfirm(true);
     }, 500);
   };
 
   const handleSubmitOrder = async (note?: any) => {
-    const token = await CacheUtil.Token;
+    const token = await Cache.Token;
 
     const StoreCartUpdate = StoreCartData?.map((item: any) => ({
       id: item.id,
@@ -201,7 +214,7 @@ const HomeStoreScreen = ({navigation}: any) => {
     const bodyRequest = {
       products: StoreCartUpdate,
       type: 'TAKE_AWAY',
-      paymentType: CaculateCart.paymentMethod,
+      paymentType: CalculateCart.paymentMethod,
       vat: 0,
       note: note,
     };
@@ -217,28 +230,16 @@ const HomeStoreScreen = ({navigation}: any) => {
     );
 
     if (res?.errorCode !== '000') {
-      if (Platform.OS) {
-        Alert.alert(`${res.message}`);
-      } else {
-        ToastAndroid.showWithGravity(
-          `${res.message}`,
-          ToastAndroid.SHORT,
-          ToastAndroid.CENTER,
-        );
-      }
-    } else {
-      if (Platform.OS) {
-        Alert.alert(`Order Success: ${res.result.order.code}`);
-        onHandlePrint(res.result.order);
-      } else {
-        ToastAndroid.showWithGravity(
-          `Order Success: ${res.result.order.code}`,
-          ToastAndroid.SHORT,
-          ToastAndroid.CENTER,
-        );
-        onHandlePrint(res.result.order);
-      }
+      return Toast.show({
+        type: 'error',
+        text1: `${res.message}}`,
+      });
     }
+    Toast.show({
+      type: 'success',
+      text1: `Order Success: ${res.result.order.code}`,
+    });
+    onHandlePrint(res.result.order);
 
     onAddStoreCart([]);
     setIsShowOrderConfirm(false);
@@ -525,20 +526,19 @@ const HomeStoreScreen = ({navigation}: any) => {
             <StoreCart
               tab={tab === TAB.TAB_MENU || tab === TAB.TAB_FOOD}
               currentTab={tab}
-              handleToggle={handleToggle}
-              onPressShowConected={onPressShowConected}
+              handleToggle={handleShowCalculate}
+              onPressShowConnected={onPressShowConnected}
               onHandlePrint={onHandlePrint}
             />
           </View>
 
-          {IsShowProduct && <PopUpProduct />}
+          <PopUpProduct />
 
-          {isShow && (
-            <PopUpCaculateCart
-              onSubmit={handleSubmitCaculator}
-              onToggle={handleToggle}
-            />
-          )}
+          <PopUpCalculateCart
+            onSubmit={handleSubmitCalculator}
+            onToggle={handleShowCalculate}
+            open={showCalculate}
+          />
 
           {isShowOrderConfirm && (
             <OrderConfirm
@@ -547,14 +547,17 @@ const HomeStoreScreen = ({navigation}: any) => {
             />
           )}
 
-          {statusConnected && (
-            <ConnectedPopup
-              onToggle={onPressShowConected}
-              onSubmit={onPressShowConected}
-            />
-          )}
+          <ConnectedPopup
+            onToggle={onPressShowConnected}
+            onSubmit={onPressShowConnected}
+            open={showConnectPrinter}
+          />
+          {/* 
+          {showConnectPrinter && (
+            
+          )} */}
 
-          {StoreRealTime.isShow && <CommingPopup />}
+          {StoreRealTime.isShow && <InComingPopup />}
         </View>
         {/* Product Popup */}
       </SafeAreaView>

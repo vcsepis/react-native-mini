@@ -1,13 +1,15 @@
 import {
+  ActivityIndicator,
+  Button,
   Modal,
   ScrollView,
   StyleSheet,
   Text,
-  ToastAndroid,
   TouchableOpacity,
   View,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
+import Toast from 'react-native-toast-message';
 import {
   BORDERRADIUS,
   COLORS,
@@ -18,42 +20,44 @@ import {
 } from '../theme/theme';
 import CustomIcon from './CustomIcon';
 import {useStore} from '../store/store';
-import EscPosPrinter from 'react-native-esc-pos-printer';
+import EscPosPrinter, {IPrinter} from 'react-native-esc-pos-printer';
 import {base64Image} from './Printer/base64Image';
 
 interface PopUpConnectedProps {
   onToggle?: any;
   onSubmit?: any;
+  open: boolean;
 }
 
-const MOCK = [
-  {
-    name: 'TM_M10',
-    ip: '192.168.192.168',
-    mac: '12:34:56:78:56:78',
-    target: 'TCP:192.168.192.168',
-    bt: '12:34:56:78:56:78',
-    usb: '000000000000000000',
-    usbSerialNumber: '123456789012345678', // available if usbSerialNumber === true
-  },
-];
 const ConnectedPopup: React.FC<PopUpConnectedProps> = ({
   onToggle,
   onSubmit,
+  open,
 }) => {
-  const [note, setNote] = useState('');
-  const [listDevice, setListDevice] = useState(MOCK);
+  const [listDevice, setListDevice] = useState<IPrinter[]>([]);
   const [printer, setPrinter] = React.useState<any>(null);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const onAddTargetDevice = useStore((state: any) => state.onAddTargetDevice);
 
-  const getStatusConnect = () => {
+  const getAvailableDevices = () => {
+    if (!open) {
+      return;
+    }
+    setLoading(true);
     EscPosPrinter.discover()
-      .then((printers: any) => {
+      .then((printers: IPrinter[]) => {
         setListDevice(printers);
       })
       .catch(e => {
-        setListDevice([]);
+        Toast.show({
+          type: 'error', 
+          text1: 'Error when get devices list'
+        })
+        // setListDevice([]);
+      })
+      .finally(() => {
+        setLoading(false);
       });
   };
 
@@ -63,19 +67,17 @@ const ConnectedPopup: React.FC<PopUpConnectedProps> = ({
       .then(() => {
         status = true;
         onAddTargetDevice(item);
-        ToastAndroid.showWithGravity(
-          `${item.name} is connected`,
-          ToastAndroid.SHORT,
-          ToastAndroid.CENTER,
-        );
+        Toast.show({
+          type: 'success', 
+          text1: `${item.name} is connected`,
+        })
       })
       .catch(e => {
         status = false;
-        ToastAndroid.showWithGravity(
-          `${item.name + ': ' + e.message}`,
-          ToastAndroid.SHORT,
-          ToastAndroid.CENTER,
-        );
+        Toast.show({
+          type: 'error', 
+          text1:  `${item.name}: ${e.message}`,
+        })
       });
 
     setPrinter(item);
@@ -89,11 +91,10 @@ const ConnectedPopup: React.FC<PopUpConnectedProps> = ({
       })
         .then(() => handlePrint())
         .catch(e => {
-          ToastAndroid.showWithGravity(
-            `${item.name + ': ' + e.message}`,
-            ToastAndroid.SHORT,
-            ToastAndroid.CENTER,
-          );
+          Toast.show({
+            type: 'error', 
+            text1:  `${item.name}: ${e.message}`,
+          })
         });
     }
   };
@@ -172,52 +173,61 @@ const ConnectedPopup: React.FC<PopUpConnectedProps> = ({
         .cut()
         .send();
 
-      ToastAndroid.showWithGravity(
-        `${printer.name + ': ' + status}`,
-        ToastAndroid.SHORT,
-        ToastAndroid.CENTER,
-      );
+        Toast.show({
+        type: 'success', 
+        text1:  `${printer.name}: ${status}`,
+      })
     } catch (e: any) {
-      ToastAndroid.showWithGravity(
-        `${printer.name + ': ' + e.message}`,
-        ToastAndroid.SHORT,
-        ToastAndroid.CENTER,
-      );
+      Toast.show({
+        type: 'error', 
+        text1:  `${printer.name}: ${e.message}`,
+      })
     }
   };
 
-  useEffect(() => getStatusConnect(), []);
+  useEffect(() => getAvailableDevices(), [open]);
 
   return (
-    <View style={styles.CenteredView}>
-      <Modal animationType="fade" transparent={true} visible={true}>
-        <View style={styles.CenteredView}>
-          <View style={styles.ModalView}>
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-              }}>
-              <Text style={styles.TextTitle}>List Device</Text>
+    <Modal animationType="fade" transparent={true} visible={open}>
+      <View style={styles.CenteredView}>
+        <View style={styles.ModalView}>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}>
+            <Text style={styles.TextTitle}>List Device</Text>
 
-              <TouchableOpacity
-                style={styles.InputSpinerAction}
-                onPress={onToggle}>
-                <CustomIcon
-                  name="close"
-                  color={COLORS.primaryLightGreyHex}
-                  size={FONTSIZE.size_18}
-                />
-              </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.InputSpinerAction}
+              onPress={onToggle}>
+              <CustomIcon
+                name="close"
+                color={COLORS.primaryLightGreyHex}
+                size={FONTSIZE.size_18}
+              />
+            </TouchableOpacity>
+          </View>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+            }}>
+            <View>
+              <Text style={styles.TextConfirm}>
+                Please select device for printer
+              </Text>
             </View>
+            <View>
+              <Button title="Reload" onPress={getAvailableDevices} />
+            </View>
+          </View>
 
-            <Text style={styles.TextConfirm}>
-              Please confirm the order below to completed payment
-            </Text>
+          {/* <App printerItem={printer} /> */}
 
-            {/* <App printerItem={printer} /> */}
-
+          {loading && <ActivityIndicator />}
+          {!loading && (
             <ScrollView>
               <View style={styles.TableOrder}>
                 <View style={styles.Row}>
@@ -225,7 +235,7 @@ const ConnectedPopup: React.FC<PopUpConnectedProps> = ({
                     <Text style={styles.TextHeaderTitle}>Name</Text>
                   </View>
                   <View style={styles.ContainerTableHeaderNumber}>
-                    <Text style={styles.TextHeaderTitle}>Ip</Text>
+                    <Text style={styles.TextHeaderTitle}>IP</Text>
                   </View>
                   <View style={styles.ContainerTableHeaderNumber}>
                     <Text style={styles.TextHeaderTitle}>Mac</Text>
@@ -238,48 +248,39 @@ const ConnectedPopup: React.FC<PopUpConnectedProps> = ({
                   </View>
                 </View>
 
-                {listDevice?.map((item: any, index: any) => (
-                  <TouchableOpacity
-                    style={styles.Row}
-                    key={index}
-                    onPress={() => onPressParing(item)}>
-                    <View style={styles.ContainerTableHeader}>
-                      <Text style={styles.TextCommon}>{item.name}</Text>
-                    </View>
-                    <View style={styles.ContainerTableHeaderNumber}>
-                      <Text style={styles.TextCommon}>{item.ip}</Text>
-                    </View>
-                    <View style={styles.ContainerTableHeaderNumber}>
-                      <Text style={styles.TextNumber}>{item.mac}</Text>
-                    </View>
-                    <View style={styles.ContainerTableHeaderNumber}>
-                      <Text style={styles.TextNumber}>{item.target}</Text>
-                    </View>
-                    <View style={styles.ContainerTableHeaderNumber}>
-                      <Text style={styles.TextCommon}>{item.bt}</Text>
-                    </View>
-                  </TouchableOpacity>
-                ))}
+                <>
+                  {listDevice?.map((item: any, index: any) => (
+                    <>
+                      <TouchableOpacity
+                        style={styles.Row}
+                        key={index}
+                        onPress={() => onPressParing(item)}>
+                        <View style={styles.ContainerTableHeader}>
+                          <Text style={styles.TextCommon}>{item.name}</Text>
+                        </View>
+                        <View style={styles.ContainerTableHeaderNumber}>
+                          <Text style={styles.TextCommon}>{item.ip}</Text>
+                        </View>
+                        <View style={styles.ContainerTableHeaderNumber}>
+                          <Text style={styles.TextNumber}>{item.mac}</Text>
+                        </View>
+                        <View style={styles.ContainerTableHeaderNumber}>
+                          <Text style={styles.TextNumber}>{item.target}</Text>
+                        </View>
+                        <View style={styles.ContainerTableHeaderNumber}>
+                          <Text style={styles.TextCommon}>{item.bt}</Text>
+                        </View>
+                      </TouchableOpacity>
+                    </>
+                  ))}
+                </>
               </View>
             </ScrollView>
+          )}
 
-            <View style={styles.Submit}>
-              <TouchableOpacity
-                onPress={() => onSubmit(note)}
-                style={{
-                  backgroundColor: COLORS.primaryGreenRGB,
-                  padding: SPACING.space_10,
-                  borderRadius: SPACING.space_15,
-                  width: '40%',
-                  alignSelf: 'center',
-                }}>
-                <Text style={styles.ScreenSubmit}>Done</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
         </View>
-      </Modal>
-    </View>
+      </View>
+    </Modal>
   );
 };
 
@@ -308,6 +309,7 @@ const styles = StyleSheet.create({
     fontFamily: FONTFAMILY.poppins_semibold,
     color: COLORS.primaryBlackHex,
     fontSize: FONTSIZE.size_18,
+    textTransform: 'uppercase',
   },
   TextTitle: {
     fontFamily: FONTFAMILY.poppins_regular,

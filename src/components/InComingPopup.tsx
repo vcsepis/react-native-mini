@@ -20,16 +20,16 @@ import {
 } from '../theme/theme';
 import moment from 'moment';
 import {useStore} from '../store/store';
-import {CacheUtil} from '../utils';
+import {Cache} from '../utils';
 import {HttpClient} from '../service/http-client';
 import CustomIcon from './CustomIcon';
 
-interface PopUpCommingProps {
+interface PopUpInComingProps {
   onToggle?: any;
   onSubmit?: any;
 }
 
-const CommingPopup: React.FC<PopUpCommingProps> = ({onToggle, onSubmit}) => {
+const ComingPopup: React.FC<PopUpInComingProps> = ({onToggle, onSubmit}) => {
   const newDate = new Date();
   const [detailOrder, setDetailOrder] = useState<any>({});
   const onAddStoreRealTime = useStore((state: any) => state.onAddStoreRealTime);
@@ -43,7 +43,7 @@ const CommingPopup: React.FC<PopUpCommingProps> = ({onToggle, onSubmit}) => {
   const handleReject = () => onAddStoreRealTime({isShow: false, data: {}});
 
   const handleGetDetailProduct = async (id: any, detailOrder?: any) => {
-    const token = await CacheUtil.Token;
+    const token = await Cache.Token;
 
     const res = await HttpClient.get(
       `/v1/e-commerce/orders/${id}`,
@@ -179,7 +179,7 @@ const CommingPopup: React.FC<PopUpCommingProps> = ({onToggle, onSubmit}) => {
                           </Text>
                         </View>
                         <Text style={styles.TextQuantity}>
-                          $ {(item.price / 100).toFixed(2)}
+                          $ {(item.total / 100).toFixed(2)}
                         </Text>
                       </View>
                       <View
@@ -486,4 +486,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CommingPopup;
+export default ComingPopup;

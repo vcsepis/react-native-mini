@@ -1,18 +1,12 @@
 import {
-  Alert,
-  Image,
   Modal,
-  Platform,
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
-  ToastAndroid,
   TouchableOpacity,
   View,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
-import LottieView from 'lottie-react-native';
 import {
   BORDERRADIUS,
   COLORS,
@@ -26,16 +20,18 @@ import {useStore} from '../store/store';
 import MyKeyboard from './Caculator/KeyBoard';
 import {Styles} from './Caculator/GlobalStyle';
 
-interface PopUpCaculateCartProps {
+interface PopUpCalculateCartProps {
   onToggle?: any;
   onSubmit?: any;
+  open: boolean;
 }
 
-const PopUpCaculateCart: React.FC<PopUpCaculateCartProps> = ({
+const PopUpCalculateCart: React.FC<PopUpCalculateCartProps> = ({
   onToggle,
   onSubmit,
+  open,
 }) => {
-  const CaculateCart = useStore((state: any) => state.CaculateCart);
+  const CalculateCart = useStore((state: any) => state.CalculateCart);
   const DetailStore = useStore((state: any) => state.DetailStore);
 
   const PaymentData = DetailStore?.metadata?.payments?.length
@@ -55,85 +51,83 @@ const PopUpCaculateCart: React.FC<PopUpCaculateCartProps> = ({
   }, [PaymentData?.length]);
 
   return (
-    <View style={styles.CenteredView}>
-      <Modal animationType="fade" transparent={true} visible={true}>
-        <View style={styles.CenteredView}>
-          <View style={styles.ModalView}>
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-              }}>
-              <Text style={styles.TextTitle}>Caculate Cart</Text>
+    <Modal animationType="fade" transparent={true} visible={open} onRequestClose={onToggle}>
+      <View style={styles.CenteredView}>
+        <View style={styles.ModalView}>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}>
+            <Text style={styles.TextTitle}>Calculate Cart</Text>
 
-              <TouchableOpacity
-                style={styles.InputSpinerAction}
-                onPress={onToggle}>
-                <CustomIcon
-                  name="close"
-                  color={COLORS.primaryLightGreyHex}
-                  size={FONTSIZE.size_18}
-                />
-              </TouchableOpacity>
-            </View>
+            <TouchableOpacity
+              style={styles.InputSpinerAction}
+              onPress={onToggle}>
+              <CustomIcon
+                name="close"
+                color={COLORS.primaryLightGreyHex}
+                size={FONTSIZE.size_18}
+              />
+            </TouchableOpacity>
+          </View>
 
-            {/* Container Product*/}
-            <ScrollView>
-              <View style={styles.Contain}>
-                <View style={styles.ContainerAmount}>
-                  <View style={styles.ItemAmount}>
-                    <Text style={styles.TextCommon}>Total Amount</Text>
-                  </View>
-                  <View style={{...styles.ItemAmount, alignItems: 'flex-end'}}>
-                    <Text style={styles.TextTotalAmount}>
-                      $ {CaculateCart.total}
-                    </Text>
-                  </View>
+          {/* Container Product*/}
+          <ScrollView>
+            <View style={styles.Contain}>
+              <View style={styles.ContainerAmount}>
+                <View style={styles.ItemAmount}>
+                  <Text style={styles.TextCommon}>Total Amount</Text>
                 </View>
-
-                <Text style={styles.TextCommon}>Payment Method</Text>
-
-                <ScrollView horizontal>
-                  <View style={styles.ContainerPaymentMethod}>
-                    {PaymentData?.map((item: any) => (
-                      <TouchableOpacity
-                        key={item.code}
-                        onPress={() => handleSelectPaymentCd(item?.code)}
-                        style={{
-                          ...styles.PaymentStatus,
-                          backgroundColor:
-                            paymentCd === item?.code
-                              ? COLORS.primaryGreenRGB
-                              : '#4E505F',
-                        }}>
-                        <Text style={styles.TextPayment}>{item?.name}</Text>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
-                </ScrollView>
-
-                <Text style={styles.TextCommon}>Input Cash</Text>
+                <View style={{...styles.ItemAmount, alignItems: 'flex-end'}}>
+                  <Text style={styles.TextTotalAmount}>
+                    $ {CalculateCart.total}
+                  </Text>
+                </View>
               </View>
 
-              <MyKeyboard setChange={setChange} />
+              <Text style={styles.TextCommon}>Payment Method</Text>
 
-              <TouchableOpacity
-                onPress={() => onSubmit(change, paymentCd)}
-                style={{
-                  backgroundColor: COLORS.primaryGreenRGB,
-                  padding: SPACING.space_10,
-                  borderRadius: SPACING.space_15,
-                  width: '40%',
-                  alignSelf: 'center',
-                }}>
-                <Text style={Styles.screenSubmit}>Done</Text>
-              </TouchableOpacity>
-            </ScrollView>
-          </View>
+              <ScrollView horizontal>
+                <View style={styles.ContainerPaymentMethod}>
+                  {PaymentData?.map((item: any) => (
+                    <TouchableOpacity
+                      key={item.code}
+                      onPress={() => handleSelectPaymentCd(item?.code)}
+                      style={{
+                        ...styles.PaymentStatus,
+                        backgroundColor:
+                          paymentCd === item?.code
+                            ? COLORS.primaryGreenRGB
+                            : '#4E505F',
+                      }}>
+                      <Text style={styles.TextPayment}>{item?.name}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </ScrollView>
+
+              <Text style={styles.TextCommon}>Input Cash</Text>
+            </View>
+
+            <MyKeyboard setChange={setChange} />
+
+            <TouchableOpacity
+              onPress={() => onSubmit(change, paymentCd)}
+              style={{
+                backgroundColor: COLORS.primaryGreenRGB,
+                padding: SPACING.space_10,
+                borderRadius: SPACING.space_15,
+                width: '40%',
+                alignSelf: 'center',
+              }}>
+              <Text style={Styles.screenSubmit}>Done</Text>
+            </TouchableOpacity>
+          </ScrollView>
         </View>
-      </Modal>
-    </View>
+      </View>
+    </Modal>
   );
 };
 
@@ -258,4 +252,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default PopUpCaculateCart;
+export default PopUpCalculateCart;

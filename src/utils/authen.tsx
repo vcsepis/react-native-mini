@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useReducer, createContext, useEffect} from 'react';
-import {CacheUtil} from '.';
+import {Cache} from '.';
 import {HttpClient} from '../service/http-client';
 
 export const AuthContext = createContext({});
@@ -37,7 +37,7 @@ export function AuthProvider({children}: any) {
   }, []);
 
   const verifyToken = async () => {
-    const token = await CacheUtil.Token;
+    const token = await Cache.Token;
     const res = await HttpClient.get(`/v1/auth/profile`, null, token);
 
     if (!res) return;
@@ -45,7 +45,7 @@ export function AuthProvider({children}: any) {
   };
 
   const reFreshToken = async () => {
-    const rToken = await CacheUtil.RefreshToken;
+    const rToken = await Cache.RefreshToken;
     const res = await HttpClient.get(`/v1/auth/refresh-token`, null, rToken);
 
     if (res.errorCode !== '000')
@@ -57,8 +57,8 @@ export function AuthProvider({children}: any) {
       });
 
     setAuth({rToken, aToken: res.result.accessToken});
-    CacheUtil.Token = res.result.accessToken;
-    CacheUtil.RefreshToken = res.result.refreshToken;
+    Cache.Token = res.result.accessToken;
+    Cache.RefreshToken = res.result.refreshToken;
   };
 
   return (

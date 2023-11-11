@@ -16,7 +16,7 @@ import {
   widthResponsive,
 } from '../theme/theme';
 import React, {useEffect, useState} from 'react';
-import {CacheUtil} from '../utils';
+import {Cache} from '../utils';
 import {HttpClient} from '../service/http-client';
 import moment from 'moment';
 import {useStore} from '../store/store';
@@ -54,7 +54,7 @@ const HistoryScreen = () => {
   }, []);
 
   const handleGetStore = async () => {
-    const token = await CacheUtil.Token;
+    const token = await Cache.Token;
     const res = await HttpClient.get(
       `/v1/e-commerce/orders?status=&fromDate=${beforeCurrentDate}&toDate=${currentDate}&paymentType=&page=1&limt=1000`,
       null,
@@ -68,7 +68,7 @@ const HistoryScreen = () => {
 
   const handleGetDetailProduct = async (item: any) => {
     setSelectedId(item?.id);
-    const token = await CacheUtil.Token;
+    const token = await Cache.Token;
     const res = await HttpClient.get(
       `v1/e-commerce/orders/${item?.id}`,
       null,

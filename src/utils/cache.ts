@@ -12,7 +12,7 @@ const Key = {
   IsShowAddress: 'is_show_address_campaign',
 };
 
-class Cache {
+export class Cache {
   // TOKEN
   static set Token(data: any) {
     AsyncStorage.setItem(Key.Token, data);
@@ -74,5 +74,3 @@ class Cache {
     await AsyncStorage.removeItem(Key.LastRefreshTokenAt);
   }
 }
-
-export default Cache;

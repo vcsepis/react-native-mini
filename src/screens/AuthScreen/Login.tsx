@@ -131,7 +131,6 @@ const LoginScreen = ({navigation}: any) => {
   const handleLoginSuccess = async (res: any) => {
     CacheUtil.Token = res?.result?.accessToken;
     CacheUtil.RefreshToken = res?.result?.refreshToken;
-    // const token = await CacheUtil.Token;
 
     // setStateSuccess({...initStateLogin, step1: true});
 

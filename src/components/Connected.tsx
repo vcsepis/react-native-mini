@@ -51,7 +51,6 @@ const ConnectedPopup: React.FC<PopUpConnectedProps> = ({
     EscPosPrinter.discover()
       .then((printers: any) => {
         setListDevice(printers);
-        console.log(printers[0]);
       })
       .catch(e => {
         setListDevice([]);

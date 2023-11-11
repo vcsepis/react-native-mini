@@ -13,8 +13,10 @@ import {
   SPACING,
   widthResponsive,
 } from '../theme/theme';
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 import {useStore} from '../store/store';
+import {screenTrace} from '../utils/firebase';
+import LottieView from 'lottie-react-native';
 
 const PROCESS_STATUS_DATA = [
   {
@@ -27,19 +29,52 @@ const PROCESS_STATUS_DATA = [
   },
 ];
 
-const OnlineStoreScreen = () => {
+const OnlineStoreScreen = ({onHandlePrint}: any) => {
   const [selectedId, setSelectedId] = useState(1);
   const [selectedOrder, setSelectedOrder] = useState(1);
-  const handleSelectedId = (id: any) => setSelectedId(id);
 
   const OrderOnline = useStore((state: any) => state.OrderOnline); // data from noti process
   const onAddOrderOnlineCart = useStore(
     (state: any) => state.onAddOrderOnlineCart,
   ); // handle add view detail order
 
+  const [oderOnline, setOderOnline] = useState(OrderOnline || []);
+
   const handleDetailOnlineCart = (item: any) => {
-    onAddOrderOnlineCart([item?.detailOrder]);
+    console.log(item?.completed);
+    onAddOrderOnlineCart([
+      {
+        ...item?.detailOrder,
+        resourceId: item?.resourceId,
+        status: item?.status,
+        completed: item?.completed,
+      },
+    ]);
     setSelectedOrder(item.resourceId);
+  };
+
+  useEffect(() => {
+    console.log('123');
+    setOderOnline(
+      OrderOnline?.filter((item: any) =>
+        selectedId === 1
+          ? item?.status === 'onProcess'
+          : item?.status !== 'onProcess',
+      ),
+    );
+  }, [OrderOnline]);
+
+  const handleSelectedId = (id: any) => {
+    setSelectedId(id);
+    if (id === 1) {
+      setOderOnline(
+        OrderOnline?.filter((item: any) => item?.status === 'onProcess'),
+      );
+    } else {
+      setOderOnline(
+        OrderOnline?.filter((item: any) => item?.status !== 'onProcess'),
+      );
+    }
   };
 
   return (
@@ -69,71 +104,85 @@ const OnlineStoreScreen = () => {
       </View>
       <View>
         <ScrollView>
-          <View style={styles.CurrentOrder}>
-            {OrderOnline?.length > 0 &&
-              OrderOnline?.map((item: any) => (
-                <View
-                  key={item?.resourceId}
-                  style={{
-                    ...styles.TableOrder,
-                    borderColor:
-                      item?.resourceId === selectedOrder
-                        ? COLORS.primaryGreenRGB
-                        : '#ddd',
-                  }}>
-                  <View style={styles.Row} key={1}>
-                    <View style={styles.OrderInfo}>
-                      <Text style={styles.TextOrderId}>
-                        Orders: {item?.resourceId}
-                      </Text>
-                      <Text style={styles.TextNumber}>{item?.type}</Text>
+          {oderOnline?.length ? (
+            <View style={styles.CurrentOrder}>
+              {oderOnline?.length > 0 &&
+                oderOnline?.map((item: any) => (
+                  <View
+                    key={item?.resourceId}
+                    style={{
+                      ...styles.TableOrder,
+                      borderColor:
+                        item?.resourceId === selectedOrder
+                          ? COLORS.primaryGreenRGB
+                          : '#ddd',
+                    }}>
+                    <View style={styles.Row} key={1}>
+                      <View style={styles.OrderInfo}>
+                        <Text style={styles.TextOrderId}>
+                          Orders: {item?.resourceId}
+                        </Text>
+                        <Text style={styles.TextNumber}>{item?.type}</Text>
+                      </View>
+                      <Text style={styles.TextNumber}>{item.time}</Text>
                     </View>
-                    <Text style={styles.TextNumber}>{item.time}</Text>
-                  </View>
 
-                  <View style={styles.Row}>
-                    <Text style={styles.TextCommon}>
-                      Qta: {item?.detailOrder?.products?.length}
-                    </Text>
-                    <View style={styles.StatusPrice}>
-                      <Text style={styles.TextOrderId}>
-                        $ {(item?.detailOrder?.total / 100).toFixed(2)}
+                    <View style={styles.Row}>
+                      <Text style={styles.TextCommon}>
+                        Qta: {item?.detailOrder?.products?.length}
                       </Text>
-                      <TouchableOpacity
-                        style={{
-                          ...styles.StatusOrder,
-                          backgroundColor: COLORS.primaryGreenRGB,
-                        }}
-                        onPress={() => handleDetailOnlineCart(item)}>
-                        <Text
-                          style={{
-                            ...styles.TextCommon,
-                            color: COLORS.primaryWhiteHex,
-                            paddingHorizontal: SPACING.space_10,
-                          }}>
-                          View
+                      <View style={styles.StatusPrice}>
+                        <Text style={styles.TextOrderId}>
+                          $ {(item?.detailOrder?.total / 100).toFixed(2)}
                         </Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity
-                        style={{
-                          ...styles.StatusOrder,
-                          backgroundColor: COLORS.primaryOrangeHex,
-                        }}
-                        onPress={() => handleDetailOnlineCart(item)}>
-                        <Text
+                        <TouchableOpacity
                           style={{
-                            ...styles.TextCommon,
-                            color: COLORS.primaryWhiteHex,
-                            paddingHorizontal: SPACING.space_10,
+                            ...styles.StatusOrder,
+                            backgroundColor: COLORS.primaryGreenRGB,
+                          }}
+                          onPress={() => handleDetailOnlineCart(item)}>
+                          <Text
+                            style={{
+                              ...styles.TextCommon,
+                              color: COLORS.primaryWhiteHex,
+                              paddingHorizontal: SPACING.space_10,
+                            }}>
+                            View
+                          </Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          style={{
+                            ...styles.StatusOrder,
+                            backgroundColor: COLORS.primaryOrangeHex,
+                          }}
+                          onPress={() => {
+                            setSelectedOrder(item.resourceId);
+                            onHandlePrint(item.detailOrder);
                           }}>
-                          Print Now
-                        </Text>
-                      </TouchableOpacity>
+                          <Text
+                            style={{
+                              ...styles.TextCommon,
+                              color: COLORS.primaryWhiteHex,
+                              paddingHorizontal: SPACING.space_10,
+                            }}>
+                            Print Now
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
                     </View>
                   </View>
-                </View>
-              ))}
-          </View>
+                ))}
+            </View>
+          ) : (
+            <TouchableOpacity style={styles.ContainerAnimationPrettie}>
+              <LottieView
+                style={styles.AnimationPrettie}
+                source={require('../lottie/empty.json')}
+                autoPlay
+                loop
+              />
+            </TouchableOpacity>
+          )}
         </ScrollView>
       </View>
     </View>
@@ -261,6 +310,15 @@ const styles = StyleSheet.create({
   },
   CurrentOrder: {
     marginBottom: widthResponsive(24),
+  },
+  ContainerAnimationPrettie: {
+    justifyContent: 'center',
+    paddingTop: SPACING.space_30 * 6,
+  },
+  AnimationPrettie: {
+    height: 300,
+    width: 'auto',
+    borderRadius: BORDERRADIUS.radius_20,
   },
 });
 

@@ -40,10 +40,6 @@ const CommingPopup: React.FC<PopUpCommingProps> = ({onToggle, onSubmit}) => {
 
   const data = JSON.parse(StoreRealTime?.data);
 
-  const handleAccept = () => {
-    handleGetDetailProduct(data.resourceId);
-  };
-
   const handleReject = () => onAddStoreRealTime({isShow: false, data: {}});
 
   const handleGetDetailProduct = async (id: any, detailOrder?: any) => {
@@ -82,12 +78,23 @@ const CommingPopup: React.FC<PopUpCommingProps> = ({onToggle, onSubmit}) => {
         ...data,
         time: moment(newDate).format('HH:mm:ss A'),
         detailOrder: res?.result?.order,
+        orderId: data.resourceId,
+        status: 'onProcess',
       },
       ...OrderOnline,
     ]);
     onAddStoreRealTime({isShow: false, data: {}});
     setDetailOrder({});
-    handleAlertMessage({message: `Accepted success`});
+
+    if (Platform.OS) {
+      Alert.alert(`${res.message}`);
+    } else {
+      ToastAndroid.showWithGravity(
+        `${res.message}`,
+        ToastAndroid.SHORT,
+        ToastAndroid.CENTER,
+      );
+    }
   };
 
   const handleAlertMessage = (res: any) => {
@@ -146,6 +153,7 @@ const CommingPopup: React.FC<PopUpCommingProps> = ({onToggle, onSubmit}) => {
                 {detailOrder?.products?.length &&
                   detailOrder?.products?.map((item: any, index: any) => (
                     <View
+                      key={index}
                       style={{
                         backgroundColor: '#ddd',
                         borderRadius: SPACING.space_15,
@@ -301,7 +309,7 @@ const CommingPopup: React.FC<PopUpCommingProps> = ({onToggle, onSubmit}) => {
                       ...styles.TextCommon,
                       color: COLORS.primaryWhiteHex,
                     }}
-                    onPress={handleAccept}>
+                    onPress={() => handleGetDetailProduct(data.resourceId)}>
                     Accept
                   </Text>
                 </TouchableOpacity>

@@ -45,14 +45,14 @@ export enum TAB {
 
 const currentTime = new Date();
 
-const RENDER_VIEW = (tab: any, stateProduct?: any, handleGetStore?: any) => {
+const RENDER_VIEW = (tab: any, handleGetStore?: any, onHandlePrint?: any) => {
   switch (tab) {
     case TAB.TAB_HOME:
       return <FoodComponent handleGetStore={handleGetStore} />;
     case TAB.TAB_MENU:
       return <HistoryScreen />;
     case TAB.TAB_FOOD:
-      return <OnlineStoreScreen />;
+      return <OnlineStoreScreen onHandlePrint={onHandlePrint} />;
     case TAB.TAB_CART:
       return <Text style={styles.TextCommon}>TODO CART</Text>;
     case TAB.TAB_SETTING:
@@ -85,10 +85,19 @@ const HomeStoreScreen = ({navigation}: any) => {
   const TargetDevice = useStore((state: any) => state.TargetDevice);
   const onAddStoreRealTime = useStore((state: any) => state.onAddStoreRealTime); // add current noti
   const StoreRealTime = useStore((state: any) => state.StoreRealTime); // current noti
+  const onAddOrderOnlineCart = useStore(
+    (state: any) => state.onAddOrderOnlineCart,
+  ); // handle add view detail order
+  const onAddStoreViewCart = useStore((state: any) => state.onAddStoreViewCart);
 
   const handleToggle = () => setIsShow(!isShow);
   const handleToggleConfirm = () => setIsShowOrderConfirm(!isShowOrderConfirm);
-  const handleChangeTab = (tabSelected: any) => setTab(tabSelected);
+  const handleChangeTab = (tabSelected: any) => {
+    setTab(tabSelected);
+
+    if (tabSelected === TAB.TAB_FOOD) return onAddOrderOnlineCart([]);
+    if (tabSelected === TAB.TAB_MENU) return onAddStoreViewCart([]);
+  };
 
   const [pusher, setPusher] = useState<Pusher>();
 
@@ -237,6 +246,7 @@ const HomeStoreScreen = ({navigation}: any) => {
 
   // Print
   const onHandlePrint = async (data: any) => {
+    if (data === undefined) return;
     if (TargetDevice?.name?.length > 0) {
       try {
         const printing = new EscPosPrinter.printing();
@@ -398,8 +408,6 @@ const HomeStoreScreen = ({navigation}: any) => {
         // Kết thúc và cắt giấy.
         const status = await printing.cut().send();
 
-        console.log('Success:', status);
-
         ToastAndroid.showWithGravity(
           `Order ${data._id}: print success`,
           ToastAndroid.SHORT,
@@ -508,7 +516,7 @@ const HomeStoreScreen = ({navigation}: any) => {
 
             {/* Contain */}
             <View style={styles.Contain}>
-              {RENDER_VIEW(tab, stateProduct, handleGetStore)}
+              {RENDER_VIEW(tab, handleGetStore, onHandlePrint)}
             </View>
           </View>
 

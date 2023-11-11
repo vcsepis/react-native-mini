@@ -215,7 +215,7 @@ const styles = StyleSheet.create({
   TextCommon: {
     fontFamily: FONTFAMILY.poppins_regular,
     color: COLORS.primaryBlackHex,
-    fontSize: FONTSIZE.size_18,
+    fontSize: FONTSIZE.size_20,
   },
   ProductContainer: {
     flex: 1,

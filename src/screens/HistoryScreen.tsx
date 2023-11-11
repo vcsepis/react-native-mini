@@ -1,4 +1,5 @@
 import {
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
@@ -14,7 +15,7 @@ import {
   SPACING,
   widthResponsive,
 } from '../theme/theme';
-import {useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {CacheUtil} from '../utils';
 import {HttpClient} from '../service/http-client';
 import moment from 'moment';
@@ -34,19 +35,28 @@ const HistoryScreen = () => {
 
   const [listOrder, setListOrder] = useState(INIT_STATE);
   const [searchText, setSearchText] = useState('');
+  const [selectedId, setSelectedId] = useState<any>();
   const [searchDate, setSearchDate] = useState(
     moment(INIT_DATE).format('YYYY-MM-DD'),
   );
   const [isShowCalendar, setIsShowCalendar] = useState(false);
+  const [refreshing, setRefreshing] = React.useState(false);
+
+  const currentDate = moment(INIT_DATE).format('YYYY-MM-DD');
+  const beforeCurrentDate = moment(INIT_DATE).subtract(7, 'days');
 
   useEffect(() => {
     handleGetStore();
+
+    () => {
+      onAddStoreViewCart([]);
+    };
   }, []);
 
   const handleGetStore = async () => {
     const token = await CacheUtil.Token;
     const res = await HttpClient.get(
-      `/v1/e-commerce/orders?status=&fromDate=&toDate=&paymentType=&page=1&limt=10`,
+      `/v1/e-commerce/orders?status=&fromDate=${beforeCurrentDate}&toDate=${currentDate}&paymentType=&page=1&limt=1000`,
       null,
       token,
     );
@@ -57,6 +67,7 @@ const HistoryScreen = () => {
   };
 
   const handleGetDetailProduct = async (item: any) => {
+    setSelectedId(item?.id);
     const token = await CacheUtil.Token;
     const res = await HttpClient.get(
       `v1/e-commerce/orders/${item?.id}`,
@@ -69,7 +80,7 @@ const HistoryScreen = () => {
     onAddStoreViewCart([res?.result?.order]);
   };
 
-  const handleSearch = (text: any) => {
+  const handleSearch = (_text: any) => {
     const data = listOrder?.data.filter((item: any) => {
       const momentCreateAt = moment(item?.createdAt).format('YYYY-MM-DD');
       const momentDate = moment(searchDate).format('YYYY-MM-DD');
@@ -107,6 +118,14 @@ const HistoryScreen = () => {
       current: listOrder?.data,
     });
   };
+
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    handleGetStore();
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 2000);
+  }, []);
 
   return (
     <View style={styles.Root}>
@@ -164,60 +183,63 @@ const HistoryScreen = () => {
           </TouchableOpacity>
         </View>
       </View>
-      <View>
-        <ScrollView>
-          <View style={styles.TableOrder}>
-            <View style={styles.Row}>
+
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }>
+        <View style={styles.TableOrder}>
+          <View style={styles.Row}>
+            <View style={styles.ContainerTableHeader}>
+              <Text style={styles.TextHeaderTitle}>Order Id</Text>
+            </View>
+            <View style={styles.ContainerTableHeaderNumber}>
+              <Text style={styles.TextHeaderTitle}>Date</Text>
+            </View>
+            <View style={styles.ContainerTableHeaderNumber}>
+              <Text style={styles.TextHeaderTitle}>Amount</Text>
+            </View>
+            <View style={styles.ContainerTableHeaderNumber}>
+              <Text style={styles.TextHeaderTitle}>Payment Method</Text>
+            </View>
+            <View style={styles.ContainerTableHeaderNumber}>
+              <Text style={styles.TextHeaderTitle}>Edit</Text>
+            </View>
+          </View>
+
+          {listOrder?.current.map((item: any, index: any) => (
+            <View
+              style={{
+                ...styles.Row,
+                borderColor:
+                  item?.id === selectedId ? COLORS.primaryGreenRGB : '#ddd',
+              }}
+              key={index}>
               <View style={styles.ContainerTableHeader}>
-                <Text style={styles.TextHeaderTitle}>Order Id</Text>
+                <Text style={styles.TextCommon}>{item.id}</Text>
               </View>
               <View style={styles.ContainerTableHeaderNumber}>
-                <Text style={styles.TextHeaderTitle}>Date</Text>
+                <Text style={styles.TextCommon}>
+                  {moment(item.createdAt).format('DD, MMMM, YYYY')}
+                </Text>
               </View>
               <View style={styles.ContainerTableHeaderNumber}>
-                <Text style={styles.TextHeaderTitle}>Amount</Text>
+                <Text style={styles.TextNumber}>
+                  $ {(item.total / 100).toFixed(2)}
+                </Text>
               </View>
               <View style={styles.ContainerTableHeaderNumber}>
-                <Text style={styles.TextHeaderTitle}>Payment Method</Text>
+                <Text style={styles.TextNumber}>{item.paymentType}</Text>
               </View>
               <View style={styles.ContainerTableHeaderNumber}>
-                <Text style={styles.TextHeaderTitle}>Edit</Text>
+                <TouchableOpacity onPress={() => handleGetDetailProduct(item)}>
+                  <Text style={styles.TextView}>View</Text>
+                </TouchableOpacity>
               </View>
             </View>
-
-            {listOrder?.current.map((item: any, index: any) => (
-              <View
-                style={styles.Row}
-                key={index}
-                //   onPress={() => onPressParing(item)}
-              >
-                <View style={styles.ContainerTableHeader}>
-                  <Text style={styles.TextCommon}>{item.id}</Text>
-                </View>
-                <View style={styles.ContainerTableHeaderNumber}>
-                  <Text style={styles.TextCommon}>
-                    {moment(item.createdAt).format('DD, MMMM, YYYY')}
-                  </Text>
-                </View>
-                <View style={styles.ContainerTableHeaderNumber}>
-                  <Text style={styles.TextNumber}>
-                    $ {(item.total / 100).toFixed(2)}
-                  </Text>
-                </View>
-                <View style={styles.ContainerTableHeaderNumber}>
-                  <Text style={styles.TextNumber}>{item.paymentType}</Text>
-                </View>
-                <View style={styles.ContainerTableHeaderNumber}>
-                  <TouchableOpacity
-                    onPress={() => handleGetDetailProduct(item)}>
-                    <Text style={styles.TextView}>View</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            ))}
-          </View>
-        </ScrollView>
-      </View>
+          ))}
+        </View>
+      </ScrollView>
 
       {isShowCalendar ? (
         <View style={styles.CalendarComponent}>
@@ -270,14 +292,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     paddingHorizontal: SPACING.space_20,
     borderColor: '#ddd',
-    borderWidth: SPACING.space_2 / 2,
+    borderWidth: SPACING.space_2,
+    paddingVertical: SPACING.space_20,
   },
   ContainerTableHeader: {
     width: '20%',
-    height: widthResponsive(20),
     borderRadius: 24,
     justifyContent: 'center',
-    padding: SPACING.space_10,
+    alignItems: 'center',
   },
   ContainerTableContain: {
     width: '20%',
@@ -286,10 +308,10 @@ const styles = StyleSheet.create({
   },
   TableOrder: {
     marginVertical: SPACING.space_20,
+    marginBottom: widthResponsive(60),
   },
   ContainerTableHeaderNumber: {
     width: '20%',
-    height: widthResponsive(20),
     borderRadius: 24,
     justifyContent: 'center',
     padding: SPACING.space_10,

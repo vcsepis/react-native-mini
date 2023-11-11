@@ -1,8 +1,11 @@
 import {
+  Alert,
   Image,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
+  ToastAndroid,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -19,6 +22,8 @@ import CustomIcon from './CustomIcon';
 import {useStore} from '../store/store';
 import LottieView from 'lottie-react-native';
 import {TAB} from '../screens/HomeStoreScreen';
+import {HttpClient} from '../service/http-client';
+import {CacheUtil} from '../utils';
 
 interface StoreCartProps {
   handleToggle?: any;
@@ -42,6 +47,11 @@ const StoreCart: React.FC<StoreCartProps> = ({
   const onAddCaculateCart = useStore((state: any) => state.onAddCaculateCart);
   const StoreViewCart = useStore((state: any) => state.StoreViewCart);
   const OrderOnlineCart = useStore((state: any) => state.OrderOnlineCart);
+  const onAddOrderOnline = useStore((state: any) => state.onAddOrderOnline); // add data process when accepted
+  const OrderOnline = useStore((state: any) => state.OrderOnline); // data process when accepted order
+  const onAddOrderOnlineCart = useStore(
+    (state: any) => state.onAddOrderOnlineCart,
+  );
 
   const handlePressProduct = (product: any, index: any) => {
     addProductCurrent({...product, index: index});
@@ -114,28 +124,125 @@ const StoreCart: React.FC<StoreCartProps> = ({
 
   const onSubmit = () => {
     const total = totalPrice();
+    if (StoreCart?.length === 0) {
+      if (Platform.OS) {
+        Alert.alert(`Please add to cart`);
+      } else {
+        ToastAndroid.showWithGravity(
+          `Please add to cart`,
+          ToastAndroid.SHORT,
+          ToastAndroid.CENTER,
+        );
+      }
+
+      return;
+    }
+
     onAddCaculateCart({total, data: StoreCart});
     handleToggle();
   };
 
   const dataCart =
     currentTab === TAB.TAB_FOOD
-      ? OrderOnlineCart[0]
+      ? OrderOnlineCart?.length
+        ? OrderOnlineCart[0]
+        : []
       : tab
       ? StoreViewCart[0]
       : StoreCart;
 
   const total = () => {
     if (currentTab === TAB.TAB_FOOD)
-      return (OrderOnlineCart[0].total / 100).toFixed(2);
-    if (tab) return (dataCart?.total / 100).toFixed(2);
+      return ((OrderOnlineCart[0]?.total || 0) / 100).toFixed(2);
+    if (tab) return ((dataCart?.total || 0) / 100).toFixed(2);
     else return totalPrice();
   };
 
   const handleButtonName = () => {
-    if (currentTab === TAB.TAB_FOOD) return `Readly to ${dataCart?.type}`;
+    if (currentTab === TAB.TAB_FOOD)
+      return `${
+        dataCart?.status === 'completed'
+          ? 'Completed'
+          : 'Readly to ' + (dataCart?.type || '')
+      }`;
     if (tab) return 'Print Now';
     else return 'Pay Now';
+  };
+
+  const handleSubmit = () => {
+    if (currentTab === TAB.TAB_FOOD) return handlePickUp();
+    if (tab) return onHandlePrint(dataCart);
+    else return onSubmit();
+  };
+
+  const handlePickUp = async () => {
+    if (!dataCart?.resourceId)
+      return handleAlert({message: 'Please view order before print'});
+
+    const token = await CacheUtil.Token;
+
+    const endpoint =
+      dataCart?.status === 'completed'
+        ? `/v1/e-commerce/orders/${dataCart?.resourceId}/complete`
+        : `/v1/e-commerce/orders/${dataCart?.resourceId}/confirm`;
+
+    const resAccept: any = await HttpClient.put(
+      endpoint,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token || ''}`,
+        },
+      },
+    );
+
+    // if (!resAccept) return;
+
+    onAddOrderOnline(
+      OrderOnline?.map((item: any) => ({
+        ...item,
+        status:
+          dataCart?.resourceId === item?.resourceId
+            ? 'completed'
+            : item?.status,
+      })),
+    );
+
+    if (dataCart?.status === 'completed') {
+      const updateDate = [...OrderOnlineCart];
+      updateDate[0].completed = true;
+      onAddOrderOnlineCart(updateDate);
+
+      onAddOrderOnline(
+        OrderOnline?.map((item: any) => ({
+          ...item,
+          completed:
+            dataCart?.resourceId === item?.resourceId ? true : item?.completed,
+        })),
+      );
+    }
+
+    if (Platform.OS) {
+      Alert.alert(`${resAccept.message}`);
+    } else {
+      ToastAndroid.showWithGravity(
+        `${resAccept.message}`,
+        ToastAndroid.SHORT,
+        ToastAndroid.CENTER,
+      );
+    }
+  };
+
+  const handleAlert = (resAccept: any) => {
+    if (Platform.OS) {
+      Alert.alert(`${resAccept.message}`);
+    } else {
+      ToastAndroid.showWithGravity(
+        `${resAccept.message}`,
+        ToastAndroid.SHORT,
+        ToastAndroid.CENTER,
+      );
+    }
   };
 
   return (
@@ -149,8 +256,7 @@ const StoreCart: React.FC<StoreCartProps> = ({
           </TouchableOpacity>
         </View>
         <Text style={styles.TextTotalPriceCartFood}>
-          items{' '}
-          {`(${tab ? dataCart?.products?.length : dataCart?.length || 0})`}
+          items {`(${dataCart?.products?.length || dataCart?.length || 0})`}
         </Text>
       </View>
 
@@ -166,12 +272,13 @@ const StoreCart: React.FC<StoreCartProps> = ({
         </View>
       </View>
 
-      {(tab ? dataCart?.products?.length : dataCart?.length) ? (
+      {dataCart?.products?.length || dataCart?.length ? (
         <ScrollView style={styles.CartContainer}>
           <View style={{marginBottom: SPACING.space_20 * 10}}>
             {(tab ? dataCart.products : dataCart)?.map(
               (item: any, index: any) => (
                 <View
+                  key={index}
                   style={{
                     backgroundColor: '#ddd',
                     borderRadius: SPACING.space_15,
@@ -437,20 +544,17 @@ const StoreCart: React.FC<StoreCartProps> = ({
             </View>
 
             <Text style={styles.TextTotalPriceCartFood}>{total()} $</Text>
-            <CustomIcon
-              name={'cart'}
-              color={'#008810'}
-              size={FONTSIZE.size_24}
-            />
           </View>
 
-          <TouchableOpacity
-            onPress={() => (tab ? onHandlePrint(dataCart) : onSubmit())}
-            style={styles.CartPaymentDisplay}>
-            <Text style={styles.TextTotalPaymentCartFood}>
-              {handleButtonName()}
-            </Text>
-          </TouchableOpacity>
+          {!dataCart?.completed && (
+            <TouchableOpacity
+              onPress={handleSubmit}
+              style={styles.CartPaymentDisplay}>
+              <Text style={styles.TextTotalPaymentCartFood}>
+                {handleButtonName()}
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
       </View>
     </View>
@@ -464,7 +568,7 @@ const styles = StyleSheet.create({
   TextCommon: {
     fontFamily: FONTFAMILY.poppins_regular,
     color: COLORS.primaryBlackHex,
-    fontSize: FONTSIZE.size_16,
+    fontSize: FONTSIZE.size_20,
   },
   ContainerVariant: {
     flexDirection: 'row',
@@ -476,7 +580,7 @@ const styles = StyleSheet.create({
   TextVariant: {
     fontFamily: FONTFAMILY.poppins_regular,
     color: COLORS.primaryBlackHex,
-    fontSize: FONTSIZE.size_16,
+    fontSize: FONTSIZE.size_20,
     paddingTop: SPACING.space_10,
     textAlign: 'right',
   },
@@ -488,7 +592,7 @@ const styles = StyleSheet.create({
   TextNameProduct: {
     fontFamily: FONTFAMILY.poppins_regular,
     color: COLORS.primaryBlackHex,
-    fontSize: FONTSIZE.size_16,
+    fontSize: FONTSIZE.size_20,
     fontWeight: '500',
     width: '50%',
   },
@@ -512,17 +616,17 @@ const styles = StyleSheet.create({
   TextDescription: {
     fontFamily: FONTFAMILY.poppins_regular,
     color: COLORS.primaryBlackHex,
-    fontSize: FONTSIZE.size_16,
+    fontSize: FONTSIZE.size_20,
   },
   TextPickUpStatus: {
     fontFamily: FONTFAMILY.poppins_regular,
     color: COLORS.primaryWhiteHex,
-    fontSize: FONTSIZE.size_16,
+    fontSize: FONTSIZE.size_20,
   },
   TextTitle: {
     fontFamily: FONTFAMILY.poppins_regular,
     color: COLORS.primaryBlackHex,
-    fontSize: FONTSIZE.size_18,
+    fontSize: FONTSIZE.size_20,
   },
   AnimationPrettie: {
     height: 300,
@@ -565,7 +669,7 @@ const styles = StyleSheet.create({
   TextTotalPaymentCartFood: {
     flex: 1,
     fontFamily: FONTFAMILY.poppins_medium,
-    fontSize: FONTSIZE.size_16,
+    fontSize: FONTSIZE.size_20,
     color: COLORS.primaryWhiteHex,
     fontWeight: '600',
     textAlign: 'center',
@@ -573,13 +677,13 @@ const styles = StyleSheet.create({
   TextCountCartFood: {
     flex: 1,
     fontFamily: FONTFAMILY.poppins_medium,
-    fontSize: FONTSIZE.size_18,
+    fontSize: FONTSIZE.size_20,
     color: COLORS.primaryBlackHex,
     fontWeight: '600',
   },
   TextTotalPriceCartFood: {
     flex: 1,
-    fontFamily: FONTFAMILY.poppins_medium,
+    fontFamily: FONTFAMILY.poppins_bold,
     fontSize: FONTSIZE.size_20,
     color: COLORS.primaryGreenRGB,
     fontWeight: '600',
@@ -626,7 +730,7 @@ const styles = StyleSheet.create({
   },
   CartItemQuantityText: {
     fontFamily: FONTFAMILY.poppins_semibold,
-    fontSize: FONTSIZE.size_16,
+    fontSize: FONTSIZE.size_20,
     color: COLORS.primaryLightGreyHex,
   },
   ItemImage: {

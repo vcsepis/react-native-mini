@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {
   SafeAreaView,
   View,
@@ -12,7 +12,7 @@ import {
 
 import {COLORS, FONTFAMILY, FONTSIZE, SPACING} from '../../theme/theme';
 import LottieView from 'lottie-react-native';
-import {Cache} from '../../utils';
+import {AuthContext, Cache} from '../../utils';
 import PopUpAnimation from '../../components/PopUpAnimation';
 import {HttpClient} from '../../service/http-client';
 
@@ -31,7 +31,7 @@ const initStateSuccess = {
 };
 
 const LoginScreen = ({navigation}: any) => {
-  const [stateLogin, setStateLogin] = useState(initStateLogin);
+  const [stateLogin, setStateLogin] = useState<any>(initStateLogin);
   const [password, setPassword] = useState('Th@i12022022');
   const [phone, setPhone] = useState<any>('484894945');
   const [stateSuccess, setStateSuccess] = useState<any>(initStateSuccess);
@@ -43,6 +43,7 @@ const LoginScreen = ({navigation}: any) => {
   const toggleShowPassword = () => {
     setShowPassword(!showPassword);
   };
+  const {isAuth, aToken, rToken, user, setAuth}: any = useContext(AuthContext);
 
   useEffect(() => {
     handleGetStore();
@@ -134,17 +135,35 @@ const LoginScreen = ({navigation}: any) => {
 
     // setStateSuccess({...initStateLogin, step1: true});
 
-    setStateSuccess({...initStateSuccess, step2: true});
+    setAuth({
+      isAuth: true,
+      aToken: res?.result?.accessToken,
+      rToken: res?.result?.refreshToken,
+      user: user,
+    });
+
+    setStateSuccess({step2: true});
 
     setPassword('');
     setPhone('');
     setStateLogin(initStateLogin);
 
     return setTimeout(() => {
-      navigation.push('Home');
       setStateSuccess(initStateSuccess);
     }, 850);
   };
+
+  useEffect(() => {
+    if (stateLogin?.countries?.length > 0) {
+      setStateLogin({
+        ...stateLogin,
+        selectedCountryCode: {
+          phoneCode: stateLogin.countries[0].phoneCode,
+          name: stateLogin.countries[0].name,
+        },
+      });
+    }
+  }, [stateLogin?.countries]);
 
   if (stateSuccess.step2)
     return (

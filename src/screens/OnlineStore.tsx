@@ -41,7 +41,6 @@ const OnlineStoreScreen = ({onHandlePrint}: any) => {
   const [oderOnline, setOderOnline] = useState(OrderOnline || []);
 
   const handleDetailOnlineCart = (item: any) => {
-    console.log(item?.completed);
     onAddOrderOnlineCart([
       {
         ...item?.detailOrder,
@@ -54,7 +53,6 @@ const OnlineStoreScreen = ({onHandlePrint}: any) => {
   };
 
   useEffect(() => {
-    console.log('123');
     setOderOnline(
       OrderOnline?.filter((item: any) =>
         selectedId === 1

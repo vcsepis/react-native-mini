@@ -56,7 +56,7 @@ const HistoryScreen = () => {
   const handleGetStore = async () => {
     const token = await Cache.Token;
     const res = await HttpClient.get(
-      `/v1/e-commerce/orders?status=&fromDate=${beforeCurrentDate}&toDate=${currentDate}&paymentType=&page=1&limt=1000`,
+      `/v1/e-commerce/orders?status=&fromDate=&toDate=&paymentType=&page=1&limt=1000`,
       null,
       token,
     );

@@ -101,11 +101,11 @@ const StoreCart: React.FC<StoreCartProps> = ({
   const totalPrice = () => {
     const price = StoreCart.reduce((accumulator: any, item: any) => {
       // Tính tổng tiền cho cấp độ options trong từng variant
-      const variantTotal = item.variants.reduce(
+      const variantTotal = item?.variants?.reduce(
         (variantAcc: any, variant: any) => {
           return (
             variantAcc +
-            variant.options.reduce((optionAcc: any, option: any) => {
+            variant?.options?.reduce((optionAcc: any, option: any) => {
               return optionAcc + option.price * option.quantity;
             }, 0)
           );
@@ -163,7 +163,7 @@ const StoreCart: React.FC<StoreCartProps> = ({
       return `${
         dataCart?.status === 'completed'
           ? 'Completed'
-          : 'Readly to ' + (dataCart?.type || '')
+          : 'Ready to ' + (dataCart?.type || '')
       }`;
     if (tab) return 'Print Now';
     else return 'Pay Now';

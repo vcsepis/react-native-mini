@@ -3,6 +3,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -17,7 +18,14 @@ import {
 } from '../theme/theme';
 import {useStore} from '../store/store';
 import LottieView from 'lottie-react-native';
+import CustomIcon from './CustomIcon';
+import Voice from '@react-native-voice/voice';
 
+const INIT_RECOGNIZING = {
+  started: false,
+  ended: false,
+  results: '',
+};
 interface Iprops {
   handleGetStore?: any;
 }
@@ -30,6 +38,13 @@ const handleFilter = (data: any, id: any) => {
 const FoodComponent: React.FC<Iprops> = ({handleGetStore}) => {
   const [product, setProduct] = useState([]);
   const [categoryId, setCategoryId] = useState(0);
+  const [searchText, setSearchText] = useState('');
+  const [recognizing, setRecognizing] = useState({
+    started: false,
+    ended: false,
+    results: '',
+  });
+
   const Category = useStore((state: any) => state.Category);
   const onIsShowProduct = useStore((state: any) => state.onIsShowProduct);
   const addProductCurrent = useStore((state: any) => state.addProductCurrent);
@@ -87,6 +102,55 @@ const FoodComponent: React.FC<Iprops> = ({handleGetStore}) => {
       setRefreshing(false);
     }, 2000);
   }, []);
+
+  const handleSearch = (_text: any) => {};
+
+  const resetSearch = () => {
+    setSearchText('');
+  };
+
+  useEffect(() => {
+    Voice.onSpeechStart = onSpeechStartHandler;
+    Voice.onSpeechEnd = onSpeechEndHandler;
+    Voice.onSpeechResults = onSpeechResultsHandler;
+
+    return () => {
+      Voice.destroy().then(Voice.removeAllListeners);
+    };
+  }, []);
+
+  const onSpeechStartHandler = (e: any) => {
+    console.log(e);
+    setRecognizing({...recognizing, started: true});
+  };
+
+  const onSpeechEndHandler = (e: any) => {
+    console.log(e);
+    setRecognizing({...recognizing, ended: true});
+  };
+
+  const onSpeechResultsHandler = (e: any) => {
+    console.log(e);
+    setRecognizing({...recognizing, results: e.value});
+  };
+
+  const startRecognizing = async () => {
+    try {
+      await Voice.start('en-US');
+      setRecognizing(INIT_RECOGNIZING);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const stopRecognizing = async () => {
+    try {
+      await Voice.stop();
+      await Voice.destroy();
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <View style={styles.Root}>
@@ -154,25 +218,79 @@ const FoodComponent: React.FC<Iprops> = ({handleGetStore}) => {
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }>
+          <View>
+            <View style={styles.InputContainerComponent}>
+              <TouchableOpacity
+                onPress={() => {
+                  startRecognizing();
+                  handleSearch(searchText);
+                }}>
+                <CustomIcon
+                  style={styles.InputIcon}
+                  name="search"
+                  size={FONTSIZE.size_28}
+                  color={
+                    searchText.length > 0
+                      ? COLORS.primaryGreenRGB
+                      : COLORS.primaryLightGreyHex
+                  }
+                />
+              </TouchableOpacity>
+
+              <TextInput
+                placeholder="Find products..."
+                value={searchText}
+                onChangeText={text => {
+                  setSearchText(text);
+                  handleSearch(text);
+                }}
+                placeholderTextColor={COLORS.primaryBlackHex}
+                style={styles.TextInputContainer}
+              />
+
+              {searchText.length > 0 ? (
+                <TouchableOpacity
+                  onPress={() => {
+                    stopRecognizing();
+                    resetSearch();
+                  }}>
+                  <CustomIcon
+                    style={styles.InputIcon}
+                    name="close"
+                    size={FONTSIZE.size_16}
+                    color={
+                      searchText.length > 0
+                        ? COLORS.primaryGreenRGB
+                        : COLORS.primaryLightGreyHex
+                    }
+                  />
+                </TouchableOpacity>
+              ) : (
+                <></>
+              )}
+            </View>
+          </View>
           <View style={styles.ProductContainer}>
             {product?.length ? (
               product?.map((item: any) => (
                 <Fragment key={item.id}>
                   {item?.products?.length ? (
-                    item?.products?.map((product: any) => (
-                      <TouchableOpacity
-                        key={product?.id}
-                        style={{
-                          ...styles.ProductItem,
-                          backgroundColor: COLORS.primaryWhiteHex,
-                        }}
-                        onPress={() => handleProduct(product)}>
-                        <Text style={styles.TextProduct}>{product.name}</Text>
-                        <Text style={styles.TextProductPrice}>
-                          {(product.price / 100).toFixed(2)} $
-                        </Text>
-                      </TouchableOpacity>
-                    ))
+                    item?.products
+                      ?.filter((prod: any) => prod?.name?.includes(searchText))
+                      ?.map((product: any) => (
+                        <TouchableOpacity
+                          key={product?.id}
+                          style={{
+                            ...styles.ProductItem,
+                            backgroundColor: COLORS.primaryWhiteHex,
+                          }}
+                          onPress={() => handleProduct(product)}>
+                          <Text style={styles.TextProduct}>{product.name}</Text>
+                          <Text style={styles.TextProductPrice}>
+                            {(product.price / 100).toFixed(2)} $
+                          </Text>
+                        </TouchableOpacity>
+                      ))
                   ) : (
                     <></>
                   )}
@@ -250,6 +368,25 @@ const styles = StyleSheet.create({
   TextProductPrice: {
     fontFamily: FONTFAMILY.poppins_bold,
     color: COLORS.primaryGreenRGB,
+    fontSize: FONTSIZE.size_20,
+  },
+  InputContainerComponent: {
+    flexDirection: 'row',
+    marginBottom: SPACING.space_20,
+    borderRadius: BORDERRADIUS.radius_25,
+    backgroundColor: COLORS.primaryWhiteHex,
+    alignItems: 'center',
+    width: '100%',
+    justifyContent: 'center',
+  },
+  InputIcon: {
+    marginHorizontal: SPACING.space_20,
+  },
+  TextInputContainer: {
+    flex: 1,
+    height: SPACING.space_20 * 3,
+    fontFamily: FONTFAMILY.poppins_regular,
+    color: COLORS.primaryBlackHex,
     fontSize: FONTSIZE.size_20,
   },
 });

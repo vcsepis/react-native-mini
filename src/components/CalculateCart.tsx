@@ -43,7 +43,7 @@ const PopUpCalculateCart: React.FC<PopUpCalculateCartProps> = ({
 
   const [paymentCd, setPaymentCd] = useState();
   const [change, setChange] = useState({cash: 0, change: 0});
-
+  console.log(change, '123');
   const handleSelectPaymentCd = (cd?: any) => setPaymentCd(cd);
 
   useEffect(() => {
@@ -51,7 +51,11 @@ const PopUpCalculateCart: React.FC<PopUpCalculateCartProps> = ({
   }, [PaymentData?.length]);
 
   return (
-    <Modal animationType="fade" transparent={true} visible={open} onRequestClose={onToggle}>
+    <Modal
+      animationType="fade"
+      transparent={true}
+      visible={open}
+      onRequestClose={onToggle}>
       <View style={styles.CenteredView}>
         <View style={styles.ModalView}>
           <View

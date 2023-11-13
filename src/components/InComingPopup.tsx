@@ -25,11 +25,10 @@ import {HttpClient} from '../service/http-client';
 import CustomIcon from './CustomIcon';
 
 interface PopUpInComingProps {
-  onToggle?: any;
-  onSubmit?: any;
+  onHandlePrint?: any;
 }
 
-const ComingPopup: React.FC<PopUpInComingProps> = ({onToggle, onSubmit}) => {
+const ComingPopup: React.FC<PopUpInComingProps> = ({onHandlePrint}) => {
   const newDate = new Date();
   const [detailOrder, setDetailOrder] = useState<any>({});
   const onAddStoreRealTime = useStore((state: any) => state.onAddStoreRealTime);
@@ -83,6 +82,7 @@ const ComingPopup: React.FC<PopUpInComingProps> = ({onToggle, onSubmit}) => {
       },
       ...OrderOnline,
     ]);
+
     onAddStoreRealTime({isShow: false, data: {}});
     setDetailOrder({});
 
@@ -95,6 +95,8 @@ const ComingPopup: React.FC<PopUpInComingProps> = ({onToggle, onSubmit}) => {
         ToastAndroid.CENTER,
       );
     }
+
+    onHandlePrint(res?.result?.order);
   };
 
   const handleAlertMessage = (res: any) => {

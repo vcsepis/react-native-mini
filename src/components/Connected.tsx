@@ -51,9 +51,9 @@ const ConnectedPopup: React.FC<PopUpConnectedProps> = ({
       })
       .catch(e => {
         Toast.show({
-          type: 'error', 
-          text1: 'Error when get devices list'
-        })
+          type: 'error',
+          text1: 'Error when get devices list',
+        });
         // setListDevice([]);
       })
       .finally(() => {
@@ -63,24 +63,33 @@ const ConnectedPopup: React.FC<PopUpConnectedProps> = ({
 
   const onPressParing = async (item: any) => {
     let status;
+    let msgConnect = '';
     await EscPosPrinter.connect(item.target)
       .then(() => {
         status = true;
+        msgConnect = 'is connected';
         onAddTargetDevice(item);
         Toast.show({
-          type: 'success', 
+          type: 'success',
           text1: `${item.name} is connected`,
-        })
+        });
       })
+
       .catch(e => {
         status = false;
+        msgConnect = 'fail connected';
         Toast.show({
-          type: 'error', 
-          text1:  `${item.name}: ${e.message}`,
-        })
+          type: 'error',
+          text1: `${item.name}: ${e.message}`,
+        });
       });
 
     setPrinter(item);
+
+    Toast.show({
+      type: 'success',
+      text1: `${msgConnect}: `,
+    });
 
     // TODO
     if (status) {
@@ -92,9 +101,9 @@ const ConnectedPopup: React.FC<PopUpConnectedProps> = ({
         .then(() => handlePrint())
         .catch(e => {
           Toast.show({
-            type: 'error', 
-            text1:  `${item.name}: ${e.message}`,
-          })
+            type: 'error',
+            text1: `${item.name}: ${e.message}`,
+          });
         });
     }
   };
@@ -173,15 +182,15 @@ const ConnectedPopup: React.FC<PopUpConnectedProps> = ({
         .cut()
         .send();
 
-        Toast.show({
-        type: 'success', 
-        text1:  `${printer.name}: ${status}`,
-      })
+      Toast.show({
+        type: 'success',
+        text1: `${printer.name}: ${status}`,
+      });
     } catch (e: any) {
       Toast.show({
-        type: 'error', 
-        text1:  `${printer.name}: ${e.message}`,
-      })
+        type: 'error',
+        text1: `${printer.name}: ${e.message}`,
+      });
     }
   };
 
@@ -277,7 +286,6 @@ const ConnectedPopup: React.FC<PopUpConnectedProps> = ({
               </View>
             </ScrollView>
           )}
-
         </View>
       </View>
     </Modal>

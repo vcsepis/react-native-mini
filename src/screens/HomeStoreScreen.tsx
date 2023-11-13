@@ -110,27 +110,28 @@ const HomeStoreScreen = ({navigation}: any) => {
   };
 
   const handleEvents = async () => {
-    // if (!pusher) {
-    //   return;
-    // }
-
     await pusher?.subscribe({
       channelName: DetailStore?.id, //change channel
       onEvent: async (event: PusherEvent) => {
         const token = await Cache.Token;
+        const data = JSON.parse(event?.data);
+
+        const response = await HttpClient.get(
+          `/v1/e-commerce/orders/${data?.code}`, // resourceId is orderId
+          null,
+          token,
+        );
+
         switch (event.eventName) {
           case 'order-paid':
-            const data = JSON.parse(event.data);
-            const response = await HttpClient.get(
-              `/v1/e-commerce/orders/${data?.code}`,
-              null,
-              token,
-            );
-            console.log(response.result.order)
-            // onAddStoreRealTime({
-            //   isShow: true,
-            //   data: response.result.order,
-            // });
+            console.log(response.result.order);
+            break;
+
+          case 'online.order':
+            onAddStoreRealTime({
+              isShow: true,
+              data: event?.data,
+            });
             break;
         }
       },
@@ -204,11 +205,10 @@ const HomeStoreScreen = ({navigation}: any) => {
       id: item.id,
       quantity: item.quantity,
       options: item?.variants?.length
-        ? item?.variants[0]?.options?.map((option: any) => ({
-            id: option.id,
-            quantity: option.quantity,
-          }))
+        ? item?.variants.flatMap((variant: any) => variant?.options)
         : [],
+      cash: CalculateCart?.cash * 100,
+      vat: 0,
     }));
 
     const bodyRequest = {
@@ -248,6 +248,7 @@ const HomeStoreScreen = ({navigation}: any) => {
   // Print
   const onHandlePrint = async (data: any) => {
     if (data === undefined) return;
+
     if (TargetDevice?.name?.length > 0) {
       try {
         const printing = new EscPosPrinter.printing();
@@ -552,12 +553,10 @@ const HomeStoreScreen = ({navigation}: any) => {
             onSubmit={onPressShowConnected}
             open={showConnectPrinter}
           />
-          {/* 
-          {showConnectPrinter && (
-            
-          )} */}
 
-          {StoreRealTime.isShow && <InComingPopup />}
+          {StoreRealTime.isShow && (
+            <InComingPopup onHandlePrint={onHandlePrint} />
+          )}
         </View>
         {/* Product Popup */}
       </SafeAreaView>

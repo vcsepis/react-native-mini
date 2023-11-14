@@ -49,9 +49,7 @@ const StoreCart: React.FC<StoreCartProps> = ({
   const OrderOnlineCart = useStore((state: any) => state.OrderOnlineCart);
   const onAddOrderOnline = useStore((state: any) => state.onAddOrderOnline); // add data process when accepted
   const OrderOnline = useStore((state: any) => state.OrderOnline); // data process when accepted order
-  const onAddOrderOnlineCart = useStore(
-    (state: any) => state.onAddOrderOnlineCart,
-  );
+  const onAddOnlineCart = useStore((state: any) => state.onAddOnlineCart);
 
   const handlePressProduct = (product: any, index: any) => {
     addProductCurrent({...product, index: index});
@@ -211,7 +209,7 @@ const StoreCart: React.FC<StoreCartProps> = ({
     if (dataCart?.status === 'completed') {
       const updateDate = [...OrderOnlineCart];
       updateDate[0].completed = true;
-      onAddOrderOnlineCart(updateDate);
+      onAddOnlineCart(updateDate);
 
       onAddOrderOnline(
         OrderOnline?.map((item: any) => ({
@@ -349,7 +347,7 @@ const StoreCart: React.FC<StoreCartProps> = ({
 
                   <View style={styles.DescriptionContainer}>
                     <Text style={styles.TextDescription}>
-                      {item.description || item?.note || 'Do descrption'}
+                      {item.description || item?.note}
                     </Text>
                   </View>
                   <View

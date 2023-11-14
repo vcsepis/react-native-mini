@@ -33,11 +33,13 @@ const ComingPopup: React.FC<PopUpInComingProps> = ({onHandlePrint}) => {
   const [detailOrder, setDetailOrder] = useState<any>({});
   const onAddStoreRealTime = useStore((state: any) => state.onAddStoreRealTime);
   const StoreRealTime = useStore((state: any) => state.StoreRealTime); // current noti
+  const AutoAccept = useStore((state: any) => state.AutoAccept); // get status auto accept
 
   const onAddOrderOnline = useStore((state: any) => state.onAddOrderOnline); // add data process when accepted
   const OrderOnline = useStore((state: any) => state.OrderOnline); // data from noti process
+  const onAddToast = useStore((state: any) => state.onAddToast);
 
-  const data = JSON.parse(StoreRealTime?.data);
+  const data = StoreRealTime?.data;
 
   const handleReject = () => onAddStoreRealTime({isShow: false, data: {}});
 
@@ -114,8 +116,20 @@ const ComingPopup: React.FC<PopUpInComingProps> = ({onHandlePrint}) => {
   useEffect(() => {
     if (data?.resourceId) {
       handleGetDetailProduct(data?.resourceId, true);
+
+      if (AutoAccept) {
+        onAddToast({
+          isShow: true,
+          message: `Order ${data?.resourceId} has been accepted by auto`,
+          type: 'success',
+        });
+
+        handleGetDetailProduct(data?.resourceId);
+      }
     }
   }, [data?.resourceId]);
+
+  if (AutoAccept) return;
 
   return (
     <View style={styles.CenteredView}>
@@ -193,11 +207,13 @@ const ComingPopup: React.FC<PopUpInComingProps> = ({onHandlePrint}) => {
                           marginBottom: SPACING.space_10,
                         }}></View>
 
-                      <View style={styles.DescriptionContainer}>
-                        <Text style={styles.TextDescription}>
-                          {item.description || item?.note || 'Do descrption'}
-                        </Text>
-                      </View>
+                      {item?.note && (
+                        <View style={styles.DescriptionContainer}>
+                          <Text style={styles.TextDescription}>
+                            {item?.note}
+                          </Text>
+                        </View>
+                      )}
 
                       {item?.variants?.length ? (
                         <Text style={styles.TextVariant}>Variant</Text>

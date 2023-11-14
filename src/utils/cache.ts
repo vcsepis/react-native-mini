@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const Key = {
+const Key: any = {
   Profile: 'profile',
   Token: 'access_token',
   RefreshToken: 'refresh_token',
@@ -10,6 +10,7 @@ const Key = {
   LastRefreshTokenAt: 'last_refresh_token_at',
   DeviceToken: 'device_token',
   IsShowAddress: 'is_show_address_campaign',
+  AutoAccept: false
 };
 
 export class Cache {
@@ -64,6 +65,15 @@ export class Cache {
 
   static get IsShowAddress() {
     return AsyncStorage.getItem(Key.IsShowAddress);
+  }
+
+  // AutoAccept
+  static set AutoAccept(data: any) {
+    AsyncStorage.setItem(Key.AutoAccept, data);
+  }
+
+  static get AutoAccept() {
+    return AsyncStorage.getItem(Key.AutoAccept);
   }
 
   // Support methods

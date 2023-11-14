@@ -1,0 +1,18 @@
+<svg id="Icon_Order_History" data-name="Icon Order History" xmlns="http://www.w3.org/2000/svg"
+  xmlnsXlink="http://www.w3.org/1999/xlink" width="24" height="24" viewBox="0 0 24 24">
+  <defs>
+    <clipPath id="clip-path">
+      <rect id="Rectangle_32886" data-name="Rectangle 32886" width="24" height="24" transform="translate(5876 9357)"
+        fill="#fff" stroke="#008810" stroke-width="1" />
+    </clipPath>
+  </defs>
+  <g id="Mask_Group_817" data-name="Mask Group 817" transform="translate(-5876 -9357)" clip-path="url(#clip-path)">
+    <g id="clipboard" transform="translate(5876 9357)">
+      <path id="Path_119514" data-name="Path 119514"
+        d="M16,4h2a2,2,0,0,1,2,2V20a2,2,0,0,1-2,2H6a2,2,0,0,1-2-2V6A2,2,0,0,1,6,4H8" fill="none" stroke="#008810"
+        stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
+      <rect id="Rectangle_32885" data-name="Rectangle 32885" width="8" height="4" rx="1" transform="translate(8 2)"
+        fill="none" stroke="#008810" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
+    </g>
+  </g>
+</svg>

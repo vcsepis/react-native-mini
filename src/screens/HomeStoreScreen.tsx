@@ -35,6 +35,13 @@ import {
 } from '../utils/pusher';
 import InComingPopup from '../components/InComingPopup';
 import Toast from 'react-native-toast-message';
+import IconHistory from '../assets/icon/ic_order_history.svg';
+import IconHistoryActive from '../assets/icon/ic_order_history_active.svg';
+import IconOnlineOrder from '../assets/icon/ic_online_inactive.svg';
+import IconOnlineOrderActive from '../assets/icon/ic_online_active.svg';
+import IconSetting from '../assets/icon/ic_setting.svg';
+import IconSettingActive from '../assets/icon/ic_setting_active.svg';
+import ToastCustom from '../components/Toast';
 
 export enum TAB {
   TAB_HOME,
@@ -87,17 +94,17 @@ const HomeStoreScreen = ({navigation}: any) => {
   const TargetDevice = useStore((state: any) => state.TargetDevice);
   const onAddStoreRealTime = useStore((state: any) => state.onAddStoreRealTime); // add current noti
   const StoreRealTime = useStore((state: any) => state.StoreRealTime); // current noti
-  const onAddOrderOnlineCart = useStore(
-    (state: any) => state.onAddOrderOnlineCart,
-  ); // handle add view detail order
+  const onAddOnlineCart = useStore((state: any) => state.onAddOnlineCart); // handle add view detail order
   const onAddStoreViewCart = useStore((state: any) => state.onAddStoreViewCart);
+  const AutoAccept = useStore((state: any) => state.AutoAccept); // get status auto accept
+  const ToastData = useStore((state: any) => state.Toast);
 
   const handleShowCalculate = () => setShowCalculate(!showCalculate);
   const handleToggleConfirm = () => setIsShowOrderConfirm(!isShowOrderConfirm);
   const handleChangeTab = (tabSelected: any) => {
     setTab(tabSelected);
 
-    if (tabSelected === TAB.TAB_FOOD) return onAddOrderOnlineCart([]);
+    if (tabSelected === TAB.TAB_FOOD) return onAddOnlineCart([]);
     if (tabSelected === TAB.TAB_MENU) return onAddStoreViewCart([]);
   };
 
@@ -109,7 +116,7 @@ const HomeStoreScreen = ({navigation}: any) => {
     setPusher(instance);
   };
 
-  const handleEvents = async () => {
+  const handleEvents = async (AutoAccept: any) => {
     await pusher?.subscribe({
       channelName: DetailStore?.id, //change channel
       onEvent: async (event: PusherEvent) => {
@@ -121,7 +128,6 @@ const HomeStoreScreen = ({navigation}: any) => {
           null,
           token,
         );
-
         switch (event.eventName) {
           case 'order-paid':
             console.log(response.result.order);
@@ -130,7 +136,7 @@ const HomeStoreScreen = ({navigation}: any) => {
           case 'online.order':
             onAddStoreRealTime({
               isShow: true,
-              data: event?.data,
+              data: data,
             });
             break;
         }
@@ -151,8 +157,8 @@ const HomeStoreScreen = ({navigation}: any) => {
   useEffect(() => {
     if (pusher?.connectionState === 'DISCONNECTED') return;
 
-    handleEvents();
-  }, [pusher?.connectionState]);
+    handleEvents(AutoAccept);
+  }, [pusher?.connectionState, AutoAccept]);
 
   const onPressShowConnected = (selectedDevice: any) => {
     setShowConnectPrinter(!showConnectPrinter);
@@ -207,16 +213,15 @@ const HomeStoreScreen = ({navigation}: any) => {
       options: item?.variants?.length
         ? item?.variants.flatMap((variant: any) => variant?.options)
         : [],
-      cash: CalculateCart?.cash * 100,
-      vat: 0,
     }));
 
     const bodyRequest = {
       products: StoreCartUpdate,
       type: 'TAKE_AWAY',
       paymentType: CalculateCart.paymentMethod,
-      vat: 0,
       note: note,
+      cash: CalculateCart?.cash * 100,
+      vat: 0,
     };
 
     const res: any = await HttpClient.post(
@@ -453,7 +458,9 @@ const HomeStoreScreen = ({navigation}: any) => {
               />
 
               <View style={styles.HeaderMenu}>
-                <TouchableOpacity onPress={() => handleChangeTab(TAB.TAB_HOME)}>
+                <TouchableOpacity
+                  style={styles.BarContain}
+                  onPress={() => handleChangeTab(TAB.TAB_HOME)}>
                   <CustomIcon
                     name={'home'}
                     color={
@@ -463,33 +470,46 @@ const HomeStoreScreen = ({navigation}: any) => {
                     }
                     size={FONTSIZE.size_30 * 1.2}
                   />
+                  <Text style={styles.TextCommon}>Home</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity onPress={() => handleChangeTab(TAB.TAB_MENU)}>
-                  <CustomIcon
-                    name={'menu'}
-                    color={
-                      tab === TAB.TAB_MENU
-                        ? COLORS.primaryGreenRGB
-                        : COLORS.primaryLightGreyHex
-                    }
-                    size={FONTSIZE.size_30 * 1.2}
-                  />
+                <TouchableOpacity
+                  style={styles.BarContain}
+                  onPress={() => handleChangeTab(TAB.TAB_MENU)}>
+                  {tab === TAB.TAB_MENU ? (
+                    <IconHistoryActive
+                      width={FONTSIZE.size_30 * 1.2}
+                      height={FONTSIZE.size_30 * 1.2}
+                    />
+                  ) : (
+                    <IconHistory
+                      width={FONTSIZE.size_30 * 1.2}
+                      height={FONTSIZE.size_30 * 1.2}
+                    />
+                  )}
+                  <Text style={styles.TextCommon}>History</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity onPress={() => handleChangeTab(TAB.TAB_FOOD)}>
-                  <CustomIcon
-                    name={'bean'}
-                    color={
-                      tab === TAB.TAB_FOOD
-                        ? COLORS.primaryGreenRGB
-                        : COLORS.primaryLightGreyHex
-                    }
-                    size={FONTSIZE.size_30 * 1.2}
-                  />
+                <TouchableOpacity
+                  style={styles.BarContain}
+                  onPress={() => handleChangeTab(TAB.TAB_FOOD)}>
+                  {tab === TAB.TAB_FOOD ? (
+                    <IconOnlineOrderActive
+                      width={FONTSIZE.size_30 * 1.2}
+                      height={FONTSIZE.size_30 * 1.2}
+                    />
+                  ) : (
+                    <IconOnlineOrder
+                      width={FONTSIZE.size_30 * 1.2}
+                      height={FONTSIZE.size_30 * 1.2}
+                    />
+                  )}
+                  <Text style={styles.TextCommon}>Online Order</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity onPress={() => handleChangeTab(TAB.TAB_CART)}>
+                <TouchableOpacity
+                  style={styles.BarContain}
+                  onPress={() => handleChangeTab(TAB.TAB_CART)}>
                   <CustomIcon
                     name={'cart'}
                     color={
@@ -499,19 +519,24 @@ const HomeStoreScreen = ({navigation}: any) => {
                     }
                     size={FONTSIZE.size_30 * 1.2}
                   />
+                  <Text style={styles.TextCommon}>Online Order</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
+                  style={styles.BarContain}
                   onPress={() => handleChangeTab(TAB.TAB_SETTING)}>
-                  <CustomIcon
-                    name={'bell'}
-                    color={
-                      tab === TAB.TAB_SETTING
-                        ? COLORS.primaryGreenRGB
-                        : COLORS.primaryLightGreyHex
-                    }
-                    size={FONTSIZE.size_30 * 1.2}
-                  />
+                  {tab === TAB.TAB_SETTING ? (
+                    <IconSettingActive
+                      width={FONTSIZE.size_30 * 1.2}
+                      height={FONTSIZE.size_30 * 1.2}
+                    />
+                  ) : (
+                    <IconSetting
+                      width={FONTSIZE.size_30 * 1.2}
+                      height={FONTSIZE.size_30 * 1.2}
+                    />
+                  )}
+                  <Text style={styles.TextCommon}>Online Order</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -557,8 +582,15 @@ const HomeStoreScreen = ({navigation}: any) => {
           {StoreRealTime.isShow && (
             <InComingPopup onHandlePrint={onHandlePrint} />
           )}
+
+          <ConnectedPopup
+            onToggle={onPressShowConnected}
+            onSubmit={onPressShowConnected}
+            open={showConnectPrinter}
+          />
+
+          {ToastData?.isShow && <ToastCustom />}
         </View>
-        {/* Product Popup */}
       </SafeAreaView>
     </LinearGradient>
   );
@@ -620,6 +652,11 @@ const styles = StyleSheet.create({
     borderBottomStartRadius: SPACING.space_15,
     padding: SPACING.space_20,
     flex: 1,
+  },
+  BarContain: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: SPACING.space_10,
   },
 });
 

@@ -31,6 +31,12 @@ export const useStore = create(
       },
       OrderOnline: [],
       OrderOnlineCart: [],
+      AutoAccept: false,
+      Toast: {
+        isShow: false,
+        message: '',
+        type: ''
+      },
       addToCart: (cartItem: any) =>
         set(
           produce(state => {
@@ -244,7 +250,9 @@ export const useStore = create(
       onAddStoreViewCart: (data: any) => set({ StoreViewCart: data }), // add order for tab history
       onAddStoreRealTime: (data: any) => set({ StoreRealTime: data }), // add current order from pusher
       onAddOrderOnline: (data: any) => set({ OrderOnline: data }), // add order tab online
-      onAddOrderOnlineCart: (data: any) => set({ OrderOnlineCart: data }), // add order for tab online
+      onAddOnlineCart: (data: any) => set({ OrderOnlineCart: data }), // add order for tab online
+      onAddAutoAccept: (data: any) => set({ AutoAccept: data }), // add order for tab online
+      onAddToast: (data: any) => set({ Toast: data }), // add custom toast msg status
     }),
     {
       name: 'coffee-app',

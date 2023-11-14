@@ -4,6 +4,7 @@ import SplashScreen from 'react-native-splash-screen';
 import {AuthProvider} from './src/utils';
 import Navigation from './src/navigation';
 import Toast from 'react-native-toast-message';
+import ToastCustom from './src/components/Toast';
 
 const App = () => {
   useEffect(() => {

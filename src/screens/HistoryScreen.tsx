@@ -308,7 +308,7 @@ const styles = StyleSheet.create({
   },
   TableOrder: {
     marginVertical: SPACING.space_20,
-    marginBottom: widthResponsive(60),
+    marginBottom: widthResponsive(10),
   },
   ContainerTableHeaderNumber: {
     width: '20%',

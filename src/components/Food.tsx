@@ -20,6 +20,7 @@ import {useStore} from '../store/store';
 import LottieView from 'lottie-react-native';
 import CustomIcon from './CustomIcon';
 import Voice from '@react-native-voice/voice';
+import Toast from 'react-native-toast-message';
 
 const INIT_RECOGNIZING = {
   started: false,
@@ -132,6 +133,11 @@ const FoodComponent: React.FC<Iprops> = ({handleGetStore}) => {
   const onSpeechResultsHandler = (e: any) => {
     console.log(e);
     setRecognizing({...recognizing, results: e.value});
+    setSearchText(e?.value);
+    Toast.show({
+      type: 'success',
+      text1: `${e.value} recognizing!!!`,
+    });
   };
 
   const startRecognizing = async () => {

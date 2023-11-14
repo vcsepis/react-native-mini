@@ -15,8 +15,9 @@ import {
 } from '../theme/theme';
 import {useEffect, useState} from 'react';
 import {useStore} from '../store/store';
-import {screenTrace} from '../utils/firebase';
 import LottieView from 'lottie-react-native';
+import Switch from '../components/Switch';
+import {Cache} from '../utils';
 
 const PROCESS_STATUS_DATA = [
   {
@@ -34,14 +35,14 @@ const OnlineStoreScreen = ({onHandlePrint}: any) => {
   const [selectedOrder, setSelectedOrder] = useState(1);
 
   const OrderOnline = useStore((state: any) => state.OrderOnline); // data from noti process
-  const onAddOrderOnlineCart = useStore(
-    (state: any) => state.onAddOrderOnlineCart,
-  ); // handle add view detail order
+  const AutoAccept = useStore((state: any) => state.AutoAccept);
+  const onAddAutoAccept = useStore((state: any) => state.onAddAutoAccept);
+  const onAddOnlineCart = useStore((state: any) => state.onAddOnlineCart); // handle add view detail order
 
   const [oderOnline, setOderOnline] = useState(OrderOnline || []);
 
   const handleDetailOnlineCart = (item: any) => {
-    onAddOrderOnlineCart([
+    onAddOnlineCart([
       {
         ...item?.detailOrder,
         resourceId: item?.resourceId,
@@ -75,39 +76,74 @@ const OnlineStoreScreen = ({onHandlePrint}: any) => {
     }
   };
 
+  const toggleSwitch = () => {
+    onAddAutoAccept(!AutoAccept);
+  };
+
   return (
     <View style={styles.Root}>
       <View style={styles.HeaderContain}>
-        {PROCESS_STATUS_DATA.map((item: any) => (
-          <TouchableOpacity
-            key={item.id}
-            style={{
-              ...styles.StatusOrder,
-              backgroundColor:
-                selectedId === item.id ? COLORS.primaryGreenRGB : '#ddd',
-            }}
-            onPress={() => handleSelectedId(item?.id)}>
-            <Text
+        <ScrollView horizontal style={styles.CategoryOnline}>
+          {PROCESS_STATUS_DATA.map((item: any, index: any) => (
+            <TouchableOpacity
+              key={index}
               style={{
-                ...styles.TextCommon,
-                color:
-                  selectedId === item.id
-                    ? COLORS.primaryWhiteHex
-                    : COLORS.primaryBlackHex,
-              }}>
-              {item?.name}
-            </Text>
-          </TouchableOpacity>
-        ))}
+                ...styles.StatusOrder,
+                backgroundColor:
+                  selectedId === item.id ? COLORS.primaryGreenRGB : '#ddd',
+                marginRight: SPACING.space_10,
+              }}
+              onPress={() => handleSelectedId(item?.id)}>
+              <Text
+                style={{
+                  ...styles.TextCommon,
+                  color:
+                    selectedId === item.id
+                      ? COLORS.primaryWhiteHex
+                      : COLORS.primaryBlackHex,
+                }}>
+                {item?.name}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+
+        <View style={styles.AcceptContain}>
+          <Text style={styles.TextCommon}>Auto accept</Text>
+          <Switch
+            barHeight={40}
+            switchWidth={50}
+            switchHeight={30}
+            value={AutoAccept}
+            onValueChange={toggleSwitch}
+            disabled={false}
+            backgroundActive={'#008810'}
+            backgroundInactive={'#d1d1d1'}
+            circleActiveColor={'white'}
+            circleInActiveColor={'white'}
+            changeValueImmediately={true}
+            innerCircleStyle={{
+              borderWidth: 0,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+            renderActiveText={false}
+            renderInActiveText={false}
+            switchLeftPx={3}
+            switchRightPx={3}
+            switchWidthMultiplier={2}
+            switchBorderRadius={30}
+          />
+        </View>
       </View>
       <View>
         <ScrollView>
           {oderOnline?.length ? (
             <View style={styles.CurrentOrder}>
               {oderOnline?.length > 0 &&
-                oderOnline?.map((item: any) => (
+                oderOnline?.map((item: any, index: any) => (
                   <View
-                    key={item?.resourceId}
+                    key={index}
                     style={{
                       ...styles.TableOrder,
                       borderColor:
@@ -262,7 +298,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginVertical: SPACING.space_20,
     position: 'relative',
-    gap: SPACING.space_20,
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   InputContainerComponent: {
     flexDirection: 'row',
@@ -317,6 +354,14 @@ const styles = StyleSheet.create({
     height: 300,
     width: 'auto',
     borderRadius: BORDERRADIUS.radius_20,
+  },
+  CategoryOnline: {
+    width: '80%',
+    gap: SPACING.space_10,
+  },
+  AcceptContain: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

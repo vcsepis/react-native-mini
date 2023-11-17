@@ -251,7 +251,9 @@ const StoreCart: React.FC<StoreCartProps> = ({
             <Text style={styles.TextTitle}>Current Printer:</Text>
 
             <TouchableOpacity onPress={onPressShowConnected}>
-              <Text style={styles.TextTotalPriceCartFood}>{'Disconect'}</Text>
+              <Text style={styles.TextTotalPriceCartFood}>
+                {TargetDevice?.connected ? 'Connected' : 'Disconect'}
+              </Text>
             </TouchableOpacity>
           </View>
 

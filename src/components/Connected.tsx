@@ -1,10 +1,13 @@
 import {
   ActivityIndicator,
+  Alert,
   Button,
   Modal,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
+  ToastAndroid,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -22,6 +25,7 @@ import CustomIcon from './CustomIcon';
 import {useStore} from '../store/store';
 import EscPosPrinter, {IPrinter} from 'react-native-esc-pos-printer';
 import {base64Image} from './Printer/base64Image';
+import MultiPrint from './Printer/MultiPrint';
 
 interface PopUpConnectedProps {
   onToggle?: any;
@@ -64,48 +68,97 @@ const ConnectedPopup: React.FC<PopUpConnectedProps> = ({
   const onPressParing = async (item: any) => {
     let status;
     let msgConnect = '';
-    await EscPosPrinter.connect(item.target)
-      .then(() => {
-        status = true;
-        msgConnect = 'is connected';
-        onAddTargetDevice(item);
-        Toast.show({
-          type: 'success',
-          text1: `${item.name} is connected`,
-        });
-      })
+    const printing = new EscPosPrinter.printing();
 
-      .catch(e => {
-        status = false;
-        msgConnect = 'fail connected';
-        Toast.show({
-          type: 'error',
-          text1: `${item.name}: ${e.message}`,
-        });
-      });
+    await EscPosPrinter.instantiate({
+      target: item.target,
+      seriesName: item.name,
+      language: 'EPOS2_LANG_EN',
+    });
+    // .then(() => {
+    //   status = true;
+    //   msgConnect = 'is connected';
+    //   onAddTargetDevice(item);
+    //   Toast.show({
+    //     type: 'success',
+    //     text1: `${item.name} is connected`,
+    //   });
+    // })
+
+    // .catch(e => {
+    //   status = false;
+    //   msgConnect = 'fail connected';
+    //   Toast.show({
+    //     type: 'error',
+    //     text1: `${item.name}: ${e.message}`,
+    //   });
+    // });
+
+    // await EscPosPrinter.connect(item.mac)
+    //   .then(() => {
+    //     status = true;
+    //     msgConnect = 'is connected';
+    //     onAddTargetDevice(item);
+    //     Toast.show({
+    //       type: 'success',
+    //       text1: `${item.name} is connected`,
+    //     });
+    //   })
+
+    //   .catch(e => {
+    //     status = false;
+    //     msgConnect = 'fail connected';
+    //     Toast.show({
+    //       type: 'error',
+    //       text1: `${item.name}: ${e.message}`,
+    //     });
+    //   });
 
     setPrinter(item);
 
-    Toast.show({
-      type: 'success',
-      text1: `${msgConnect}: `,
-    });
+    if (Platform.OS) {
+      Alert.alert(`${msgConnect}`);
+    } else {
+      ToastAndroid.showWithGravity(
+        `${msgConnect}`,
+        ToastAndroid.SHORT,
+        ToastAndroid.CENTER,
+      );
+    }
+
+    try {
+      await printing
+        .initialize()
+        .align('center')
+        .size(3, 3)
+        .line(`Print target: ${printer.target}`)
+        .cut()
+        .send({
+          target: printer.target,
+        });
+    } catch (error) {
+      ToastAndroid.showWithGravity(
+        `${error}`,
+        ToastAndroid.SHORT,
+        ToastAndroid.CENTER,
+      );
+    }
 
     // TODO
-    if (status) {
-      await EscPosPrinter.init({
-        target: item?.target,
-        seriesName: item?.seriesName,
-        language: 'EPOS2_LANG_EN',
-      })
-        .then(() => handlePrint())
-        .catch(e => {
-          Toast.show({
-            type: 'error',
-            text1: `${item.name}: ${e.message}`,
-          });
-        });
-    }
+    // if (status) {
+    //   await EscPosPrinter.init({
+    //     target: item?.mac,
+    //     seriesName: item?.seriesName,
+    //     language: 'EPOS2_LANG_EN',
+    //   })
+    //     .then(() => handlePrint())
+    //     .catch(e => {
+    //       Toast.show({
+    //         type: 'error',
+    //         text1: `${item.name}: ${e.message}`,
+    //       });
+    //     });
+    // }
   };
 
   const handlePrint = async () => {
@@ -200,7 +253,7 @@ const ConnectedPopup: React.FC<PopUpConnectedProps> = ({
     <Modal animationType="fade" transparent={true} visible={open}>
       <View style={styles.CenteredView}>
         <View style={styles.ModalView}>
-          <View
+          {/* <View
             style={{
               flexDirection: 'row',
               justifyContent: 'space-between',
@@ -231,11 +284,11 @@ const ConnectedPopup: React.FC<PopUpConnectedProps> = ({
             <View>
               <Button title="Reload" onPress={getAvailableDevices} />
             </View>
-          </View>
+          </View> */}
 
           {/* <App printerItem={printer} /> */}
 
-          {loading && <ActivityIndicator />}
+          {/* {loading && <ActivityIndicator />}
           {!loading && (
             <ScrollView>
               <View style={styles.TableOrder}>
@@ -285,7 +338,8 @@ const ConnectedPopup: React.FC<PopUpConnectedProps> = ({
                 </>
               </View>
             </ScrollView>
-          )}
+          )} */}
+          <MultiPrint closeModal={onToggle} />
         </View>
       </View>
     </Modal>

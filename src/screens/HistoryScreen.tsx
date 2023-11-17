@@ -207,37 +207,42 @@ const HistoryScreen = () => {
             </View>
           </View>
 
-          {listOrder?.current.map((item: any, index: any) => (
-            <View
-              style={{
-                ...styles.Row,
-                borderColor:
-                  item?.id === selectedId ? COLORS.primaryGreenRGB : '#ddd',
-              }}
-              key={index}>
-              <View style={styles.ContainerTableHeader}>
-                <Text style={styles.TextCommon}>{item.id}</Text>
+          {listOrder?.current?.length ? (
+            listOrder?.current.map((item: any, index: any) => (
+              <View
+                style={{
+                  ...styles.Row,
+                  borderColor:
+                    item?.id === selectedId ? COLORS.primaryGreenRGB : '#ddd',
+                }}
+                key={index}>
+                <View style={styles.ContainerTableHeader}>
+                  <Text style={styles.TextCommon}>{item.id}</Text>
+                </View>
+                <View style={styles.ContainerTableHeaderNumber}>
+                  <Text style={styles.TextCommon}>
+                    {moment(item.createdAt).format('DD, MMMM, YYYY')}
+                  </Text>
+                </View>
+                <View style={styles.ContainerTableHeaderNumber}>
+                  <Text style={styles.TextNumber}>
+                    $ {(item.total / 100).toFixed(2)}
+                  </Text>
+                </View>
+                <View style={styles.ContainerTableHeaderNumber}>
+                  <Text style={styles.TextNumber}>{item.paymentType}</Text>
+                </View>
+                <View style={styles.ContainerTableHeaderNumber}>
+                  <TouchableOpacity
+                    onPress={() => handleGetDetailProduct(item)}>
+                    <Text style={styles.TextView}>View</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
-              <View style={styles.ContainerTableHeaderNumber}>
-                <Text style={styles.TextCommon}>
-                  {moment(item.createdAt).format('DD, MMMM, YYYY')}
-                </Text>
-              </View>
-              <View style={styles.ContainerTableHeaderNumber}>
-                <Text style={styles.TextNumber}>
-                  $ {(item.total / 100).toFixed(2)}
-                </Text>
-              </View>
-              <View style={styles.ContainerTableHeaderNumber}>
-                <Text style={styles.TextNumber}>{item.paymentType}</Text>
-              </View>
-              <View style={styles.ContainerTableHeaderNumber}>
-                <TouchableOpacity onPress={() => handleGetDetailProduct(item)}>
-                  <Text style={styles.TextView}>View</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          ))}
+            ))
+          ) : (
+            <></>
+          )}
         </View>
       </ScrollView>
 

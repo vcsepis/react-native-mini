@@ -37,6 +37,7 @@ export const useStore = create(
         message: '',
         type: ''
       },
+      WebView: false,
       addToCart: (cartItem: any) =>
         set(
           produce(state => {
@@ -253,6 +254,7 @@ export const useStore = create(
       onAddOnlineCart: (data: any) => set({ OrderOnlineCart: data }), // add order for tab online
       onAddAutoAccept: (data: any) => set({ AutoAccept: data }), // add order for tab online
       onAddToast: (data: any) => set({ Toast: data }), // add custom toast msg status
+      onAddWebView: (data: any) => set({ WebView: data })
     }),
     {
       name: 'coffee-app',

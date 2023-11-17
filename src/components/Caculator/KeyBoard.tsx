@@ -1,9 +1,9 @@
 import * as React from 'react';
 import Button from './Button';
-import {View, Text, TouchableOpacity} from 'react-native';
+import {View, Text} from 'react-native';
 import {Styles} from './GlobalStyle';
 import {myColors} from './Color';
-import {COLORS, SPACING} from '../../theme/theme';
+import {SPACING} from '../../theme/theme';
 import {useStore} from '../../store/store';
 
 export default function MyKeyboard({setChange}: any) {
@@ -24,16 +24,11 @@ export default function MyKeyboard({setChange}: any) {
   };
 
   const changeMoney =
-    Number((CalculateCart?.total - +cash / 100).toFixed(2)) >= 0
-      ? (CalculateCart?.total - +cash / 100).toFixed(2)
-      : 0;
+    Number(+cash / 100 - CalculateCart?.total) > 0
+      ? Number(+cash / 100 - CalculateCart?.total).toFixed(2)
+      : '0.00';
 
   React.useEffect(() => {
-    const changeMoney =
-      Number((CalculateCart?.total - +cash / 100).toFixed(2)) >= 0
-        ? (CalculateCart?.total - +cash / 100).toFixed(2)
-        : 0;
-
     setChange({
       change: changeMoney,
       cash: +cash / 100,

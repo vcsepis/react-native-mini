@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, {Fragment, useEffect, useState} from 'react';
 import LottieView from 'lottie-react-native';
 import Toast from 'react-native-toast-message';
 import {
@@ -21,6 +21,7 @@ import {
 } from '../theme/theme';
 import CustomIcon from './CustomIcon';
 import {useStore} from '../store/store';
+import IconDrop from '../assets/icon/ic_arrow_right.svg';
 
 interface PopUpProductProps {}
 
@@ -33,6 +34,7 @@ const PopUpProduct: React.FC<PopUpProductProps> = ({}) => {
   const onAddStoreCart = useStore((state: any) => state.onAddStoreCart);
   const [quantity, setQuantity] = useState(1);
   const [products, setProducts] = useState<any>({});
+  const [selected, setSelected] = useState<any>([]);
 
   const onLayout = (event: any) => {
     const {height} = event.nativeEvent.layout;
@@ -92,7 +94,7 @@ const PopUpProduct: React.FC<PopUpProductProps> = ({}) => {
 
   const handleChangeNote = (text: any) => {
     const updatedData = {...products};
-    updatedData.description = text;
+    updatedData.note = text;
     setProducts(updatedData);
   };
 
@@ -114,6 +116,19 @@ const PopUpProduct: React.FC<PopUpProductProps> = ({}) => {
     }
 
     return onIsShowProduct(false);
+  };
+
+  const handleSelected = (index: any) => {
+    let checkDup = [...selected];
+    const number = checkDup.indexOf(index);
+
+    if (number !== -1) {
+      checkDup.splice(number, 1);
+    } else {
+      checkDup.push(index);
+    }
+
+    setSelected(checkDup);
   };
 
   return (
@@ -167,11 +182,6 @@ const PopUpProduct: React.FC<PopUpProductProps> = ({}) => {
                     justifyContent: 'space-between',
                   }}>
                   <View style={{flexDirection: 'row'}}>
-                    <Image
-                      source={require('../assets/app_images/discout.png')}
-                      style={styles.ItemImage}
-                    />
-
                     <View
                       style={{
                         justifyContent: 'space-between',
@@ -241,7 +251,7 @@ const PopUpProduct: React.FC<PopUpProductProps> = ({}) => {
                   placeholderTextColor={COLORS.primaryGreyHex}
                   placeholder="Do you want to note something?"
                   editable={true}
-                  value={products?.description}
+                  value={products?.note}
                 />
 
                 {/* Description */}
@@ -257,7 +267,6 @@ const PopUpProduct: React.FC<PopUpProductProps> = ({}) => {
                 <TextInput
                   multiline={true}
                   numberOfLines={4}
-                  onChangeText={text => {}}
                   value={products?.description}
                   style={{
                     backgroundColor: '#ddd',
@@ -275,83 +284,121 @@ const PopUpProduct: React.FC<PopUpProductProps> = ({}) => {
 
               {/* Variant */}
               <View style={{width: '35%', flex: 1}}>
-                <Text
-                  style={{
-                    ...styles.TextCommon,
-                    paddingBottom: SPACING.space_20,
-                  }}>
-                  Add Additional {`(${products?.variants?.length})`}
-                </Text>
-
                 {products?.variants?.length ? (
-                  products?.variants?.map((item: any, idxVariant: number) =>
-                    item?.options?.length ? (
-                      item?.options?.map((option: any, idxOption: number) => (
+                  products?.variants?.map(
+                    (item: any, idxVariant: number) => (
+                      // item?.options?.length ? (
+                      <Fragment>
                         <View
                           style={{
-                            backgroundColor: '#ddd',
-                            borderRadius: SPACING.space_15,
-                            padding: SPACING.space_10,
-                            flexDirection: 'row',
-                            justifyContent: 'space-between',
-                            width: '100%',
+                            marginHorizontal: SPACING.space_10,
                             marginBottom: SPACING.space_10,
+                            justifyContent: 'space-between',
+                            flexDirection: 'row',
                           }}>
-                          <View style={{flexDirection: 'row'}}>
-                            <View
-                              style={{
-                                justifyContent: 'space-between',
-                                marginLeft: SPACING.space_10,
-                              }}>
-                              <View>
-                                <Text style={styles.TextCommon}>
-                                  {option?.value}
-                                </Text>
-                                <Text style={styles.TextPrice}>
-                                  {(option?.price / 100).toFixed(1)}$
-                                </Text>
-                              </View>
-                            </View>
-                          </View>
+                          <Text
+                            style={{
+                              ...styles.TextCommon,
+                              fontFamily: FONTFAMILY.poppins_semibold,
+                            }}>
+                            {item?.name}
+                          </Text>
 
-                          <View style={styles.ContainerInputSpiner}>
-                            <TouchableOpacity
-                              disabled={option.quantity === 0}
-                              style={styles.InputSpinerAction}
-                              onPress={() =>
-                                handleMinusVariantQuantity(
-                                  idxVariant,
-                                  idxOption,
-                                )
-                              }>
-                              <CustomIcon
-                                name="minus"
-                                color={COLORS.primaryLightGreyHex}
-                                size={FONTSIZE.size_10}
-                              />
-                            </TouchableOpacity>
-                            <View style={styles.CartItemQuantityContainer}>
-                              <Text style={styles.CartItemQuantityText}>
-                                {option.quantity}
-                              </Text>
-                            </View>
-                            <TouchableOpacity
-                              style={styles.InputSpinerAction}
-                              onPress={() =>
-                                handleAddVariantQuantity(idxVariant, idxOption)
-                              }>
-                              <CustomIcon
-                                name="add"
-                                color={COLORS.primaryLightGreyHex}
-                                size={FONTSIZE.size_10}
-                              />
-                            </TouchableOpacity>
-                          </View>
+                          <TouchableOpacity
+                            style={{
+                              transform: [
+                                {
+                                  rotate:
+                                    selected?.indexOf(idxVariant) !== -1
+                                      ? '-90deg'
+                                      : '90deg',
+                                },
+                              ],
+                            }}
+                            onPress={() => handleSelected(idxVariant)}>
+                            <IconDrop
+                              width={FONTSIZE.size_30}
+                              height={FONTSIZE.size_30}
+                            />
+                          </TouchableOpacity>
                         </View>
-                      ))
-                    ) : (
-                      <></>
+
+                        {selected?.indexOf(idxVariant) !== -1 &&
+                          item?.options?.map(
+                            (option: any, idxOption: number) => (
+                              <View
+                                style={{
+                                  backgroundColor: '#ddd',
+                                  borderRadius: SPACING.space_15,
+                                  padding: SPACING.space_10,
+                                  flexDirection: 'row',
+                                  justifyContent: 'space-between',
+                                  width: '100%',
+                                  marginBottom: SPACING.space_10,
+                                }}>
+                                <View style={{flexDirection: 'row'}}>
+                                  <View
+                                    style={{
+                                      justifyContent: 'space-between',
+                                      marginLeft: SPACING.space_10,
+                                    }}>
+                                    <View>
+                                      <Text style={styles.TextCommon}>
+                                        {option?.value}
+                                      </Text>
+                                      <Text style={styles.TextPrice}>
+                                        {(option?.price / 100).toFixed(1)}$
+                                      </Text>
+                                    </View>
+                                  </View>
+                                </View>
+
+                                <View style={styles.ContainerInputSpiner}>
+                                  <TouchableOpacity
+                                    disabled={option.quantity === 0}
+                                    style={styles.InputSpinerAction}
+                                    onPress={() =>
+                                      handleMinusVariantQuantity(
+                                        idxVariant,
+                                        idxOption,
+                                      )
+                                    }>
+                                    <CustomIcon
+                                      name="minus"
+                                      color={COLORS.primaryLightGreyHex}
+                                      size={FONTSIZE.size_10}
+                                    />
+                                  </TouchableOpacity>
+                                  <View
+                                    style={styles.CartItemQuantityContainer}>
+                                    <Text style={styles.CartItemQuantityText}>
+                                      {option.quantity}
+                                    </Text>
+                                  </View>
+                                  <TouchableOpacity
+                                    style={styles.InputSpinerAction}
+                                    onPress={() =>
+                                      handleAddVariantQuantity(
+                                        idxVariant,
+                                        idxOption,
+                                      )
+                                    }>
+                                    <CustomIcon
+                                      name="add"
+                                      color={COLORS.primaryLightGreyHex}
+                                      size={FONTSIZE.size_10}
+                                    />
+                                  </TouchableOpacity>
+                                </View>
+                              </View>
+                            ),
+                          )}
+                      </Fragment>
                     ),
+
+                    // ) : (
+                    //   <></>
+                    // ),
                   )
                 ) : (
                   <LottieView
@@ -416,7 +463,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.primaryWhiteHex,
     borderRadius: SPACING.space_15,
     padding: SPACING.space_30,
-    height: '70%',
+    height: '92%',
   },
   Button: {
     borderRadius: 20,

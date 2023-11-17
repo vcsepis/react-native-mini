@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import moment from 'moment';
 
 const Key: any = {
   Profile: 'profile',
@@ -10,7 +11,9 @@ const Key: any = {
   LastRefreshTokenAt: 'last_refresh_token_at',
   DeviceToken: 'device_token',
   IsShowAddress: 'is_show_address_campaign',
-  AutoAccept: false
+  AutoAccept: false,
+  CountOrder: 0,
+  DateCountOrder: moment(new Date()).format('DD/MM/YYYY')
 };
 
 export class Cache {
@@ -75,6 +78,25 @@ export class Cache {
   static get AutoAccept() {
     return AsyncStorage.getItem(Key.AutoAccept);
   }
+
+  // CountOrder
+  static set CountOrder(data: any) {
+    AsyncStorage.setItem(Key.CountOrder, data);
+  }
+
+  static get CountOrder() {
+    return AsyncStorage.getItem(Key.CountOrder);
+  }
+
+  // DateCountOrder
+  static set DateCountOrder(data: any) {
+    AsyncStorage.setItem(Key.DateCountOrder, data);
+  }
+
+  static get DateCountOrder() {
+    return AsyncStorage.getItem(Key.DateCountOrder);
+  }
+
 
   // Support methods
   static async clearLogout() {

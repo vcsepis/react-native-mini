@@ -9,7 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {Fragment, useEffect} from 'react';
+import React, {Fragment, useEffect, useState} from 'react';
 import {
   BORDERRADIUS,
   COLORS,
@@ -24,6 +24,7 @@ import LottieView from 'lottie-react-native';
 import {TAB} from '../screens/HomeStoreScreen';
 import {HttpClient} from '../service/http-client';
 import {Cache} from '../utils';
+import EscPosPrinter from 'react-native-esc-pos-printer';
 
 interface StoreCartProps {
   handleToggle?: any;
@@ -50,6 +51,7 @@ const StoreCart: React.FC<StoreCartProps> = ({
   const onAddOrderOnline = useStore((state: any) => state.onAddOrderOnline); // add data process when accepted
   const OrderOnline = useStore((state: any) => state.OrderOnline); // data process when accepted order
   const onAddOnlineCart = useStore((state: any) => state.onAddOnlineCart);
+  const TargetDevice = useStore((state: any) => state.TargetDevice);
 
   const handlePressProduct = (product: any, index: any) => {
     addProductCurrent({...product, index: index});
@@ -194,8 +196,6 @@ const StoreCart: React.FC<StoreCartProps> = ({
       },
     );
 
-    // if (!resAccept) return;
-
     onAddOrderOnline(
       OrderOnline?.map((item: any) => ({
         ...item,
@@ -242,7 +242,7 @@ const StoreCart: React.FC<StoreCartProps> = ({
       );
     }
   };
-
+  console.log(TargetDevice?.connected, 'TargetDevice?.connected');
   return (
     <View style={styles.Root}>
       <View style={styles.Header}>
@@ -251,12 +251,14 @@ const StoreCart: React.FC<StoreCartProps> = ({
             <Text style={styles.TextTitle}>Current Printer:</Text>
 
             <TouchableOpacity onPress={onPressShowConnected}>
-              <Text style={styles.TextTotalPriceCartFood}>Connect</Text>
+              <Text style={styles.TextTotalPriceCartFood}>{'Disconect'}</Text>
             </TouchableOpacity>
           </View>
 
           <View>
-            <Text>Device text</Text>
+            <Text>
+              Device text: {TargetDevice?.name} - {TargetDevice?.target}
+            </Text>
           </View>
         </View>
       </View>
@@ -336,20 +338,15 @@ const StoreCart: React.FC<StoreCartProps> = ({
                       )}
                     </View>
                   </View>
-                  <View
-                    style={{
-                      alignItems: 'flex-end',
-                      width: '80%',
-                      flexDirection: 'row',
-                      gap: SPACING.space_10,
-                      marginBottom: SPACING.space_10,
-                    }}></View>
 
-                  <View style={styles.DescriptionContainer}>
-                    <Text style={styles.TextDescription}>
-                      {item.description || item?.note}
-                    </Text>
-                  </View>
+                  {(item.description || item?.note) && (
+                    <View style={styles.DescriptionContainer}>
+                      <Text style={styles.TextDescription}>
+                        {item.description || item?.note}
+                      </Text>
+                    </View>
+                  )}
+
                   <View
                     style={{
                       flexDirection: 'row',
@@ -414,84 +411,95 @@ const StoreCart: React.FC<StoreCartProps> = ({
                   {item?.variants?.length ? (
                     item?.variants?.map((variant: any, variantIdx: any) => (
                       <Fragment key={variant?.id}>
-                        <View style={styles.ContainerVariant}>
-                          <View style={styles.TextSpaceVariant} />
-                        </View>
-
                         {variant?.options?.length ? (
                           variant?.options?.map(
-                            (option: any, optionIdx: any) => (
-                              <View
-                                key={option?.id}
-                                style={{
-                                  flexDirection: 'row',
-                                  justifyContent: 'space-between',
-                                  width: '100%',
-                                }}>
-                                <View style={{flexDirection: 'row'}}>
-                                  <View
-                                    style={{
-                                      justifyContent: 'space-between',
-                                      marginLeft: SPACING.space_10,
-                                    }}>
-                                    <View>
-                                      <Text style={styles.TextCommon}>
-                                        {option?.value}
-                                      </Text>
-                                      <Text style={styles.TextPrice}>
-                                        $ {(option.price / 100).toFixed(2)}
-                                      </Text>
+                            (option: any, optionIdx: any) => {
+                              if (option?.quantity > 0) {
+                                return (
+                                  <Fragment>
+                                    <View style={styles.ContainerVariant}>
+                                      <View style={styles.TextSpaceVariant} />
                                     </View>
-                                  </View>
-                                </View>
 
-                                <View style={styles.ContainerInputSpiner}>
-                                  {!tab && (
-                                    <TouchableOpacity
-                                      disabled={option.quantity === 0}
-                                      style={styles.InputSpinerAction}
-                                      onPress={() =>
-                                        handleVariantMinusQuantity(
-                                          index,
-                                          variantIdx,
-                                          optionIdx,
-                                        )
-                                      }>
-                                      <CustomIcon
-                                        name="minus"
-                                        color={COLORS.primaryLightGreyHex}
-                                        size={FONTSIZE.size_10}
-                                      />
-                                    </TouchableOpacity>
-                                  )}
+                                    <View
+                                      key={option?.id}
+                                      style={{
+                                        flexDirection: 'row',
+                                        justifyContent: 'space-between',
+                                        width: '100%',
+                                      }}>
+                                      <View style={{flexDirection: 'row'}}>
+                                        <View
+                                          style={{
+                                            justifyContent: 'space-between',
+                                            marginLeft: SPACING.space_10,
+                                          }}>
+                                          <View>
+                                            <Text style={styles.TextCommon}>
+                                              {option?.value}
+                                            </Text>
+                                            <Text style={styles.TextPrice}>
+                                              ${' '}
+                                              {(option.price / 100).toFixed(2)}
+                                            </Text>
+                                          </View>
+                                        </View>
+                                      </View>
 
-                                  <View
-                                    style={styles.CartItemQuantityContainer}>
-                                    <Text style={styles.CartItemQuantityText}>
-                                      {option.quantity}
-                                    </Text>
-                                  </View>
+                                      <View style={styles.ContainerInputSpiner}>
+                                        {!tab && (
+                                          <TouchableOpacity
+                                            disabled={option.quantity === 0}
+                                            style={styles.InputSpinerAction}
+                                            onPress={() =>
+                                              handleVariantMinusQuantity(
+                                                index,
+                                                variantIdx,
+                                                optionIdx,
+                                              )
+                                            }>
+                                            <CustomIcon
+                                              name="minus"
+                                              color={COLORS.primaryLightGreyHex}
+                                              size={FONTSIZE.size_10}
+                                            />
+                                          </TouchableOpacity>
+                                        )}
 
-                                  {!tab && (
-                                    <TouchableOpacity
-                                      style={styles.InputSpinerAction}
-                                      onPress={() =>
-                                        handleVariantAddQuantity(
-                                          index,
-                                          variantIdx,
-                                          optionIdx,
-                                        )
-                                      }>
-                                      <CustomIcon
-                                        name="add"
-                                        color={COLORS.primaryLightGreyHex}
-                                        size={FONTSIZE.size_10}
-                                      />
-                                    </TouchableOpacity>
-                                  )}
-                                </View>
-                              </View>
-                            ),
+                                        <View
+                                          style={
+                                            styles.CartItemQuantityContainer
+                                          }>
+                                          <Text
+                                            style={styles.CartItemQuantityText}>
+                                            {option.quantity}
+                                          </Text>
+                                        </View>
+
+                                        {!tab && (
+                                          <TouchableOpacity
+                                            style={styles.InputSpinerAction}
+                                            onPress={() =>
+                                              handleVariantAddQuantity(
+                                                index,
+                                                variantIdx,
+                                                optionIdx,
+                                              )
+                                            }>
+                                            <CustomIcon
+                                              name="add"
+                                              color={COLORS.primaryLightGreyHex}
+                                              size={FONTSIZE.size_10}
+                                            />
+                                          </TouchableOpacity>
+                                        )}
+                                      </View>
+                                    </View>
+                                  </Fragment>
+                                );
+                              }
+                              return <></>;
+                            },
                           )
                         ) : (
                           <></>
@@ -687,7 +695,6 @@ const styles = StyleSheet.create({
     fontFamily: FONTFAMILY.poppins_bold,
     fontSize: FONTSIZE.size_20,
     color: COLORS.primaryGreenRGB,
-    fontWeight: '600',
     textAlign: 'right',
     marginRight: widthResponsive(4),
   },

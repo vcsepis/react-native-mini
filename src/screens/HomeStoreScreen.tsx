@@ -42,6 +42,8 @@ import IconOnlineOrderActive from '../assets/icon/ic_online_active.svg';
 import IconSetting from '../assets/icon/ic_setting.svg';
 import IconSettingActive from '../assets/icon/ic_setting_active.svg';
 import ToastCustom from '../components/Toast';
+import TabSetting from '../components/Setting/Setting';
+import PopupWebView from '../components/WebView';
 
 export enum TAB {
   TAB_HOME,
@@ -64,7 +66,7 @@ const RENDER_VIEW = (tab: any, handleGetStore?: any, onHandlePrint?: any) => {
     case TAB.TAB_CART:
       return <Text style={styles.TextCommon}>TODO CART</Text>;
     case TAB.TAB_SETTING:
-      return <Text style={styles.TextCommon}>TODO CART</Text>;
+      return <TabSetting />;
     default:
       return <Text style={styles.TextCommon}>Home</Text>;
   }
@@ -81,12 +83,10 @@ const HomeStoreScreen = ({navigation}: any) => {
   const [showCalculate, setShowCalculate] = useState(false);
   const [isShowOrderConfirm, setIsShowOrderConfirm] = useState(false);
   const [showConnectPrinter, setShowConnectPrinter] = useState(false);
-  const [connectedDevice, setConnectedDevice] = useState({});
 
   const AddCategory = useStore((state: any) => state.addCategory);
   const onDetailStore = useStore((state: any) => state.onDetailStore);
   const DetailStore = useStore((state: any) => state.DetailStore);
-  const isShowProduct = useStore((state: any) => state.IsShowProduct);
   const onAddCalculateCart = useStore((state: any) => state.onAddCalculateCart);
   const CalculateCart = useStore((state: any) => state.CalculateCart);
   const StoreCartData = useStore((state: any) => state.StoreCart);
@@ -98,6 +98,7 @@ const HomeStoreScreen = ({navigation}: any) => {
   const onAddStoreViewCart = useStore((state: any) => state.onAddStoreViewCart);
   const AutoAccept = useStore((state: any) => state.AutoAccept); // get status auto accept
   const ToastData = useStore((state: any) => state.Toast);
+  const WebView = useStore((state: any) => state.WebView);
 
   const handleShowCalculate = () => setShowCalculate(!showCalculate);
   const handleToggleConfirm = () => setIsShowOrderConfirm(!isShowOrderConfirm);
@@ -206,12 +207,19 @@ const HomeStoreScreen = ({navigation}: any) => {
 
   const handleSubmitOrder = async (note?: any) => {
     const token = await Cache.Token;
+    // const countOrder = await Cache.CountOrder;
+    // const dateCountOrder = await Cache.DateCountOrder;
+
+    // const dataCountOrder = countOrder === 100 ? 0 : countOrder + 1;
 
     const StoreCartUpdate = StoreCartData?.map((item: any) => ({
+      note: item?.note,
       id: item.id,
       quantity: item.quantity,
       options: item?.variants?.length
-        ? item?.variants.flatMap((variant: any) => variant?.options)
+        ? item?.variants.flatMap((variant: any) =>
+            variant?.options?.filter((item: any) => item.quantity > 0),
+          )
         : [],
     }));
 
@@ -223,6 +231,8 @@ const HomeStoreScreen = ({navigation}: any) => {
       cash: CalculateCart?.cash * 100,
       vat: 0,
     };
+
+    console.log(CalculateCart, 'CalculateCart?.cash');
 
     const res: any = await HttpClient.post(
       `/v1/e-commerce/orders`,
@@ -240,194 +250,30 @@ const HomeStoreScreen = ({navigation}: any) => {
         text1: `${res.message}}`,
       });
     }
+
+    // Cache.CountOrder = dataCountOrder;
+    // Cache.DateCountOrder = moment(currentTime).format('DD/MM/YYYY');
+
     Toast.show({
       type: 'success',
       text1: `Order Success: ${res.result.order.code}`,
     });
-    onHandlePrint(res.result.order);
+
+    onHandlePrint(res.result.order, true);
 
     onAddStoreCart([]);
     setIsShowOrderConfirm(false);
   };
 
   // Print
-  const onHandlePrint = async (data: any) => {
-    if (data === undefined) return;
+  const onHandlePrint = async (data: any, isOrder?: any) => {
+    // const countOrder = await Cache.CountOrder;
+    // console.log(countOrder, 'countOrder');
+    EscPosPrinter.connect(TargetDevice?.target);
 
-    if (TargetDevice?.name?.length > 0) {
-      try {
-        const printing = new EscPosPrinter.printing();
+    const printing = new EscPosPrinter.printing();
 
-        await printing
-          .initialize()
-          .align('center')
-          .size(3, 3)
-          .line(data?.storeSlug)
-          .smooth(true)
-          .size(1, 1)
-          .text('Adress:')
-          .bold()
-          .underline()
-          .text(data?.address)
-          .newline()
-
-          .size(1, 1)
-          .text('Time:')
-          .bold()
-          .underline()
-          .text(moment(currentTime).format('dddd, MM, YYYY hh:mm:ss A'))
-          .newline()
-
-          .align('center')
-          .size(3, 3)
-          .line(data?.type)
-          .smooth(true)
-          .newline()
-
-          .size(1, 1)
-          .textLine(48, {
-            left: '',
-            right: '',
-            gapSymbol: '_',
-          })
-          .newline()
-
-          .size(1, 1)
-          .textLine(28, {
-            left: 'Item',
-            right: 'Total',
-          })
-          .newline()
-
-          .size(1, 1)
-          .textLine(48, {
-            left: '',
-            right: '',
-            gapSymbol: '_',
-          })
-          .newline();
-
-        for (let item of data.products) {
-          await printing
-            .size(1, 1)
-            .textLine(48, {
-              left: `${item.quantity + ' ' + item.name}`, // Tên sản phẩm.
-              right: '$' + item.price, // Giá sản phẩm.
-              gapSymbol: '.',
-            })
-            .newline()
-
-            .size(1, 1)
-            .textLine(48, {
-              left: `${item.note}`, // Tên sản phẩm.
-              right: '',
-            })
-            .newline();
-
-          if (item.variants?.length != 0) {
-            for (let i = 0; i < item.variants![0].options!.length; i++) {
-              await printing
-                .size(1, 1)
-                .textLine(48, {
-                  left: `${item.quantity + ' ' + item.name}`, // Tên sản phẩm.
-                  right: '$' + item.price, // Giá sản phẩm.
-                  gapSymbol: '.',
-                })
-                .newline()
-
-                .size(1, 1)
-                .textLine(48, {
-                  left: `${item.note}`, // Tên sản phẩm.
-                  right: '',
-                })
-                .newline();
-            }
-          }
-        }
-
-        await printing
-          .size(2, 2)
-          .textLine(48, {left: 'Total', right: `LRK ${data?.total}`})
-          .newline()
-
-          .size(1, 1)
-          .textLine(28, {
-            left: 'CARD',
-            right: data?.total,
-          })
-          .newline()
-
-          .align('left')
-          .size(1, 1)
-          .line(
-            `Total Items: ${data?.products?.length}, Total Unit: ${data?.products?.length}`,
-          )
-          .newline()
-
-          .size(1, 1)
-          .textLine(48, {
-            left: '',
-            right: '',
-            gapSymbol: '_',
-          })
-          .newline()
-
-          .align('center')
-          .size(3, 3)
-          .line('Thank You')
-          .smooth(true)
-          .newline()
-
-          .size(1, 1)
-          .textLine(48, {
-            left: '',
-            right: '',
-            gapSymbol: '_',
-          })
-          .newline()
-
-          .align('center')
-          .size(1, 1)
-          .line('Thank You')
-          .smooth(true)
-          .newline()
-
-          .size(1, 1)
-          .textLine(48, {
-            left: '',
-            right: '',
-            gapSymbol: '_',
-          })
-          .newline()
-
-          .size(1, 1)
-          .text('Ref Number:')
-          .bold()
-          .text('1-17')
-          .newline()
-
-          .size(1, 1)
-          .text('SpicePos -')
-          .bold()
-          .text('www.spicepos.com')
-          .newline();
-
-        // Kết thúc và cắt giấy.
-        const status = await printing.cut().send();
-
-        ToastAndroid.showWithGravity(
-          `Order ${data._id}: print success`,
-          ToastAndroid.SHORT,
-          ToastAndroid.CENTER,
-        );
-      } catch (e: any) {
-        ToastAndroid.showWithGravity(
-          `Order ${data._id}: ${e.message} `,
-          ToastAndroid.SHORT,
-          ToastAndroid.CENTER,
-        );
-      }
-    } else {
+    if (!TargetDevice?.name?.length) {
       if (Platform.OS) {
         Alert.alert(`Please selected device to Print`);
       } else {
@@ -437,6 +283,164 @@ const HomeStoreScreen = ({navigation}: any) => {
           ToastAndroid.CENTER,
         );
       }
+
+      return;
+    }
+
+    try {
+      await printing
+        .initialize()
+        .align('center')
+        .size(2, 2)
+        .line(`${DetailStore?.name}`)
+        .smooth(true)
+        .newline()
+        .size(2, 2)
+        .line(data?.type)
+        .newline()
+        .size(1, 1)
+        .textLine(48, {
+          left: 'Address',
+          right: `${DetailStore?.address}`,
+        });
+      // if (isOrder) {
+      //   await printing
+      //     .newline()
+      //     .size(1, 1)
+      //     .textLine(48, {
+      //       left: 'Order number',
+      //       right: `${countOrder?.count}`,
+      //     });
+      // }
+      await printing
+        .newline()
+        .size(1, 1)
+        .textLine(48, {
+          left: '',
+          right: '', // Giá sản phẩm.
+          gapSymbol: '.',
+        })
+        .newline()
+        .size(1, 1)
+        .textLine(48, {
+          left: 'Item',
+          right: 'Price',
+        })
+        .newline();
+      for (let item of data?.products) {
+        await printing
+          .size(1, 1)
+          .textLine(48, {
+            left: `${item?.quantity + 'x' + ' ' + item?.name}`,
+            right: '$' + (item?.price / 100).toFixed(2), // Giá sản phẩm.
+          })
+          .newline()
+          .size(1, 1)
+          .line(`Note: ${item?.note || ''}`)
+          .newline();
+        if (item?.variants?.length !== 0) {
+          for (let variants of item?.variants) {
+            if (variants?.options !== 0) {
+              for (let option of variants?.options) {
+                if (option?.quantity > 0) {
+                  await printing
+                    .size(1, 1)
+                    .textLine(48, {
+                      left: '-',
+                      right: 'Variant', // Giá sản phẩm.
+                    })
+                    .newline()
+                    .size(1, 1)
+                    .textLine(48, {
+                      left: `${option?.quantity + ' ' + option?.value}`, // Tên sản phẩm.
+                      right: '$' + option?.price / 100, // Giá sản phẩm.
+                    })
+                    .newline();
+                }
+              }
+            }
+          }
+        }
+        await printing
+          .size(1, 1)
+          .textLine(48, {
+            left: '',
+            right: '', // Giá sản phẩm.
+            gapSymbol: '.',
+          })
+          .newline();
+      }
+      await printing
+        .size(1, 1)
+        .textLine(48, {
+          left: 'Total',
+          right: `$ ${(data?.total / 100).toFixed(2)}`,
+        })
+        .newline()
+        .size(1, 1)
+        .textLine(48, {left: 'Payment Type', right: `${data?.paymentType}`})
+        .newline()
+        .size(1, 1)
+        .textLine(48, {
+          left: '',
+          right: '',
+          gapSymbol: '_',
+        })
+        .newline()
+        .align('center')
+        .size(1, 1)
+        .line('Scan it and order it')
+        .newline()
+        .align('center')
+        .size(1, 1)
+        .line('SKIP THE LINE')
+        .newline()
+        .align('center')
+        .qrcode({
+          value: `https://order.episcloud.com/${data?.storeSlug}`,
+          level: 'EPOS2_LEVEL_M',
+          width: 5,
+        })
+        .smooth(true)
+        .newline()
+        .align('center')
+        .size(1, 1)
+        .line('Thank You')
+        .smooth(true)
+        .newline()
+        .size(1, 1)
+        .textLine(48, {
+          left: '',
+          right: '',
+          gapSymbol: '_',
+        })
+        .newline()
+        .size(1, 1)
+        .line(
+          `Date time: ${moment(data?.createdAt).format(
+            'DD, MM, YYYY hh:mm:ss A',
+          )}`,
+        )
+        .newline()
+        .size(1, 1)
+        .line(`Total number of items purchased: ${data?.products?.length}`)
+        .newline()
+        .size(1, 1)
+        .line('Ref Number:')
+        .bold()
+        .line(data?.code || '')
+        .newline()
+        .size(1, 1)
+        .line('EPOS Au Merchant by EPIS CLOUD')
+        .bold()
+        .line('www.episcloud.com')
+        .newline();
+
+      await printing.cut().send({
+        target: TargetDevice.target,
+      });
+    } catch (error) {
+      // Printing error
     }
   };
 
@@ -509,21 +513,6 @@ const HomeStoreScreen = ({navigation}: any) => {
 
                 <TouchableOpacity
                   style={styles.BarContain}
-                  onPress={() => handleChangeTab(TAB.TAB_CART)}>
-                  <CustomIcon
-                    name={'cart'}
-                    color={
-                      tab === TAB.TAB_CART
-                        ? COLORS.primaryGreenRGB
-                        : COLORS.primaryLightGreyHex
-                    }
-                    size={FONTSIZE.size_30 * 1.2}
-                  />
-                  <Text style={styles.TextCommon}>Online Order</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={styles.BarContain}
                   onPress={() => handleChangeTab(TAB.TAB_SETTING)}>
                   {tab === TAB.TAB_SETTING ? (
                     <IconSettingActive
@@ -536,7 +525,7 @@ const HomeStoreScreen = ({navigation}: any) => {
                       height={FONTSIZE.size_30 * 1.2}
                     />
                   )}
-                  <Text style={styles.TextCommon}>Online Order</Text>
+                  <Text style={styles.TextCommon}>Setting</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -590,6 +579,8 @@ const HomeStoreScreen = ({navigation}: any) => {
           />
 
           {ToastData?.isShow && <ToastCustom />}
+
+          {WebView && <PopupWebView />}
         </View>
       </SafeAreaView>
     </LinearGradient>

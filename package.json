@@ -26,6 +26,7 @@
     "moment": "^2.29.4",
     "react": "18.2.0",
     "react-native": "0.72.4",
+    "react-native-animated-pulse": "^1.0.1",
     "react-native-calendars": "^1.1302.0",
     "react-native-camera": "^4.2.1",
     "react-native-dotenv": "^3.4.9",
@@ -43,6 +44,7 @@
     "react-native-svg-transformer": "^1.1.0",
     "react-native-toast-message": "^2.1.7",
     "react-native-vector-icons": "^10.0.0",
+    "react-native-webview": "11.23.1",
     "zustand": "^4.4.1"
   },
   "devDependencies": {

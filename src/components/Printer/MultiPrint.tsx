@@ -9,6 +9,7 @@
 
 import React, {useEffect} from 'react';
 import EscPosPrinter, {
+  IPrinter,
   getPrinterSeriesByName,
 } from 'react-native-esc-pos-printer';
 
@@ -20,9 +21,10 @@ import {
   View,
   TouchableOpacity,
 } from 'react-native';
+import {useStore} from '../../store/store';
 
 type Props = {
-  closeModal: () => void;
+  closeModal?: () => void;
 };
 const MultiPrint = ({closeModal}: Props) => {
   const backgroundStyle = {
@@ -30,6 +32,8 @@ const MultiPrint = ({closeModal}: Props) => {
   };
 
   const [printers, setPrinters] = useState<any[]>([]);
+
+  const onAddTargetDevice = useStore((state: any) => state.onAddTargetDevice);
 
   useEffect(() => {
     handleDiscover();
@@ -52,21 +56,22 @@ const MultiPrint = ({closeModal}: Props) => {
     }
   };
 
-  // const handleConnect = async (printer: IPrinter) => {
-  //   try {
-  //     EscPosPrinter.connect(printer.target);
-  //   } catch (error) {
-  //     // Failed to connect the printer
-  //   }
-  // };
+  const handleConnect = async (printer: IPrinter) => {
+    try {
+      EscPosPrinter.connect(printer.target);
+      onAddTargetDevice({...printer, connected: true});
+    } catch (error) {
+      // Failed to connect the printer
+    }
+  };
 
-  // const handleDisconnect = (printer: IPrinter) => {
-  //   try {
-  //     EscPosPrinter.disconnectPrinter(printer.target);
-  //   } catch (error) {
-  //     // Failed to disconnect the printer
-  //   }
-  // };
+  const handleDisconnect = (printer: IPrinter) => {
+    try {
+      EscPosPrinter.disconnectPrinter(printer.target);
+    } catch (error) {
+      // Failed to disconnect the printer
+    }
+  };
 
   const handlePrint = async (printer: any) => {
     const printing = new EscPosPrinter.printing();
@@ -115,6 +120,7 @@ const MultiPrint = ({closeModal}: Props) => {
             <Text>Print all</Text>
           </TouchableOpacity>
         </View>
+
         {printers.map(printer => {
           return (
             <View
@@ -137,7 +143,7 @@ const MultiPrint = ({closeModal}: Props) => {
                 onPress={() => handleInit(printer)}>
                 <Text>Init</Text>
               </TouchableOpacity>
-              {/* <TouchableOpacity
+              <TouchableOpacity
                 style={{
                   padding: 12,
                   borderWidth: 1,
@@ -145,8 +151,7 @@ const MultiPrint = ({closeModal}: Props) => {
                   borderColor: '#23395d',
                   borderRadius: 4,
                 }}
-                onPress={() => handleConnect(printer)}
-              >
+                onPress={() => handleConnect(printer)}>
                 <Text>Connect</Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -157,10 +162,9 @@ const MultiPrint = ({closeModal}: Props) => {
                   borderColor: '#23395d',
                   borderRadius: 4,
                 }}
-                onPress={() => handleDisconnect(printer)}
-              >
+                onPress={() => handleDisconnect(printer)}>
                 <Text>Disconnect</Text>
-              </TouchableOpacity> */}
+              </TouchableOpacity>
               <TouchableOpacity
                 style={{
                   padding: 12,

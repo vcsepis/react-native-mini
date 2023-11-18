@@ -1,0 +1,16 @@
+<svg id="credit-card-payment" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+  <path id="Path_119935" data-name="Path 119935"
+    d="M373.828,119.208a2.8,2.8,0,0,1,.833.126l2.4-2.4-1.118-1.118-3.391,3.391Z"
+    transform="translate(-355.087 -110.388)" fill="#ffffff" />
+  <path id="Path_119936" data-name="Path 119936"
+    d="M446.409,161.505l-.621-.621-2.173,2.173a2.8,2.8,0,0,1,.759,1.919v.553l2.035-2.035A1.406,1.406,0,0,0,446.409,161.505Z"
+    transform="translate(-422.821 -153.343)" fill="#ffffff" />
+  <path id="Path_119937" data-name="Path 119937"
+    d="M130.482,4.435,126.459.412a1.406,1.406,0,0,0-1.989,0L116.062,8.82H126.1Z" transform="translate(-110.622 0)"
+    fill="#ffffff" />
+  <path id="Path_119938" data-name="Path 119938" d="M78.734,313.264h2.142v1.581H78.734Z"
+    transform="translate(-75.043 -298.58)" fill="#ffffff" />
+  <path id="Path_119939" data-name="Path 119939"
+    d="M18.741,218.167H1.406A1.406,1.406,0,0,0,0,219.573v10.961a1.406,1.406,0,0,0,1.406,1.406H18.741a1.406,1.406,0,0,0,1.406-1.406V219.573A1.406,1.406,0,0,0,18.741,218.167ZM2.284,221.218H7.239v4.394H2.284Zm2.736,7.671H2.241v-1.406H5.02Zm4.3,0H6.536v-1.406H9.316Zm4.3,0H10.832v-1.406h2.779Zm4.3,0H15.127v-1.406h2.779Z"
+    transform="translate(0 -207.94)" fill="#ffffff" />
+</svg>

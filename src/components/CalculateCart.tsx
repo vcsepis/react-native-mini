@@ -6,7 +6,8 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, {Fragment, useEffect, useState} from 'react';
+
 import {
   BORDERRADIUS,
   COLORS,
@@ -17,8 +18,9 @@ import {
 } from '../theme/theme';
 import CustomIcon from './CustomIcon';
 import {useStore} from '../store/store';
-import MyKeyboard from './Caculator/KeyBoard';
 import {Styles} from './Caculator/GlobalStyle';
+import IconCard from '../assets/icon/ic_card_payment.svg';
+import LottieView from 'lottie-react-native';
 
 interface PopUpCalculateCartProps {
   onToggle?: any;
@@ -49,6 +51,48 @@ const PopUpCalculateCart: React.FC<PopUpCalculateCartProps> = ({
   useEffect(() => {
     setPaymentCd(PaymentData[0]?.code);
   }, [PaymentData?.length]);
+  console.log(PaymentData, 'PaymentData');
+
+  const sortByCode = (arr: any) => {
+    const index = arr.findIndex((item: any) => item.code === 'CARD');
+
+    if (index !== -1) {
+      const element = arr.splice(index, 1)[0];
+      arr.unshift(element);
+    }
+
+    return arr;
+  };
+
+  const handleIconType = (item: any) => {
+    if (item.code === 'CASH')
+      return (
+        <Fragment>
+          <IconCard width={widthResponsive(6)} height={widthResponsive(6)} />
+          <Text style={styles.TextPayment}>Pay at the counter</Text>
+        </Fragment>
+      );
+
+    if (item.code === 'CARD')
+      return (
+        <Fragment>
+          <LottieView
+            style={styles.LottieStyle}
+            source={require('../lottie/scan.json')}
+            autoPlay
+            loop
+          />
+          <Text style={styles.TextPayment}>Qr code</Text>
+        </Fragment>
+      );
+
+    if (item.code === 'POS')
+      return (
+        <Fragment>
+          <Text style={styles.TextPayment}>{item?.name}</Text>
+        </Fragment>
+      );
+  };
 
   return (
     <Modal
@@ -64,7 +108,7 @@ const PopUpCalculateCart: React.FC<PopUpCalculateCartProps> = ({
               justifyContent: 'space-between',
               alignItems: 'center',
             }}>
-            <Text style={styles.TextTitle}>Calculate Cart</Text>
+            <Text style={styles.TextTitle}>Payment Method</Text>
 
             <TouchableOpacity
               style={styles.InputSpinerAction}
@@ -93,42 +137,39 @@ const PopUpCalculateCart: React.FC<PopUpCalculateCartProps> = ({
 
               <Text style={styles.TextCommon}>Payment Method</Text>
 
-              <ScrollView horizontal>
-                <View style={styles.ContainerPaymentMethod}>
-                  {PaymentData?.map((item: any) => (
-                    <TouchableOpacity
-                      key={item.code}
-                      onPress={() => handleSelectPaymentCd(item?.code)}
-                      style={{
-                        ...styles.PaymentStatus,
-                        backgroundColor:
-                          paymentCd === item?.code
-                            ? COLORS.primaryGreenRGB
-                            : '#4E505F',
-                      }}>
-                      <Text style={styles.TextPayment}>{item?.name}</Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              </ScrollView>
-
-              <Text style={styles.TextCommon}>Input Cash</Text>
+              <View style={styles.ContainerPaymentMethod}>
+                {sortByCode(PaymentData)?.map((item: any) => (
+                  <TouchableOpacity
+                    disabled={item?.code === 'POS' || item?.code === 'CARD'}
+                    key={item.code}
+                    onPress={() => handleSelectPaymentCd(item?.code)}
+                    style={{
+                      ...styles.PaymentStatus,
+                      backgroundColor:
+                        paymentCd === item?.code
+                          ? COLORS.primaryGreenRGB
+                          : '#4E505F',
+                    }}>
+                    {handleIconType(item)}
+                  </TouchableOpacity>
+                ))}
+              </View>
             </View>
-
-            <MyKeyboard setChange={setChange} />
-
-            <TouchableOpacity
-              onPress={() => onSubmit(change, paymentCd)}
-              style={{
-                backgroundColor: COLORS.primaryGreenRGB,
-                padding: SPACING.space_10,
-                borderRadius: SPACING.space_15,
-                width: '40%',
-                alignSelf: 'center',
-              }}>
-              <Text style={Styles.screenSubmit}>Done</Text>
-            </TouchableOpacity>
           </ScrollView>
+
+          <TouchableOpacity
+            onPress={() => onSubmit('', change, paymentCd)}
+            style={{
+              backgroundColor: COLORS.primaryGreenRGB,
+              padding: SPACING.space_10,
+              borderRadius: SPACING.space_15,
+              width: '20%',
+              height: widthResponsive(15),
+              alignSelf: 'center',
+              justifyContent: 'center',
+            }}>
+            <Text style={Styles.screenSubmit}>Done</Text>
+          </TouchableOpacity>
         </View>
       </View>
     </Modal>
@@ -154,7 +195,7 @@ const styles = StyleSheet.create({
   TextCommon: {
     fontFamily: FONTFAMILY.poppins_regular,
     color: COLORS.primaryBlackHex,
-    fontSize: FONTSIZE.size_18,
+    fontSize: FONTSIZE.size_20,
   },
   TextTitle: {
     fontFamily: FONTFAMILY.poppins_regular,
@@ -233,8 +274,8 @@ const styles = StyleSheet.create({
   },
   TextTotalAmount: {
     flex: 1,
-    fontFamily: FONTFAMILY.poppins_medium,
-    fontSize: FONTSIZE.size_20,
+    fontFamily: FONTFAMILY.poppins_semibold,
+    fontSize: FONTSIZE.size_24,
     color: COLORS.primaryGreenRGB,
     fontWeight: '600',
   },
@@ -243,16 +284,29 @@ const styles = StyleSheet.create({
     paddingBottom: SPACING.space_20,
     flexDirection: 'row',
     gap: SPACING.space_10,
+    justifyContent: 'center',
   },
   PaymentStatus: {
-    padding: SPACING.space_10,
     borderRadius: SPACING.space_15,
     alignItems: 'center',
+    height: widthResponsive(20),
+    justifyContent: 'center',
+    flexDirection: 'row',
+    gap: SPACING.space_10,
+    alignContent: 'center',
+    paddingHorizontal: widthResponsive(10),
   },
   TextPayment: {
-    fontSize: FONTSIZE.size_16,
+    fontSize: FONTSIZE.size_20,
     color: COLORS.primaryWhiteHex,
     fontFamily: FONTFAMILY.poppins_regular,
+  },
+  InputIcon: {
+    marginRight: SPACING.space_10,
+  },
+  LottieStyle: {
+    height: widthResponsive(6),
+    width: widthResponsive(6),
   },
 });
 

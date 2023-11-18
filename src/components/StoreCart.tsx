@@ -266,18 +266,6 @@ const StoreCart: React.FC<StoreCartProps> = ({
         </View>
       </View>
 
-      <View
-        style={{
-          flexDirection: 'row',
-          gap: SPACING.space_10,
-          width: '100%',
-          paddingTop: SPACING.space_10,
-        }}>
-        <View style={styles.PickupStatusContainer}>
-          <Text style={styles.TextPickUpStatus}>{'Take Away'}</Text>
-        </View>
-      </View>
-
       {dataCart?.products?.length || dataCart?.length ? (
         <ScrollView style={styles.CartContainer}>
           <View style={{marginBottom: SPACING.space_20 * 10}}>

@@ -59,14 +59,6 @@ const RENDER_VIEW = (tab: any, handleGetStore?: any, onHandlePrint?: any) => {
   switch (tab) {
     case TAB.TAB_HOME:
       return <FoodComponent handleGetStore={handleGetStore} />;
-    case TAB.TAB_MENU:
-      return <HistoryScreen />;
-    case TAB.TAB_FOOD:
-      return <OnlineStoreScreen onHandlePrint={onHandlePrint} />;
-    case TAB.TAB_CART:
-      return <Text style={styles.TextCommon}>TODO CART</Text>;
-    case TAB.TAB_SETTING:
-      return <TabSetting />;
     default:
       return <Text style={styles.TextCommon}>Home</Text>;
   }
@@ -197,20 +189,14 @@ const HomeStoreScreen = ({navigation}: any) => {
     });
   };
 
-  const handleSubmitCalculator = (change: any, paymentCd: any) => {
-    onAddCalculateCart({...CalculateCart, ...change, paymentMethod: paymentCd});
-    setShowCalculate(!showCalculate);
-    setTimeout(() => {
-      setIsShowOrderConfirm(true);
-    }, 500);
-  };
-
-  const handleSubmitOrder = async (note?: any) => {
+  const handleSubmitOrder = async (
+    note?: any,
+    change?: any,
+    paymentCd?: any,
+  ) => {
     const token = await Cache.Token;
-    // const countOrder = await Cache.CountOrder;
-    // const dateCountOrder = await Cache.DateCountOrder;
 
-    // const dataCountOrder = countOrder === 100 ? 0 : countOrder + 1;
+    setShowCalculate(!showCalculate);
 
     const StoreCartUpdate = StoreCartData?.map((item: any) => ({
       note: item?.note,
@@ -225,8 +211,8 @@ const HomeStoreScreen = ({navigation}: any) => {
 
     const bodyRequest = {
       products: StoreCartUpdate,
-      type: 'TAKE_AWAY',
-      paymentType: CalculateCart.paymentMethod,
+      type: 'PICK_UP',
+      paymentType: paymentCd,
       note: note,
       cash: CalculateCart?.cash * 100,
       vat: 0,
@@ -256,9 +242,6 @@ const HomeStoreScreen = ({navigation}: any) => {
       return;
     }
 
-    // Cache.CountOrder = dataCountOrder;
-    // Cache.DateCountOrder = moment(currentTime).format('DD/MM/YYYY');
-
     if (Platform.OS) {
       Alert.alert(`Order Success: ${res.result.order.code}`);
     } else {
@@ -269,16 +252,14 @@ const HomeStoreScreen = ({navigation}: any) => {
       );
     }
 
-    onHandlePrint(res.result.order, true);
+    onAddCalculateCart({...CalculateCart, ...change, paymentMethod: paymentCd});
 
     onAddStoreCart([]);
     setIsShowOrderConfirm(false);
   };
 
   // Print
-  const onHandlePrint = async (data: any, isOrder?: any) => {
-    // const countOrder = await Cache.CountOrder;
-    // console.log(countOrder, 'countOrder');
+  const onHandlePrint = async (data: any) => {
     EscPosPrinter.connect(TargetDevice?.target);
 
     if (!TargetDevice?.name?.length) {
@@ -453,84 +434,6 @@ const HomeStoreScreen = ({navigation}: any) => {
         <StatusBar backgroundColor={COLORS.primaryBlackHex} />
         <View style={styles.ScrollViewFlex}>
           <View style={styles.ViewHeader}>
-            {/* Header */}
-            <View style={styles.HeaderContainer}>
-              <Image
-                source={{
-                  uri: 'https://cdn.discordapp.com/attachments/1060582873771552778/1149413998366838885/E.png?fbclid=IwAR3Tjf1l1OxeL3VjNtnGDxCldL1hd2lmQOZwggeo4MnbSmzWowRhl8iAHgE',
-                }}
-                style={styles.Image}
-              />
-
-              <View style={styles.HeaderMenu}>
-                <TouchableOpacity
-                  style={styles.BarContain}
-                  onPress={() => handleChangeTab(TAB.TAB_HOME)}>
-                  <CustomIcon
-                    name={'home'}
-                    color={
-                      tab === TAB.TAB_HOME
-                        ? COLORS.primaryGreenRGB
-                        : COLORS.primaryLightGreyHex
-                    }
-                    size={FONTSIZE.size_30 * 1.2}
-                  />
-                  <Text style={styles.TextCommon}>Home</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={styles.BarContain}
-                  onPress={() => handleChangeTab(TAB.TAB_MENU)}>
-                  {tab === TAB.TAB_MENU ? (
-                    <IconHistoryActive
-                      width={FONTSIZE.size_30 * 1.2}
-                      height={FONTSIZE.size_30 * 1.2}
-                    />
-                  ) : (
-                    <IconHistory
-                      width={FONTSIZE.size_30 * 1.2}
-                      height={FONTSIZE.size_30 * 1.2}
-                    />
-                  )}
-                  <Text style={styles.TextCommon}>History</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={styles.BarContain}
-                  onPress={() => handleChangeTab(TAB.TAB_FOOD)}>
-                  {tab === TAB.TAB_FOOD ? (
-                    <IconOnlineOrderActive
-                      width={FONTSIZE.size_30 * 1.2}
-                      height={FONTSIZE.size_30 * 1.2}
-                    />
-                  ) : (
-                    <IconOnlineOrder
-                      width={FONTSIZE.size_30 * 1.2}
-                      height={FONTSIZE.size_30 * 1.2}
-                    />
-                  )}
-                  <Text style={styles.TextCommon}>Online Order</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={styles.BarContain}
-                  onPress={() => handleChangeTab(TAB.TAB_SETTING)}>
-                  {tab === TAB.TAB_SETTING ? (
-                    <IconSettingActive
-                      width={FONTSIZE.size_30 * 1.2}
-                      height={FONTSIZE.size_30 * 1.2}
-                    />
-                  ) : (
-                    <IconSetting
-                      width={FONTSIZE.size_30 * 1.2}
-                      height={FONTSIZE.size_30 * 1.2}
-                    />
-                  )}
-                  <Text style={styles.TextCommon}>Setting</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-
             {/* Contain */}
             <View style={styles.Contain}>
               {RENDER_VIEW(tab, handleGetStore, onHandlePrint)}
@@ -551,7 +454,7 @@ const HomeStoreScreen = ({navigation}: any) => {
           <PopUpProduct />
 
           <PopUpCalculateCart
-            onSubmit={handleSubmitCalculator}
+            onSubmit={handleSubmitOrder}
             onToggle={handleShowCalculate}
             open={showCalculate}
           />
@@ -600,6 +503,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     gap: SPACING.space_20,
+    marginTop: SPACING.space_20,
   },
   ScreenTitle: {
     fontSize: FONTSIZE.size_28,

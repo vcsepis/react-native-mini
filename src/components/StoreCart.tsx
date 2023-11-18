@@ -106,7 +106,9 @@ const StoreCart: React.FC<StoreCartProps> = ({
           return (
             variantAcc +
             variant?.options?.reduce((optionAcc: any, option: any) => {
-              return optionAcc + option.price * option.quantity;
+              return (
+                optionAcc + option.price * option.quantity * item?.quantity
+              );
             }, 0)
           );
         },
@@ -242,7 +244,6 @@ const StoreCart: React.FC<StoreCartProps> = ({
       );
     }
   };
-  console.log(TargetDevice?.connected, 'TargetDevice?.connected');
   return (
     <View style={styles.Root}>
       <View style={styles.Header}>

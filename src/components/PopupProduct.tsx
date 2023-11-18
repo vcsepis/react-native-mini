@@ -1,10 +1,13 @@
 import {
+  Alert,
   Image,
   Modal,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
+  ToastAndroid,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -32,7 +35,6 @@ const PopUpProduct: React.FC<PopUpProductProps> = ({}) => {
   const ProductCurrent = useStore((state: any) => state.ProductCurrent);
   const StoreCart = useStore((state: any) => state.StoreCart);
   const onAddStoreCart = useStore((state: any) => state.onAddStoreCart);
-  const [quantity, setQuantity] = useState(1);
   const [products, setProducts] = useState<any>({});
   const [selected, setSelected] = useState<any>([]);
 
@@ -42,11 +44,14 @@ const PopUpProduct: React.FC<PopUpProductProps> = ({}) => {
   };
 
   useEffect(() => {
-    if (ProductCurrent?.quantity) {
-      setQuantity(ProductCurrent?.quantity || 1);
-    }
     setProducts(ProductCurrent);
   }, [ProductCurrent]);
+
+  useEffect(() => {
+    setSelected([]);
+
+    return () => setSelected([]);
+  }, [isShowProduct]);
 
   const handleToggleProduct = () => {
     onIsShowProduct(false);
@@ -80,7 +85,9 @@ const PopUpProduct: React.FC<PopUpProductProps> = ({}) => {
       return (
         acc +
         variant.options.reduce((optionAcc: any, option: any) => {
-          return optionAcc + option.price * option.quantity;
+          return (
+            optionAcc + option.price * option.quantity * products?.quantity
+          );
         }, 0)
       );
     }, 0);
@@ -99,23 +106,29 @@ const PopUpProduct: React.FC<PopUpProductProps> = ({}) => {
   };
 
   const onSubmit = () => {
-    Toast.show({
-      type: 'success',
-      text2: `${products.name} is Added to cart`,
-    });
-
     const total = totalPrice();
+
     const StoreCartUpdate = [...StoreCart];
     const productUpdate = {...products, total: total};
 
-    if (productUpdate?.index !== undefined) {
+    if (products?.index !== undefined) {
       StoreCartUpdate[productUpdate?.index] = productUpdate;
       onAddStoreCart(StoreCartUpdate);
     } else {
       onAddStoreCart([productUpdate, ...StoreCart]);
     }
 
-    return onIsShowProduct(false);
+    onIsShowProduct(false);
+
+    if (Platform.OS) {
+      Alert.alert(`${products.name} is Added to cart`);
+    } else {
+      ToastAndroid.showWithGravity(
+        `${products.name} is Added to cart`,
+        ToastAndroid.SHORT,
+        ToastAndroid.CENTER,
+      );
+    }
   };
 
   const handleSelected = (index: any) => {
@@ -199,7 +212,7 @@ const PopUpProduct: React.FC<PopUpProductProps> = ({}) => {
 
                   <View style={styles.ContainerInputSpiner}>
                     <TouchableOpacity
-                      disabled={quantity === 1}
+                      disabled={products.quantity === 1}
                       style={styles.InputSpinerAction}
                       onPress={handleMinusQuanity}>
                       <CustomIcon
@@ -285,121 +298,111 @@ const PopUpProduct: React.FC<PopUpProductProps> = ({}) => {
               {/* Variant */}
               <View style={{width: '35%', flex: 1}}>
                 {products?.variants?.length ? (
-                  products?.variants?.map(
-                    (item: any, idxVariant: number) => (
-                      // item?.options?.length ? (
-                      <Fragment>
-                        <View
+                  products?.variants?.map((item: any, idxVariant: number) => (
+                    <Fragment>
+                      <View
+                        style={{
+                          marginHorizontal: SPACING.space_10,
+                          marginBottom: SPACING.space_10,
+                          justifyContent: 'space-between',
+                          flexDirection: 'row',
+                        }}>
+                        <Text
                           style={{
-                            marginHorizontal: SPACING.space_10,
-                            marginBottom: SPACING.space_10,
-                            justifyContent: 'space-between',
-                            flexDirection: 'row',
+                            ...styles.TextCommon,
+                            fontFamily: FONTFAMILY.poppins_semibold,
                           }}>
-                          <Text
+                          {item?.name}
+                        </Text>
+
+                        <TouchableOpacity
+                          style={{
+                            transform: [
+                              {
+                                rotate:
+                                  selected?.indexOf(idxVariant) !== -1
+                                    ? '-90deg'
+                                    : '90deg',
+                              },
+                            ],
+                          }}
+                          onPress={() => handleSelected(idxVariant)}>
+                          <IconDrop
+                            width={FONTSIZE.size_30}
+                            height={FONTSIZE.size_30}
+                          />
+                        </TouchableOpacity>
+                      </View>
+
+                      {!selected?.includes(idxVariant) &&
+                        item?.options?.map((option: any, idxOption: number) => (
+                          <View
                             style={{
-                              ...styles.TextCommon,
-                              fontFamily: FONTFAMILY.poppins_semibold,
+                              backgroundColor: '#ddd',
+                              borderRadius: SPACING.space_15,
+                              padding: SPACING.space_10,
+                              flexDirection: 'row',
+                              justifyContent: 'space-between',
+                              width: '100%',
+                              marginBottom: SPACING.space_10,
                             }}>
-                            {item?.name}
-                          </Text>
-
-                          <TouchableOpacity
-                            style={{
-                              transform: [
-                                {
-                                  rotate:
-                                    selected?.indexOf(idxVariant) !== -1
-                                      ? '-90deg'
-                                      : '90deg',
-                                },
-                              ],
-                            }}
-                            onPress={() => handleSelected(idxVariant)}>
-                            <IconDrop
-                              width={FONTSIZE.size_30}
-                              height={FONTSIZE.size_30}
-                            />
-                          </TouchableOpacity>
-                        </View>
-
-                        {selected?.indexOf(idxVariant) !== -1 &&
-                          item?.options?.map(
-                            (option: any, idxOption: number) => (
+                            <View style={{flexDirection: 'row'}}>
                               <View
                                 style={{
-                                  backgroundColor: '#ddd',
-                                  borderRadius: SPACING.space_15,
-                                  padding: SPACING.space_10,
-                                  flexDirection: 'row',
                                   justifyContent: 'space-between',
-                                  width: '100%',
-                                  marginBottom: SPACING.space_10,
+                                  marginLeft: SPACING.space_10,
                                 }}>
-                                <View style={{flexDirection: 'row'}}>
-                                  <View
-                                    style={{
-                                      justifyContent: 'space-between',
-                                      marginLeft: SPACING.space_10,
-                                    }}>
-                                    <View>
-                                      <Text style={styles.TextCommon}>
-                                        {option?.value}
-                                      </Text>
-                                      <Text style={styles.TextPrice}>
-                                        {(option?.price / 100).toFixed(1)}$
-                                      </Text>
-                                    </View>
-                                  </View>
-                                </View>
-
-                                <View style={styles.ContainerInputSpiner}>
-                                  <TouchableOpacity
-                                    disabled={option.quantity === 0}
-                                    style={styles.InputSpinerAction}
-                                    onPress={() =>
-                                      handleMinusVariantQuantity(
-                                        idxVariant,
-                                        idxOption,
-                                      )
-                                    }>
-                                    <CustomIcon
-                                      name="minus"
-                                      color={COLORS.primaryLightGreyHex}
-                                      size={FONTSIZE.size_10}
-                                    />
-                                  </TouchableOpacity>
-                                  <View
-                                    style={styles.CartItemQuantityContainer}>
-                                    <Text style={styles.CartItemQuantityText}>
-                                      {option.quantity}
-                                    </Text>
-                                  </View>
-                                  <TouchableOpacity
-                                    style={styles.InputSpinerAction}
-                                    onPress={() =>
-                                      handleAddVariantQuantity(
-                                        idxVariant,
-                                        idxOption,
-                                      )
-                                    }>
-                                    <CustomIcon
-                                      name="add"
-                                      color={COLORS.primaryLightGreyHex}
-                                      size={FONTSIZE.size_10}
-                                    />
-                                  </TouchableOpacity>
+                                <View>
+                                  <Text style={styles.TextCommon}>
+                                    {option?.value}
+                                  </Text>
+                                  <Text style={styles.TextPrice}>
+                                    {(option?.price / 100).toFixed(1)}$
+                                  </Text>
                                 </View>
                               </View>
-                            ),
-                          )}
-                      </Fragment>
-                    ),
+                            </View>
 
-                    // ) : (
-                    //   <></>
-                    // ),
-                  )
+                            <View style={styles.ContainerInputSpiner}>
+                              <TouchableOpacity
+                                disabled={option.quantity === 0}
+                                style={styles.InputSpinerAction}
+                                onPress={() =>
+                                  handleMinusVariantQuantity(
+                                    idxVariant,
+                                    idxOption,
+                                  )
+                                }>
+                                <CustomIcon
+                                  name="minus"
+                                  color={COLORS.primaryLightGreyHex}
+                                  size={FONTSIZE.size_10}
+                                />
+                              </TouchableOpacity>
+                              <View style={styles.CartItemQuantityContainer}>
+                                <Text style={styles.CartItemQuantityText}>
+                                  {option.quantity}
+                                </Text>
+                              </View>
+                              <TouchableOpacity
+                                style={styles.InputSpinerAction}
+                                onPress={() =>
+                                  handleAddVariantQuantity(
+                                    idxVariant,
+                                    idxOption,
+                                  )
+                                }>
+                                <CustomIcon
+                                  name="add"
+                                  color={COLORS.primaryLightGreyHex}
+                                  size={FONTSIZE.size_10}
+                                />
+                              </TouchableOpacity>
+                            </View>
+                          </View>
+                        ))}
+                    </Fragment>
+                  ))
                 ) : (
                   <LottieView
                     style={styles.AdditionalPrettie}
@@ -413,34 +416,25 @@ const PopUpProduct: React.FC<PopUpProductProps> = ({}) => {
           </ScrollView>
 
           <TouchableOpacity onPress={onSubmit}>
-            <View
-              style={{
-                backgroundColor: COLORS.primaryWhiteHex,
-                position: 'absolute',
-                bottom: 0,
-                right: 0,
-                left: 0,
-              }}>
-              <View onLayout={onLayout} style={styles.CartDisplay}>
-                <View style={styles.CartContentCount}>
-                  <Text style={styles.TextCountCartFood} numberOfLines={1}>
-                    Price
-                  </Text>
-                </View>
-
-                <Text style={styles.TextTotalPriceCartFood}>
-                  {totalPrice()} $
+            <View onLayout={onLayout} style={styles.CartDisplay}>
+              <View style={styles.CartContentCount}>
+                <Text style={styles.TextCountCartFood} numberOfLines={1}>
+                  Price
                 </Text>
-                <CustomIcon
-                  name={'cart'}
-                  color={'#008810'}
-                  size={FONTSIZE.size_24}
-                />
               </View>
 
-              <View style={styles.CartPaymentDisplay}>
-                <Text style={styles.TextTotalPaymentCartFood}>Add to cart</Text>
-              </View>
+              <Text style={styles.TextTotalPriceCartFood}>
+                {totalPrice()} $
+              </Text>
+              <CustomIcon
+                name={'cart'}
+                color={'#008810'}
+                size={FONTSIZE.size_24}
+              />
+            </View>
+
+            <View style={styles.CartPaymentDisplay}>
+              <Text style={styles.TextTotalPaymentCartFood}>Add to cart</Text>
             </View>
           </TouchableOpacity>
         </View>

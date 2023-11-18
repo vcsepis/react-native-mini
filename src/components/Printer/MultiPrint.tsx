@@ -51,6 +51,7 @@ const MultiPrint = ({closeModal}: Props) => {
         seriesName: getPrinterSeriesByName(printer.name),
         language: 'EPOS2_LANG_EN',
       });
+      onAddTargetDevice({...printer, connected: true});
     } catch (error) {
       // Init error
     }

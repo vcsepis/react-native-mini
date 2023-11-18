@@ -82,27 +82,13 @@ const FoodComponent: React.FC<Iprops> = ({handleGetStore}) => {
     });
   };
 
-  if (!Category)
-    return (
-      <View style={styles.Root}>
-        <View style={styles.CategoryGoContainer}>
-          <LottieView
-            style={styles.CategoryGo}
-            source={require('../lottie/empty.json')}
-            autoPlay
-            loop
-          />
-        </View>
-      </View>
-    );
-
-  const onRefresh = React.useCallback(() => {
+  const onRefresh = () => {
     setRefreshing(true);
     handleGetStore();
     setTimeout(() => {
       setRefreshing(false);
     }, 2000);
-  }, []);
+  };
 
   const handleSearch = (_text: any) => {};
 
@@ -158,6 +144,20 @@ const FoodComponent: React.FC<Iprops> = ({handleGetStore}) => {
     }
   };
 
+  if (!Category?.length)
+    return (
+      <View style={styles.Root}>
+        <View style={styles.CategoryGoContainer}>
+          <LottieView
+            style={styles.CategoryGo}
+            source={require('../lottie/empty.json')}
+            autoPlay
+            loop
+          />
+        </View>
+      </View>
+    );
+
   return (
     <View style={styles.Root}>
       <View style={styles.Container}>
@@ -192,30 +192,34 @@ const FoodComponent: React.FC<Iprops> = ({handleGetStore}) => {
               <></>
             )}
 
-            {Category?.map((item: any) => (
-              <TouchableOpacity
-                key={item.id}
-                style={{
-                  ...styles.Item,
-                  marginBottom: SPACING.space_20,
-                  backgroundColor:
-                    categoryId === item.id
-                      ? COLORS.primaryGreenRGB
-                      : COLORS.primaryWhiteHex,
-                }}
-                onPress={() => handleCategory(item?.id)}>
-                <Text
+            {Category?.length ? (
+              Category?.map((item: any) => (
+                <TouchableOpacity
+                  key={item.id}
                   style={{
-                    ...styles.TextCommon,
-                    color:
+                    ...styles.Item,
+                    marginBottom: SPACING.space_20,
+                    backgroundColor:
                       categoryId === item.id
-                        ? COLORS.primaryWhiteHex
-                        : COLORS.primaryBlackHex,
-                  }}>
-                  {item.name}
-                </Text>
-              </TouchableOpacity>
-            ))}
+                        ? COLORS.primaryGreenRGB
+                        : COLORS.primaryWhiteHex,
+                  }}
+                  onPress={() => handleCategory(item?.id)}>
+                  <Text
+                    style={{
+                      ...styles.TextCommon,
+                      color:
+                        categoryId === item.id
+                          ? COLORS.primaryWhiteHex
+                          : COLORS.primaryBlackHex,
+                    }}>
+                    {item.name}
+                  </Text>
+                </TouchableOpacity>
+              ))
+            ) : (
+              <></>
+            )}
           </ScrollView>
         </View>
 
@@ -282,7 +286,9 @@ const FoodComponent: React.FC<Iprops> = ({handleGetStore}) => {
                 <Fragment key={item.id}>
                   {item?.products?.length ? (
                     item?.products
-                      ?.filter((prod: any) => prod?.name?.includes(searchText))
+                      ?.filter((prod: any) =>
+                        prod?.name?.includes(searchText?.toLocaleLowerCase()),
+                      )
                       ?.map((product: any) => (
                         <TouchableOpacity
                           key={product?.id}
@@ -327,7 +333,7 @@ const styles = StyleSheet.create({
   },
   Product: {
     width: '75%',
-    paddingRight: SPACING.space_20,
+    marginBottom: SPACING.space_20,
   },
   Item: {
     backgroundColor: COLORS.primaryWhiteHex,
@@ -351,7 +357,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.primaryWhiteHex,
     borderRadius: SPACING.space_15,
     alignItems: 'center',
-    width: '23%',
+    width: '23.5%',
     paddingVertical: SPACING.space_30,
     gap: SPACING.space_10,
   },

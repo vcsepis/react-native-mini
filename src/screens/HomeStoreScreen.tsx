@@ -83,7 +83,7 @@ const HomeStoreScreen = ({navigation}: any) => {
   const [showCalculate, setShowCalculate] = useState(false);
   const [isShowOrderConfirm, setIsShowOrderConfirm] = useState(false);
   const [showConnectPrinter, setShowConnectPrinter] = useState(false);
-
+  console.log(isShowOrderConfirm, 'isShowOrderConfirm');
   const AddCategory = useStore((state: any) => state.addCategory);
   const onDetailStore = useStore((state: any) => state.onDetailStore);
   const DetailStore = useStore((state: any) => state.DetailStore);
@@ -172,7 +172,7 @@ const HomeStoreScreen = ({navigation}: any) => {
   const handleGetStore = async () => {
     const token = await Cache.Token;
     const resCategories = await HttpClient.get(
-      `/v1/e-commerce/categories?category=&page=&limit=&keyword=`,
+      `/v1/e-commerce/categories?category=&page=&limit=100&keyword=`,
       null,
       token,
     );
@@ -232,8 +232,6 @@ const HomeStoreScreen = ({navigation}: any) => {
       vat: 0,
     };
 
-    console.log(CalculateCart, 'CalculateCart?.cash');
-
     const res: any = await HttpClient.post(
       `/v1/e-commerce/orders`,
       bodyRequest,
@@ -245,19 +243,31 @@ const HomeStoreScreen = ({navigation}: any) => {
     );
 
     if (res?.errorCode !== '000') {
-      return Toast.show({
-        type: 'error',
-        text1: `${res.message}}`,
-      });
+      if (Platform.OS) {
+        Alert.alert(res.message);
+      } else {
+        ToastAndroid.showWithGravity(
+          res.message,
+          ToastAndroid.SHORT,
+          ToastAndroid.CENTER,
+        );
+      }
+
+      return;
     }
 
     // Cache.CountOrder = dataCountOrder;
     // Cache.DateCountOrder = moment(currentTime).format('DD/MM/YYYY');
 
-    Toast.show({
-      type: 'success',
-      text1: `Order Success: ${res.result.order.code}`,
-    });
+    if (Platform.OS) {
+      Alert.alert(`Order Success: ${res.result.order.code}`);
+    } else {
+      ToastAndroid.showWithGravity(
+        `Order Success: ${res.result.order.code}`,
+        ToastAndroid.SHORT,
+        ToastAndroid.CENTER,
+      );
+    }
 
     onHandlePrint(res.result.order, true);
 
@@ -270,8 +280,6 @@ const HomeStoreScreen = ({navigation}: any) => {
     // const countOrder = await Cache.CountOrder;
     // console.log(countOrder, 'countOrder');
     EscPosPrinter.connect(TargetDevice?.target);
-
-    const printing = new EscPosPrinter.printing();
 
     if (!TargetDevice?.name?.length) {
       if (Platform.OS) {
@@ -286,6 +294,8 @@ const HomeStoreScreen = ({navigation}: any) => {
 
       return;
     }
+
+    const printing = new EscPosPrinter.printing();
 
     try {
       await printing
@@ -303,15 +313,6 @@ const HomeStoreScreen = ({navigation}: any) => {
           left: 'Address',
           right: `${DetailStore?.address}`,
         });
-      // if (isOrder) {
-      //   await printing
-      //     .newline()
-      //     .size(1, 1)
-      //     .textLine(48, {
-      //       left: 'Order number',
-      //       right: `${countOrder?.count}`,
-      //     });
-      // }
       await printing
         .newline()
         .size(1, 1)

@@ -14,6 +14,7 @@ const Axios = axios.create({
 
 export class HttpClient {
   static async get<T>(url: string, params?: any, token?: any): Promise<any> {
+    console.log(URL_API_ENDPOINT_DEV_CORE, 'URL_API_ENDPOINT_DEV_CORE');
     const response = await Axios.get<T>(url, {
       headers: {
         Authorization: `Bearer ${token || ''}`,

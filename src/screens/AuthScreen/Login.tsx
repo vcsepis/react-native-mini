@@ -32,8 +32,8 @@ const initStateSuccess = {
 
 const LoginScreen = ({navigation}: any) => {
   const [stateLogin, setStateLogin] = useState<any>(initStateLogin);
-  const [password, setPassword] = useState('Th@i12022022');
-  const [phone, setPhone] = useState<any>('484894945');
+  const [password, setPassword] = useState('');
+  const [phone, setPhone] = useState<any>('');
   const [stateSuccess, setStateSuccess] = useState<any>(initStateSuccess);
 
   // State variable to track password visibility
@@ -117,6 +117,7 @@ const LoginScreen = ({navigation}: any) => {
         username: `${stateLogin?.selectedCountryCode?.phoneCode + phone}`,
         password: password,
       });
+
       if (res?.errorCode !== '000') {
         if (Platform.OS) return Alert.alert(res?.message);
 
@@ -133,8 +134,6 @@ const LoginScreen = ({navigation}: any) => {
     Cache.Token = res?.result?.accessToken;
     Cache.RefreshToken = res?.result?.refreshToken;
 
-    // setStateSuccess({...initStateLogin, step1: true});
-
     setAuth({
       isAuth: true,
       aToken: res?.result?.accessToken,
@@ -150,7 +149,7 @@ const LoginScreen = ({navigation}: any) => {
 
     return setTimeout(() => {
       setStateSuccess(initStateSuccess);
-    }, 850);
+    }, 1000);
   };
 
   useEffect(() => {

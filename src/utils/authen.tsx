@@ -41,7 +41,8 @@ export function AuthProvider({children}: any) {
     const res = await HttpClient.get(`/v1/auth/profile`, null, token);
 
     if (!res) return;
-    setAuth({isAuth: true, user: res.result});
+
+    setAuth({isAuth: true, user: res?.result});
   };
 
   const reFreshToken = async () => {

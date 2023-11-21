@@ -21,10 +21,7 @@ import {
   SPACING,
   widthResponsive,
 } from '../theme/theme';
-import CustomIcon from './CustomIcon';
-import {useStore} from '../store/store';
 import EscPosPrinter, {IPrinter} from 'react-native-esc-pos-printer';
-import {base64Image} from './Printer/base64Image';
 import MultiPrint from './Printer/MultiPrint';
 
 interface PopUpConnectedProps {

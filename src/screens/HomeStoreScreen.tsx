@@ -24,6 +24,11 @@ import EscPosPrinter from 'react-native-esc-pos-printer';
 import moment from 'moment';
 import {Pusher, PusherEvent} from '@pusher/pusher-websocket-react-native';
 import {
+  PaymentIntent,
+  useStripeTerminal,
+} from '@stripe/stripe-terminal-react-native';
+
+import {
   getPusherInstance,
   handleConnectPusher,
   handleDisconnectPusher,
@@ -60,12 +65,23 @@ const INIT_STATE_PRODUCT = {
 const INIT_QR = {isShow: false, link: ''};
 
 const HomeStoreScreen = ({navigation}: any) => {
+  const {retrievePaymentIntent, collectPaymentMethod, processPayment} =
+    useStripeTerminal({
+      onDidRequestReaderInput: input => {
+        console.log(input, 'input');
+      },
+      onDidRequestReaderDisplayMessage: message => {
+        console.log(message, 'message');
+      },
+    });
+
   const [tab, setTab] = useState(TAB.TAB_HOME);
   const [stateProduct, setStateProduct] = useState(INIT_STATE_PRODUCT);
   const [showCalculate, setShowCalculate] = useState(false);
   const [isShowOrderConfirm, setIsShowOrderConfirm] = useState(false);
   const [showConnectPrinter, setShowConnectPrinter] = useState(false);
   const [isShowQR, setIsShowQR] = useState(INIT_QR);
+  const [paymentIntentMethod, setPaymentIntentMethod] = useState('');
 
   const AddCategory = useStore((state: any) => state.addCategory);
   const onDetailStore = useStore((state: any) => state.onDetailStore);
@@ -192,7 +208,7 @@ const HomeStoreScreen = ({navigation}: any) => {
             )
           : [],
       }));
-      console.log(paymentCd, 'paymentCd');
+
       let bodyRequest = {
         products: StoreCartUpdate,
         type: 'PICK_UP',
@@ -207,7 +223,7 @@ const HomeStoreScreen = ({navigation}: any) => {
           Authorization: `Bearer ${token || ''}`,
         },
       });
-      console.log(res, 'res');
+      console.log(res?.order?.clientSecret, 'res');
       if (Platform.OS) {
         Alert.alert(`Order Success: ${res.order.code}`);
       } else {
@@ -229,6 +245,22 @@ const HomeStoreScreen = ({navigation}: any) => {
       if (paymentCd === 'CARD') {
         setIsShowQR({isShow: true, link: res?.paymentLink});
       }
+
+      if (paymentCd === 'POS') {
+        const paymentIntentRetrieve = await retrievePaymentIntent(
+          res?.order?.clientSecret,
+        );
+
+        if (paymentIntentRetrieve?.error) {
+          return ToastAndroid.showWithGravity(
+            `Stiple error`,
+            ToastAndroid.SHORT,
+            ToastAndroid.CENTER,
+          );
+        }
+
+        handlePaymentIndent(paymentIntentRetrieve);
+      }
     } catch (e) {
       if (Platform.OS) {
         Alert.alert(`Order Fail`);
@@ -242,6 +274,33 @@ const HomeStoreScreen = ({navigation}: any) => {
     }
 
     setIsShowOrderConfirm(false);
+  };
+
+  const handlePaymentIndent = async (paymentIntentRetrieve: any) => {
+    const {paymentIntent, error} = await collectPaymentMethod({
+      paymentIntentId: paymentIntentRetrieve?.paymentIntent?.id as string,
+      skipTipping: true,
+      tipEligibleAmount: 0,
+      updatePaymentIntent: true,
+    });
+
+    if (error) {
+      return ToastAndroid.showWithGravity(
+        `Stiple error`,
+        ToastAndroid.SHORT,
+        ToastAndroid.CENTER,
+      );
+    }
+
+    _confirmPaymentIntent(paymentIntent?.id);
+  };
+
+  const _confirmPaymentIntent = async (id: string) => {
+    const {paymentIntent, error} = await processPayment(id);
+
+    if (paymentIntent?.status === 'succeeded') {
+      return;
+    }
   };
 
   // Print

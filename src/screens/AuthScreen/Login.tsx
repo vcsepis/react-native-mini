@@ -54,7 +54,7 @@ const LoginScreen = ({navigation}: any) => {
 
     if (!res) return setStateLogin(initStateLogin);
 
-    return setStateLogin({...stateLogin, countries: res.result.countries});
+    return setStateLogin({...stateLogin, countries: res?.data});
   };
 
   const handleInputPhoneChange = (text: any) => {
@@ -113,31 +113,36 @@ const LoginScreen = ({navigation}: any) => {
         ToastAndroid.CENTER,
       );
     } else {
-      const res: any = await HttpClient.post(`/v1/auth/sign-in`, {
-        username: `${stateLogin?.selectedCountryCode?.phoneCode + phone}`,
-        password: password,
-      });
+      try {
+        const res: any = await HttpClient.post(`/v1/auth/sign-in`, {
+          username: `${stateLogin?.selectedCountryCode?.phoneCode + phone}`,
+          password: password,
+        });
 
-      if (res?.errorCode !== '000') {
-        if (Platform.OS) return Alert.alert(res?.message);
+        handleLoginSuccess(res);
+      } catch (e) {
+        if (Platform.OS)
+          return Alert.alert(
+            `Incorrect phone number or password.  Please check again`,
+          );
 
         ToastAndroid.showWithGravity(
-          res?.message,
+          `Incorrect phone number or password.  Please check again`,
           ToastAndroid.SHORT,
           ToastAndroid.CENTER,
         );
-      } else return handleLoginSuccess(res);
+      }
     }
   };
 
   const handleLoginSuccess = async (res: any) => {
-    Cache.Token = res?.result?.accessToken;
-    Cache.RefreshToken = res?.result?.refreshToken;
+    Cache.Token = res?.accessToken;
+    Cache.RefreshToken = res?.refreshToken;
 
     setAuth({
       isAuth: true,
-      aToken: res?.result?.accessToken,
-      rToken: res?.result?.refreshToken,
+      aToken: res?.accessToken,
+      rToken: res?.refreshToken,
       user: user,
     });
 

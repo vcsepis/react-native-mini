@@ -4,8 +4,6 @@ import {
   StyleSheet,
   SafeAreaView,
   View,
-  Image,
-  TouchableOpacity,
   Text,
   Platform,
   Alert,
@@ -13,7 +11,6 @@ import {
 } from 'react-native';
 import {COLORS, FONTFAMILY, FONTSIZE, SPACING} from '../theme/theme';
 import LinearGradient from 'react-native-linear-gradient';
-import CustomIcon from '../components/CustomIcon';
 import {HttpClient} from '../service/http-client';
 import {Cache} from '../utils';
 import FoodComponent from '../components/Food';
@@ -25,8 +22,6 @@ import StoreCart from '../components/StoreCart';
 import ConnectedPopup from '../components/Connected';
 import EscPosPrinter from 'react-native-esc-pos-printer';
 import moment from 'moment';
-import HistoryScreen from './HistoryScreen';
-import OnlineStoreScreen from './OnlineStore';
 import {Pusher, PusherEvent} from '@pusher/pusher-websocket-react-native';
 import {
   getPusherInstance,
@@ -34,16 +29,9 @@ import {
   handleDisconnectPusher,
 } from '../utils/pusher';
 import InComingPopup from '../components/InComingPopup';
-import Toast from 'react-native-toast-message';
-import IconHistory from '../assets/icon/ic_order_history.svg';
-import IconHistoryActive from '../assets/icon/ic_order_history_active.svg';
-import IconOnlineOrder from '../assets/icon/ic_online_inactive.svg';
-import IconOnlineOrderActive from '../assets/icon/ic_online_active.svg';
-import IconSetting from '../assets/icon/ic_setting.svg';
-import IconSettingActive from '../assets/icon/ic_setting_active.svg';
 import ToastCustom from '../components/Toast';
-import TabSetting from '../components/Setting/Setting';
 import PopupWebView from '../components/WebView';
+import PopupQrView from '../components/QrView';
 
 export enum TAB {
   TAB_HOME,
@@ -69,13 +57,16 @@ const INIT_STATE_PRODUCT = {
   categories: [],
 };
 
+const INIT_QR = {isShow: false, link: ''};
+
 const HomeStoreScreen = ({navigation}: any) => {
   const [tab, setTab] = useState(TAB.TAB_HOME);
   const [stateProduct, setStateProduct] = useState(INIT_STATE_PRODUCT);
   const [showCalculate, setShowCalculate] = useState(false);
   const [isShowOrderConfirm, setIsShowOrderConfirm] = useState(false);
   const [showConnectPrinter, setShowConnectPrinter] = useState(false);
-  console.log(isShowOrderConfirm, 'isShowOrderConfirm');
+  const [isShowQR, setIsShowQR] = useState(INIT_QR);
+
   const AddCategory = useStore((state: any) => state.addCategory);
   const onDetailStore = useStore((state: any) => state.onDetailStore);
   const DetailStore = useStore((state: any) => state.DetailStore);
@@ -86,20 +77,12 @@ const HomeStoreScreen = ({navigation}: any) => {
   const TargetDevice = useStore((state: any) => state.TargetDevice);
   const onAddStoreRealTime = useStore((state: any) => state.onAddStoreRealTime); // add current noti
   const StoreRealTime = useStore((state: any) => state.StoreRealTime); // current noti
-  const onAddOnlineCart = useStore((state: any) => state.onAddOnlineCart); // handle add view detail order
-  const onAddStoreViewCart = useStore((state: any) => state.onAddStoreViewCart);
   const AutoAccept = useStore((state: any) => state.AutoAccept); // get status auto accept
   const ToastData = useStore((state: any) => state.Toast);
   const WebView = useStore((state: any) => state.WebView);
 
   const handleShowCalculate = () => setShowCalculate(!showCalculate);
   const handleToggleConfirm = () => setIsShowOrderConfirm(!isShowOrderConfirm);
-  const handleChangeTab = (tabSelected: any) => {
-    setTab(tabSelected);
-
-    if (tabSelected === TAB.TAB_FOOD) return onAddOnlineCart([]);
-    if (tabSelected === TAB.TAB_MENU) return onAddStoreViewCart([]);
-  };
 
   const [pusher, setPusher] = useState<Pusher>();
 
@@ -123,7 +106,7 @@ const HomeStoreScreen = ({navigation}: any) => {
         );
         switch (event.eventName) {
           case 'order-paid':
-            console.log(response.result.order);
+            // console.log(response.result.order);
             break;
 
           case 'online.order':
@@ -139,7 +122,7 @@ const HomeStoreScreen = ({navigation}: any) => {
 
   useEffect(() => {
     if (DetailStore?.id) {
-      connectPusher();
+      // connectPusher(); // pause for mini
     }
 
     () => {
@@ -150,7 +133,7 @@ const HomeStoreScreen = ({navigation}: any) => {
   useEffect(() => {
     if (pusher?.connectionState === 'DISCONNECTED') return;
 
-    handleEvents(AutoAccept);
+    // handleEvents(AutoAccept); // pause for mini
   }, [pusher?.connectionState, AutoAccept]);
 
   const onPressShowConnected = (selectedDevice: any) => {
@@ -164,13 +147,13 @@ const HomeStoreScreen = ({navigation}: any) => {
   const handleGetStore = async () => {
     const token = await Cache.Token;
     const resCategories = await HttpClient.get(
-      `/v1/e-commerce/categories?category=&page=&limit=100&keyword=`,
+      `/v1/categories?category=&page=&limit=100&keyword=`,
       null,
       token,
     );
 
     const resDetailStore = await HttpClient.get(
-      `/v1/e-commerce/stores/detail`,
+      `/v1/stores/detail`,
       null,
       token,
     );
@@ -180,12 +163,12 @@ const HomeStoreScreen = ({navigation}: any) => {
       onDetailStore({});
     }
 
-    AddCategory(resCategories?.result?.categories);
-    onDetailStore(resDetailStore?.result?.store);
+    AddCategory(resCategories?.data);
+    onDetailStore(resDetailStore);
 
     return setStateProduct({
       ...stateProduct,
-      categories: resCategories?.result?.categories,
+      categories: resCategories?.data,
     });
   };
 
@@ -198,63 +181,66 @@ const HomeStoreScreen = ({navigation}: any) => {
 
     setShowCalculate(!showCalculate);
 
-    const StoreCartUpdate = StoreCartData?.map((item: any) => ({
-      note: item?.note,
-      id: item.id,
-      quantity: item.quantity,
-      options: item?.variants?.length
-        ? item?.variants.flatMap((variant: any) =>
-            variant?.options?.filter((item: any) => item.quantity > 0),
-          )
-        : [],
-    }));
+    try {
+      const StoreCartUpdate = StoreCartData?.map((item: any) => ({
+        note: item?.note,
+        id: item.id,
+        quantity: item.quantity,
+        options: item?.variants?.length
+          ? item?.variants.flatMap((variant: any) =>
+              variant?.options?.filter((item: any) => item.quantity > 0),
+            )
+          : [],
+      }));
+      console.log(paymentCd, 'paymentCd');
+      let bodyRequest = {
+        products: StoreCartUpdate,
+        type: 'PICK_UP',
+        paymentType: paymentCd,
+        note: note,
+        cash: CalculateCart?.total * 100,
+        vat: 0,
+      };
 
-    const bodyRequest = {
-      products: StoreCartUpdate,
-      type: 'PICK_UP',
-      paymentType: paymentCd,
-      note: note,
-      cash: CalculateCart?.cash * 100,
-      vat: 0,
-    };
-
-    const res: any = await HttpClient.post(
-      `/v1/e-commerce/orders`,
-      bodyRequest,
-      {
+      const res: any = await HttpClient.post(`/v1/orders`, bodyRequest, {
         headers: {
           Authorization: `Bearer ${token || ''}`,
         },
-      },
-    );
-
-    if (res?.errorCode !== '000') {
+      });
+      console.log(res, 'res');
       if (Platform.OS) {
-        Alert.alert(res.message);
+        Alert.alert(`Order Success: ${res.order.code}`);
       } else {
         ToastAndroid.showWithGravity(
-          res.message,
+          `Order Success: ${res.order.code}`,
           ToastAndroid.SHORT,
           ToastAndroid.CENTER,
         );
       }
 
-      return;
+      onAddCalculateCart({
+        ...CalculateCart,
+        ...change,
+        paymentMethod: paymentCd,
+      });
+
+      onAddStoreCart([]);
+
+      if (paymentCd === 'CARD') {
+        setIsShowQR({isShow: true, link: res?.paymentLink});
+      }
+    } catch (e) {
+      if (Platform.OS) {
+        Alert.alert(`Order Fail`);
+      } else {
+        ToastAndroid.showWithGravity(
+          `Order Fail`,
+          ToastAndroid.SHORT,
+          ToastAndroid.CENTER,
+        );
+      }
     }
 
-    if (Platform.OS) {
-      Alert.alert(`Order Success: ${res.result.order.code}`);
-    } else {
-      ToastAndroid.showWithGravity(
-        `Order Success: ${res.result.order.code}`,
-        ToastAndroid.SHORT,
-        ToastAndroid.CENTER,
-      );
-    }
-
-    onAddCalculateCart({...CalculateCart, ...change, paymentMethod: paymentCd});
-
-    onAddStoreCart([]);
     setIsShowOrderConfirm(false);
   };
 
@@ -485,6 +471,13 @@ const HomeStoreScreen = ({navigation}: any) => {
           {ToastData?.isShow && <ToastCustom />}
 
           {WebView && <PopupWebView />}
+
+          {isShowQR.isShow && (
+            <PopupQrView
+              link={isShowQR.link}
+              handleClose={() => setIsShowQR(INIT_QR)}
+            />
+          )}
         </View>
       </SafeAreaView>
     </LinearGradient>

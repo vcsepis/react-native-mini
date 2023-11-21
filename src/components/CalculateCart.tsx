@@ -49,9 +49,8 @@ const PopUpCalculateCart: React.FC<PopUpCalculateCartProps> = ({
   const handleSelectPaymentCd = (cd?: any) => setPaymentCd(cd);
 
   useEffect(() => {
-    setPaymentCd(PaymentData[0]?.code);
+    setPaymentCd(PaymentData[1]?.code);
   }, [PaymentData?.length]);
-  console.log(PaymentData, 'PaymentData');
 
   const sortByCode = (arr: any) => {
     const index = arr.findIndex((item: any) => item.code === 'CARD');
@@ -140,7 +139,6 @@ const PopUpCalculateCart: React.FC<PopUpCalculateCartProps> = ({
               <View style={styles.ContainerPaymentMethod}>
                 {sortByCode(PaymentData)?.map((item: any) => (
                   <TouchableOpacity
-                    disabled={item?.code === 'POS' || item?.code === 'CARD'}
                     key={item.code}
                     onPress={() => handleSelectPaymentCd(item?.code)}
                     style={{

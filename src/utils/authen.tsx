@@ -42,24 +42,25 @@ export function AuthProvider({children}: any) {
 
     if (!res) return;
 
-    setAuth({isAuth: true, user: res?.result});
+    setAuth({isAuth: true, user: res});
   };
 
   const reFreshToken = async () => {
     const rToken = await Cache.RefreshToken;
-    const res = await HttpClient.get(`/v1/auth/refresh-token`, null, rToken);
 
-    if (res.errorCode !== '000')
+    try {
+      const res = await HttpClient.get(`/v1/auth/refresh-token`, null, rToken);
+      setAuth({rToken, aToken: res.accessToken});
+      Cache.Token = res.accessToken;
+      Cache.RefreshToken = res.refreshToken;
+    } catch (e) {
       return setAuth({
         isAuth: false,
         aToken: '',
         rToken: '',
         user: {},
       });
-
-    setAuth({rToken, aToken: res.result.accessToken});
-    Cache.Token = res.result.accessToken;
-    Cache.RefreshToken = res.result.refreshToken;
+    }
   };
 
   return (

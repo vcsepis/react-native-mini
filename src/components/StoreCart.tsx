@@ -249,7 +249,7 @@ const StoreCart: React.FC<StoreCartProps> = ({
       <View style={styles.Header}>
         <View>
           <View style={styles.Printer}>
-            <Text style={styles.TextTitle}>Current Printer:</Text>
+            <Text style={styles.TextTitle}>Setting:</Text>
 
             <TouchableOpacity onPress={onPressShowConnected}>
               <Text style={styles.TextTotalPriceCartFood}>
@@ -258,11 +258,9 @@ const StoreCart: React.FC<StoreCartProps> = ({
             </TouchableOpacity>
           </View>
 
-          <View>
-            <Text>
-              Device text: {TargetDevice?.name} - {TargetDevice?.target}
-            </Text>
-          </View>
+          <Text>
+            Device text: {TargetDevice?.name} - {TargetDevice?.target}
+          </Text>
         </View>
       </View>
 
@@ -407,7 +405,7 @@ const StoreCart: React.FC<StoreCartProps> = ({
                             (option: any, optionIdx: any) => {
                               if (option?.quantity > 0) {
                                 return (
-                                  <Fragment>
+                                  <Fragment key={optionIdx.toString()}>
                                     <View style={styles.ContainerVariant}>
                                       <View style={styles.TextSpaceVariant} />
                                     </View>

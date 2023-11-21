@@ -1,11 +1,10 @@
 import axios from 'axios';
-import {URL_API_ENDPOINT_DEV_CORE} from '@env';
-import {Cache} from '../utils';
+import {URL_API_ENDPOINT} from '@env';
 
 var token: any;
 
 const Axios = axios.create({
-  baseURL: `${URL_API_ENDPOINT_DEV_CORE}/api`,
+  baseURL: `${URL_API_ENDPOINT}/api`,
   timeout: 5000000,
   headers: {
     'Content-Type': 'application/json',
@@ -14,7 +13,7 @@ const Axios = axios.create({
 
 export class HttpClient {
   static async get<T>(url: string, params?: any, token?: any): Promise<any> {
-    console.log(URL_API_ENDPOINT_DEV_CORE, 'URL_API_ENDPOINT_DEV_CORE');
+    console.log(URL_API_ENDPOINT, url, 'URL_API_ENDPOINT');
     const response = await Axios.get<T>(url, {
       headers: {
         Authorization: `Bearer ${token || ''}`,
@@ -25,6 +24,8 @@ export class HttpClient {
   }
 
   static async post<T>(url: string, data: unknown, options?: any) {
+    console.log(`${URL_API_ENDPOINT}${url}`, 'URL_API_ENDPOINT');
+
     const response = await Axios.post<T>(url, data, options);
     return response.data;
   }

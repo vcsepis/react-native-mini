@@ -139,6 +139,7 @@ const PopUpCalculateCart: React.FC<PopUpCalculateCartProps> = ({
               <View style={styles.ContainerPaymentMethod}>
                 {sortByCode(PaymentData)?.map((item: any) => (
                   <TouchableOpacity
+                    disabled={item.code === 'POS'}
                     key={item.code}
                     onPress={() => handleSelectPaymentCd(item?.code)}
                     style={{

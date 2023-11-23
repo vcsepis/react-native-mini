@@ -1,7 +1,9 @@
 import axios from 'axios';
-import {URL_API_ENDPOINT} from '@env';
+// import {URL_API_ENDPOINT} from '@env';
 
 var token: any;
+
+const URL_API_ENDPOINT = 'https://devcore.episcloud.com/';
 
 const Axios = axios.create({
   baseURL: `${URL_API_ENDPOINT}/api`,

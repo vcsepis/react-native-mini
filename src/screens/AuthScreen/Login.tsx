@@ -118,14 +118,12 @@ const LoginScreen = ({navigation}: any) => {
           username: `${stateLogin?.selectedCountryCode?.phoneCode + phone}`,
           password: password,
         });
-
         handleLoginSuccess(res);
       } catch (e) {
         if (Platform.OS)
           return Alert.alert(
             `Incorrect phone number or password.  Please check again`,
           );
-
         ToastAndroid.showWithGravity(
           `Incorrect phone number or password.  Please check again`,
           ToastAndroid.SHORT,

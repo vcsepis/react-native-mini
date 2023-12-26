@@ -1,6 +1,6 @@
 import {
   Alert,
-  Image,
+  FlatList,
   Modal,
   Platform,
   ScrollView,
@@ -13,7 +13,6 @@ import {
 } from 'react-native';
 import React, {Fragment, useEffect, useState} from 'react';
 import LottieView from 'lottie-react-native';
-import Toast from 'react-native-toast-message';
 import {
   BORDERRADIUS,
   COLORS,
@@ -35,6 +34,8 @@ const PopUpProduct: React.FC<PopUpProductProps> = ({}) => {
   const ProductCurrent = useStore((state: any) => state.ProductCurrent);
   const StoreCart = useStore((state: any) => state.StoreCart);
   const onAddStoreCart = useStore((state: any) => state.onAddStoreCart);
+  const onAddToast = useStore((state: any) => state.onAddToast);
+
   const [products, setProducts] = useState<any>({});
   const [selected, setSelected] = useState<any>([]);
 
@@ -105,8 +106,33 @@ const PopUpProduct: React.FC<PopUpProductProps> = ({}) => {
     setProducts(updatedData);
   };
 
+  const checkMinLengthValid = products?.variants?.map((item: any) => {
+    const {id, minLength, options, name} = item;
+
+    const isValid = options.some(
+      (option: any) => option.quantity === minLength,
+    );
+
+    return {
+      id,
+      isValid: isValid ? 'Pass' : 'Fail',
+      name,
+      minLength,
+    };
+  });
+
   const onSubmit = () => {
     const total = totalPrice();
+
+    const checkValue = checkMinLengthValid.length
+      ? checkMinLengthValid.filter((item: any) => item.isValid === 'Fail')
+      : [];
+
+    if (checkValue.length > 0) {
+      return handleMsg(
+        `${checkValue[0]?.name} required ${checkValue[0]?.minLength} options`,
+      );
+    }
 
     const StoreCartUpdate = [...StoreCart];
     const productUpdate = {...products, total: total};
@@ -120,11 +146,19 @@ const PopUpProduct: React.FC<PopUpProductProps> = ({}) => {
 
     onIsShowProduct(false);
 
+    onAddToast({
+      isShow: true,
+      message: `Product ${products?.name} has been added to the cart`,
+      type: 'success',
+    });
+  };
+
+  const handleMsg = (msg: any) => {
     if (Platform.OS) {
-      Alert.alert(`${products.name} is Added to cart`);
+      Alert.alert(`${msg}`);
     } else {
       ToastAndroid.showWithGravity(
-        `${products.name} is Added to cart`,
+        `${msg}`,
         ToastAndroid.SHORT,
         ToastAndroid.CENTER,
       );
@@ -184,7 +218,10 @@ const PopUpProduct: React.FC<PopUpProductProps> = ({}) => {
                 gap: SPACING.space_20,
               }}>
               {/* Contain */}
-              <View style={{width: '65%'}}>
+              <View
+                style={{
+                  width: products?.variants?.length === 0 ? '80%' : '30%',
+                }}>
                 {/* Product */}
                 <View
                   style={{
@@ -296,10 +333,17 @@ const PopUpProduct: React.FC<PopUpProductProps> = ({}) => {
               </View>
 
               {/* Variant */}
-              <View style={{width: '35%', flex: 1}}>
+              <View
+                style={{
+                  width: products?.variants?.length === 0 ? '20%' : '70%',
+                  flex: 1,
+                  flexDirection: 'row',
+                  flexWrap: 'wrap',
+                  gap: SPACING.space_10,
+                }}>
                 {products?.variants?.length ? (
                   products?.variants?.map((item: any, idxVariant: number) => (
-                    <Fragment>
+                    <View style={{width: '49%'}}>
                       <View
                         style={{
                           marginHorizontal: SPACING.space_10,
@@ -307,13 +351,25 @@ const PopUpProduct: React.FC<PopUpProductProps> = ({}) => {
                           justifyContent: 'space-between',
                           flexDirection: 'row',
                         }}>
-                        <Text
+                        <View
                           style={{
-                            ...styles.TextCommon,
-                            fontFamily: FONTFAMILY.poppins_semibold,
+                            flexDirection: 'row',
                           }}>
-                          {item?.name}
-                        </Text>
+                          <Text
+                            style={{
+                              ...styles.TextCommon,
+                              fontFamily: FONTFAMILY.poppins_semibold,
+                            }}>
+                            {item?.name}
+                          </Text>
+                          <Text
+                            style={{
+                              ...styles.TextCommon,
+                              fontFamily: FONTFAMILY.poppins_semibold,
+                            }}>
+                            {item?.minLength}
+                          </Text>
+                        </View>
 
                         <TouchableOpacity
                           style={{
@@ -401,7 +457,7 @@ const PopUpProduct: React.FC<PopUpProductProps> = ({}) => {
                             </View>
                           </View>
                         ))}
-                    </Fragment>
+                    </View>
                   ))
                 ) : (
                   <LottieView

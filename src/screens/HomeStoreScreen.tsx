@@ -223,12 +223,15 @@ const HomeStoreScreen = ({navigation}: any) => {
           Authorization: `Bearer ${token || ''}`,
         },
       });
-      console.log(res?.order?.clientSecret, 'res');
+
       if (Platform.OS) {
         Alert.alert(`Order Success: ${res.order.code}`);
       } else {
         ToastAndroid.showWithGravity(
-          `Order Success: ${res.order.code}`,
+          `Order Success: ${res.order.code.slice(
+            res.order.code.length - 8,
+            res.order.code.length,
+          )}`,
           ToastAndroid.SHORT,
           ToastAndroid.CENTER,
         );

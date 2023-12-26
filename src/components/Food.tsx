@@ -21,6 +21,8 @@ import LottieView from 'lottie-react-native';
 import CustomIcon from './CustomIcon';
 import Voice from '@react-native-voice/voice';
 import Toast from 'react-native-toast-message';
+import {Cache} from '../utils';
+import {HttpClient} from '../service/http-client';
 
 const INIT_RECOGNIZING = {
   started: false,
@@ -64,15 +66,23 @@ const FoodComponent: React.FC<Iprops> = ({handleGetStore}) => {
     setProduct(data);
   };
 
-  const handleProduct = (product: any) => {
+  const handleProduct = async (product: any) => {
+    const token = await Cache.Token;
+
+    const resDetaiProduct = await HttpClient.get(
+      `/v1/products/${product.id}`,
+      null,
+      token,
+    );
+
     onIsShowProduct(true);
     addProductCurrent({
       ...product,
       index: undefined,
       price: product?.price,
       quantity: 1,
-      variants: product?.variants?.length
-        ? product?.variants?.map((item: any) => ({
+      variants: resDetaiProduct.variants?.length
+        ? resDetaiProduct.variants?.map((item: any) => ({
             ...item,
             options: item?.options?.length
               ? item?.options?.map((option: any) => ({...option, quantity: 0}))

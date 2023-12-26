@@ -36,8 +36,8 @@ const PopUpCalculateCart: React.FC<PopUpCalculateCartProps> = ({
   const CalculateCart = useStore((state: any) => state.CalculateCart);
   const DetailStore = useStore((state: any) => state.DetailStore);
 
-  const PaymentData = DetailStore?.metadata?.payments?.length
-    ? DetailStore?.metadata?.payments?.filter(
+  const PaymentData = DetailStore?.paymentMetadata?.payments?.length
+    ? DetailStore?.paymentMetadata?.payments?.filter(
         (item: any) =>
           item?.code !== 'APPLE_PAY' && item?.code !== 'GOOGLE_PAY',
       )

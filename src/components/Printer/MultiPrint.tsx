@@ -162,7 +162,7 @@ const MultiPrint = ({closeModal}: Props) => {
   const handleDiscoverReaders = async () => {
     const {error}: any = await discoverReaders({
       discoveryMethod: 'bluetoothScan',
-      simulated: true,
+      simulated: false,
     });
 
     if (Platform.OS) {

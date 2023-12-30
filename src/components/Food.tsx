@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {Fragment, useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   BORDERRADIUS,
   COLORS,
@@ -21,8 +21,6 @@ import LottieView from 'lottie-react-native';
 import CustomIcon from './CustomIcon';
 import Voice from '@react-native-voice/voice';
 import Toast from 'react-native-toast-message';
-import {Cache} from '../utils';
-import {HttpClient} from '../service/http-client';
 
 const INIT_RECOGNIZING = {
   started: false,
@@ -35,7 +33,7 @@ interface Iprops {
 
 const handleFilter = (data: any, id: any) => {
   if (id === 0) return data;
-  return data?.filter((item: any) => item?.id === id);
+  return data?.filter((item: any) => item?.category?.id === id);
 };
 
 const FoodComponent: React.FC<Iprops> = ({handleGetStore}) => {
@@ -52,37 +50,30 @@ const FoodComponent: React.FC<Iprops> = ({handleGetStore}) => {
   const onIsShowProduct = useStore((state: any) => state.onIsShowProduct);
   const addProductCurrent = useStore((state: any) => state.addProductCurrent);
   const [refreshing, setRefreshing] = React.useState(false);
+  const Products = useStore((state: any) => state.Products);
 
   useEffect(() => {
-    if (Category?.length) {
+    if (Category?.length && Products?.length) {
       setCategoryId(0);
-      setProduct(Category);
+      setProduct(Products);
     }
-  }, [Category]);
+  }, [Category, Products]);
 
   const handleCategory = (id: any) => {
-    const data = handleFilter(Category, id);
+    const data = handleFilter(Products, id);
     setCategoryId(id);
     setProduct(data);
   };
 
-  const handleProduct = async (product: any) => {
-    const token = await Cache.Token;
-
-    const resDetaiProduct = await HttpClient.get(
-      `/v1/products/${product.id}`,
-      null,
-      token,
-    );
-
+  const handleProduct = async (item: any) => {
     onIsShowProduct(true);
     addProductCurrent({
-      ...product,
+      ...item,
       index: undefined,
-      price: product?.price,
+      price: item?.price,
       quantity: 1,
-      variants: resDetaiProduct.variants?.length
-        ? resDetaiProduct.variants?.map((item: any) => ({
+      variants: item.variants?.length
+        ? item.variants?.map((item: any) => ({
             ...item,
             options: item?.options?.length
               ? item?.options?.map((option: any) => ({...option, quantity: 0}))
@@ -292,32 +283,24 @@ const FoodComponent: React.FC<Iprops> = ({handleGetStore}) => {
           </View>
           <View style={styles.ProductContainer}>
             {product?.length ? (
-              product?.map((item: any) => (
-                <Fragment key={item.id}>
-                  {item?.products?.length ? (
-                    item?.products
-                      ?.filter((prod: any) =>
-                        prod?.name?.includes(searchText?.toLocaleLowerCase()),
-                      )
-                      ?.map((product: any) => (
-                        <TouchableOpacity
-                          key={product?.id}
-                          style={{
-                            ...styles.ProductItem,
-                            backgroundColor: COLORS.primaryWhiteHex,
-                          }}
-                          onPress={() => handleProduct(product)}>
-                          <Text style={styles.TextProduct}>{product.name}</Text>
-                          <Text style={styles.TextProductPrice}>
-                            {(product.price / 100).toFixed(2)} $
-                          </Text>
-                        </TouchableOpacity>
-                      ))
-                  ) : (
-                    <></>
-                  )}
-                </Fragment>
-              ))
+              product
+                ?.filter((prod: any) =>
+                  prod?.name?.includes(searchText?.toLocaleLowerCase()),
+                )
+                ?.map((item: any) => (
+                  <TouchableOpacity
+                    key={item?.id}
+                    style={{
+                      ...styles.ProductItem,
+                      backgroundColor: COLORS.primaryWhiteHex,
+                    }}
+                    onPress={() => handleProduct(item)}>
+                    <Text style={styles.TextProduct}>{item.name}</Text>
+                    <Text style={styles.TextProductPrice}>
+                      {(item.price / 100).toFixed(2)} $
+                    </Text>
+                  </TouchableOpacity>
+                ))
             ) : (
               <></>
             )}

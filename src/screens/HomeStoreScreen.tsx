@@ -37,6 +37,7 @@ import InComingPopup from '../components/InComingPopup';
 import ToastCustom from '../components/Toast';
 import PopupWebView from '../components/WebView';
 import PopupQrView from '../components/QrView';
+import PopupReceipt from '../components/Receipt';
 
 export enum TAB {
   TAB_HOME,
@@ -95,6 +96,9 @@ const HomeStoreScreen = ({navigation}: any) => {
   const StoreRealTime = useStore((state: any) => state.StoreRealTime); // current noti
   const AutoAccept = useStore((state: any) => state.AutoAccept); // get status auto accept
   const ToastData = useStore((state: any) => state.Toast);
+  const onReceipt = useStore((state: any) => state.onReceipt);
+  const Receipt = useStore((state: any) => state.Receipt);
+  const onProducts = useStore((state: any) => state.onProducts);
   const WebView = useStore((state: any) => state.WebView);
 
   const handleShowCalculate = () => setShowCalculate(!showCalculate);
@@ -163,13 +167,19 @@ const HomeStoreScreen = ({navigation}: any) => {
   const handleGetStore = async () => {
     const token = await Cache.Token;
     const resCategories = await HttpClient.get(
-      `/v1/categories?category=&page=&limit=100&keyword=`,
+      `/v1/categories?category=&page=&limit=1000&keyword=`,
       null,
       token,
     );
 
     const resDetailStore = await HttpClient.get(
       `/v1/stores/detail`,
+      null,
+      token,
+    );
+
+    const resProduct = await HttpClient.get(
+      `/v1/products?storeSlug=${DetailStore.slug}&page&limit=10000&keyword=`,
       null,
       token,
     );
@@ -181,6 +191,7 @@ const HomeStoreScreen = ({navigation}: any) => {
 
     AddCategory(resCategories?.data);
     onDetailStore(resDetailStore);
+    onProducts(resProduct?.data);
 
     return setStateProduct({
       ...stateProduct,
@@ -192,6 +203,7 @@ const HomeStoreScreen = ({navigation}: any) => {
     note?: any,
     change?: any,
     paymentCd?: any,
+    form?: any,
   ) => {
     const token = await Cache.Token;
 
@@ -216,6 +228,8 @@ const HomeStoreScreen = ({navigation}: any) => {
         note: note,
         cash: CalculateCart?.total * 100,
         vat: 0,
+        phoneNumber: form?.phone,
+        customerName: form?.name,
       };
 
       const res: any = await HttpClient.post(`/v1/orders`, bodyRequest, {
@@ -224,18 +238,7 @@ const HomeStoreScreen = ({navigation}: any) => {
         },
       });
 
-      if (Platform.OS) {
-        Alert.alert(`Order Success: ${res.order.code}`);
-      } else {
-        ToastAndroid.showWithGravity(
-          `Order Success: ${res.order.code.slice(
-            res.order.code.length - 8,
-            res.order.code.length,
-          )}`,
-          ToastAndroid.SHORT,
-          ToastAndroid.CENTER,
-        );
-      }
+      onReceipt({isShow: true, data: res.order});
 
       onAddCalculateCart({
         ...CalculateCart,
@@ -533,6 +536,8 @@ const HomeStoreScreen = ({navigation}: any) => {
           {ToastData?.isShow && <ToastCustom />}
 
           {WebView && <PopupWebView />}
+
+          {Receipt.isShow && <PopupReceipt />}
 
           {isShowQR.isShow && (
             <PopupQrView

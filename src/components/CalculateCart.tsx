@@ -1,8 +1,12 @@
 import {
+  Alert,
   Modal,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
+  ToastAndroid,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -28,6 +32,11 @@ interface PopUpCalculateCartProps {
   open: boolean;
 }
 
+enum MODE {
+  INFOR,
+  PAYMENT,
+}
+
 const PopUpCalculateCart: React.FC<PopUpCalculateCartProps> = ({
   onToggle,
   onSubmit,
@@ -45,6 +54,38 @@ const PopUpCalculateCart: React.FC<PopUpCalculateCartProps> = ({
 
   const [paymentCd, setPaymentCd] = useState();
   const [change, setChange] = useState({cash: 0, change: 0});
+  const [mode, setMode] = useState(MODE.INFOR);
+  const [form, setForm] = useState<any>({phone: '', name: ''});
+
+  const handleChangeMode = () => {
+    setMode(MODE.PAYMENT);
+  };
+
+  const handleChangeForm = (key: any, value: any) => {
+    if (key === 'phone') {
+      const filteredText = value.replace(/\D/gm, '');
+
+      if (filteredText !== value) {
+        setForm({...form, [key]: value});
+
+        setTimeout(() => {
+          setForm((previousState: any) => {
+            return {
+              ...previousState,
+              [key]: previousState.phone.replace(/\D/gm, ''),
+            };
+          });
+        }, 0);
+      } else {
+        setForm({...form, [key]: filteredText});
+      }
+
+      return;
+    } else {
+      setForm({...form, [key]: value});
+      return;
+    }
+  };
 
   const handleSelectPaymentCd = (cd?: any) => setPaymentCd(cd);
 
@@ -93,6 +134,14 @@ const PopUpCalculateCart: React.FC<PopUpCalculateCartProps> = ({
       );
   };
 
+  const handleSubmit = () => {
+    onSubmit('', change, paymentCd, {...form, phone: `${61}${form.phone}`});
+    setTimeout(() => {
+      setForm({phone: '', name: ''});
+      setMode(MODE.INFOR);
+    }, 1000);
+  };
+
   return (
     <Modal
       animationType="fade"
@@ -100,7 +149,11 @@ const PopUpCalculateCart: React.FC<PopUpCalculateCartProps> = ({
       visible={open}
       onRequestClose={onToggle}>
       <View style={styles.CenteredView}>
-        <View style={styles.ModalView}>
+        <View
+          style={{
+            ...styles.ModalView,
+            width: mode === MODE.INFOR ? 'auto' : '80%',
+          }}>
           <View
             style={{
               flexDirection: 'row',
@@ -122,52 +175,112 @@ const PopUpCalculateCart: React.FC<PopUpCalculateCartProps> = ({
 
           {/* Container Product*/}
           <ScrollView>
-            <View style={styles.Contain}>
-              <View style={styles.ContainerAmount}>
-                <View style={styles.ItemAmount}>
-                  <Text style={styles.TextCommon}>Total Amount</Text>
-                </View>
-                <View style={{...styles.ItemAmount, alignItems: 'flex-end'}}>
-                  <Text style={styles.TextTotalAmount}>
-                    $ {CalculateCart.total}
-                  </Text>
-                </View>
-              </View>
+            {mode === MODE.INFOR && (
+              <View
+                style={{
+                  ...styles.ItemAmount,
+                  paddingVertical: SPACING.space_20,
+                  width: widthResponsive(100),
+                }}>
+                <Text style={styles.TextCommon}>
+                  We will call you when the order is ready ?
+                </Text>
 
-              <Text style={styles.TextCommon}>Payment Method</Text>
+                <Text style={styles.TextCommon}>Name</Text>
 
-              <View style={styles.ContainerPaymentMethod}>
-                {sortByCode(PaymentData)?.map((item: any) => (
+                <TextInput
+                  placeholder="Input your name!"
+                  style={styles.InputCommon}
+                  placeholderTextColor={COLORS.primaryLightGreyHex}
+                  onChangeText={text => handleChangeForm('name', text)}
+                  value={form.name}
+                />
+
+                <Text style={styles.TextCommon}>Phone</Text>
+
+                <View style={styles.InputCountry}>
                   <TouchableOpacity
-                    disabled={item.code === 'POS'}
-                    key={item.code}
-                    onPress={() => handleSelectPaymentCd(item?.code)}
                     style={{
-                      ...styles.PaymentStatus,
-                      backgroundColor:
-                        paymentCd === item?.code
-                          ? COLORS.primaryGreenRGB
-                          : '#4E505F',
+                      borderRadius: SPACING.space_10,
+                      borderWidth: SPACING.space_10 / 10,
+                      borderColor: '#ccc',
+                      marginRight: SPACING.space_10,
+                      alignItems: 'center',
+                      width: widthResponsive(20),
                     }}>
-                    {handleIconType(item)}
+                    <Text
+                      style={{
+                        fontFamily: FONTFAMILY.poppins_regular,
+                        fontSize: FONTSIZE.size_18,
+                        color: COLORS.primaryBlackHex,
+                        padding: SPACING.space_10,
+                      }}>
+                      +61
+                    </Text>
                   </TouchableOpacity>
-                ))}
+                  <TextInput
+                    keyboardType="numeric"
+                    placeholder="Input your phone number!"
+                    style={{...styles.InputCommon, width: widthResponsive(78)}}
+                    placeholderTextColor={COLORS.primaryLightGreyHex}
+                    onChangeText={text => handleChangeForm('phone', text)}
+                    value={form.phone}
+                  />
+                </View>
               </View>
-            </View>
+            )}
+            {mode === MODE.PAYMENT && (
+              <View style={styles.Contain}>
+                <View style={styles.ContainerAmount}>
+                  <View style={styles.ItemAmount}>
+                    <Text style={styles.TextCommon}>Total Amount</Text>
+                  </View>
+                  <View style={{...styles.ItemAmount, alignItems: 'flex-end'}}>
+                    <Text style={styles.TextTotalAmount}>
+                      $ {CalculateCart.total}
+                    </Text>
+                  </View>
+                </View>
+
+                <Text style={styles.TextCommon}>Payment Method</Text>
+
+                <View style={styles.ContainerPaymentMethod}>
+                  {sortByCode(PaymentData)?.map((item: any) => (
+                    <TouchableOpacity
+                      disabled={item.code === 'POS'}
+                      key={item.code}
+                      onPress={() => handleSelectPaymentCd(item?.code)}
+                      style={{
+                        ...styles.PaymentStatus,
+                        backgroundColor:
+                          paymentCd === item?.code
+                            ? COLORS.primaryGreenRGB
+                            : '#4E505F',
+                      }}>
+                      {handleIconType(item)}
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+            )}
           </ScrollView>
 
           <TouchableOpacity
-            onPress={() => onSubmit('', change, paymentCd)}
+            onPress={() => {
+              mode === MODE.INFOR ? handleChangeMode() : handleSubmit();
+            }}
             style={{
               backgroundColor: COLORS.primaryGreenRGB,
-              padding: SPACING.space_10,
+              padding: SPACING.space_20,
               borderRadius: SPACING.space_15,
               width: '20%',
               height: widthResponsive(15),
               alignSelf: 'center',
               justifyContent: 'center',
             }}>
-            <Text style={Styles.screenSubmit}>Done</Text>
+            <Text style={Styles.screenSubmit}>
+              {mode === MODE.INFOR ? 'Confirm' : 'Done'}
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -300,8 +413,24 @@ const styles = StyleSheet.create({
     color: COLORS.primaryWhiteHex,
     fontFamily: FONTFAMILY.poppins_regular,
   },
+  InputCountry: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+  },
   InputIcon: {
     marginRight: SPACING.space_10,
+  },
+  InputCommon: {
+    backgroundColor: '#ddd',
+    borderRadius: SPACING.space_15,
+    padding: SPACING.space_10,
+    paddingHorizontal: SPACING.space_20,
+    fontFamily: FONTFAMILY.poppins_regular,
+    fontSize: FONTSIZE.size_18,
+    color: COLORS.primaryGreyHex,
+    height: SPACING.space_30 * 3,
+    width: '100%',
   },
   LottieStyle: {
     height: widthResponsive(6),

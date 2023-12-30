@@ -354,6 +354,7 @@ const PopUpProduct: React.FC<PopUpProductProps> = ({}) => {
                         <View
                           style={{
                             flexDirection: 'row',
+                            gap: SPACING.space_10,
                           }}>
                           <Text
                             style={{
@@ -366,8 +367,9 @@ const PopUpProduct: React.FC<PopUpProductProps> = ({}) => {
                             style={{
                               ...styles.TextCommon,
                               fontFamily: FONTFAMILY.poppins_semibold,
+                              color: COLORS.primaryRedHex,
                             }}>
-                            {item?.minLength}
+                            {item?.minLength} require
                           </Text>
                         </View>
 

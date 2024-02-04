@@ -38,6 +38,7 @@ import ToastCustom from '../components/Toast';
 import PopupWebView from '../components/WebView';
 import PopupQrView from '../components/QrView';
 import PopupReceipt from '../components/Receipt';
+import axios from 'axios';
 
 export enum TAB {
   TAB_HOME,
@@ -167,7 +168,7 @@ const HomeStoreScreen = ({navigation}: any) => {
   const handleGetStore = async () => {
     const token = await Cache.Token;
     const resCategories = await HttpClient.get(
-      `/v1/categories?category=&page=&limit=1000&keyword=`,
+      `/v1/categories?category=&page=&limit=100&keyword=`,
       null,
       token,
     );
@@ -179,7 +180,7 @@ const HomeStoreScreen = ({navigation}: any) => {
     );
 
     const resProduct = await HttpClient.get(
-      `/v1/products?storeSlug=${DetailStore.slug}&page&limit=10000&keyword=`,
+      `/v1/products?page&limit=10000&keyword=`,
       null,
       token,
     );
@@ -237,6 +238,19 @@ const HomeStoreScreen = ({navigation}: any) => {
           Authorization: `Bearer ${token || ''}`,
         },
       });
+
+      const bodyOrder = {
+        userID: res.order.storeId,
+        message: res.order.code,
+      };
+
+      const resOrder: any = await axios.post(
+        `https://websocket-aqi9.onrender.com/api/messages`,
+        bodyOrder,
+        {},
+      );
+
+      console.log(resOrder, 'resOrder');
 
       onReceipt({isShow: true, data: res.order});
 

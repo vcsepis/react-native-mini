@@ -245,21 +245,25 @@ const PopUpCalculateCart: React.FC<PopUpCalculateCartProps> = ({
                 <Text style={styles.TextCommon}>Payment Method</Text>
 
                 <View style={styles.ContainerPaymentMethod}>
-                  {sortByCode(PaymentData)?.map((item: any) => (
-                    <TouchableOpacity
-                      disabled={item.code === 'POS'}
-                      key={item.code}
-                      onPress={() => handleSelectPaymentCd(item?.code)}
-                      style={{
-                        ...styles.PaymentStatus,
-                        backgroundColor:
-                          paymentCd === item?.code
-                            ? COLORS.primaryGreenRGB
-                            : '#4E505F',
-                      }}>
-                      {handleIconType(item)}
-                    </TouchableOpacity>
-                  ))}
+                  {sortByCode(PaymentData)?.map((item: any) =>
+                    item.code !== 'POS' ? (
+                      <TouchableOpacity
+                        disabled={item.code === 'POS'}
+                        key={item.code}
+                        onPress={() => handleSelectPaymentCd(item?.code)}
+                        style={{
+                          ...styles.PaymentStatus,
+                          backgroundColor:
+                            paymentCd === item?.code
+                              ? COLORS.primaryGreenRGB
+                              : '#4E505F',
+                        }}>
+                        {handleIconType(item)}
+                      </TouchableOpacity>
+                    ) : (
+                      <></>
+                    ),
+                  )}
                 </View>
               </View>
             )}

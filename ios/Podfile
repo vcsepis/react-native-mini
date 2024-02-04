@@ -25,7 +25,7 @@ if linkage != nil
   use_frameworks! :linkage => linkage.to_sym
 end
 
-target 'Coffee_Shop_App' do
+target 'EPOSMerchantSelfcheckout' do
   config = use_native_modules!
 
   # Flags change depending on the env values.
@@ -45,7 +45,7 @@ target 'Coffee_Shop_App' do
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
 
-  target 'Coffee_Shop_AppTests' do
+  target 'EPOSMerchantSelfcheckoutTests' do
     inherit! :complete
     # Pods for testing
   end

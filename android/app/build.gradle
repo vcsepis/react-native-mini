@@ -73,9 +73,9 @@ android {
 
     compileSdkVersion rootProject.ext.compileSdkVersion
 
-    namespace "com.coffee_shop_app"
+    namespace "com.merchant.selfcheckout"
     defaultConfig {
-        applicationId "com.coffee_shop_app"
+        applicationId "com.merchant.selfcheckout"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

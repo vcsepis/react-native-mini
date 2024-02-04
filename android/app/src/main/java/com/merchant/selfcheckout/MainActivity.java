@@ -1,4 +1,4 @@
-package com.coffee_shop_app;
+package com.merchant.selfcheckout;
 
 import android.os.Bundle;
 import org.devio.rn.splashscreen.SplashScreen;
@@ -15,7 +15,7 @@ public class MainActivity extends ReactActivity {
    */
   @Override
   protected String getMainComponentName() {
-    return "Coffee_Shop_App";
+    return "EPOS Merchant Self checkout";
   }
 
   @Override

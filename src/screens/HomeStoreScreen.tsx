@@ -232,7 +232,7 @@ const HomeStoreScreen = ({navigation}: any) => {
         phoneNumber: form?.phone,
         customerName: form?.name,
       };
-
+      console.log(JSON.stringify(bodyRequest), token);
       const res: any = await HttpClient.post(`/v1/orders`, bodyRequest, {
         headers: {
           Authorization: `Bearer ${token || ''}`,

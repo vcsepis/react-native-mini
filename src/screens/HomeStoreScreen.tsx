@@ -39,6 +39,7 @@ import PopupWebView from '../components/WebView';
 import PopupQrView from '../components/QrView';
 import PopupReceipt from '../components/Receipt';
 import axios from 'axios';
+import FoodComplete from '../components/FoodComplete';
 
 export enum TAB {
   TAB_HOME,
@@ -97,6 +98,7 @@ const HomeStoreScreen = ({navigation}: any) => {
   const StoreRealTime = useStore((state: any) => state.StoreRealTime); // current noti
   const AutoAccept = useStore((state: any) => state.AutoAccept); // get status auto accept
   const ToastData = useStore((state: any) => state.Toast);
+  const DataComplete = useStore((state: any) => state.DataComplete);
   const onReceipt = useStore((state: any) => state.onReceipt);
   const Receipt = useStore((state: any) => state.Receipt);
   const onProducts = useStore((state: any) => state.onProducts);
@@ -559,6 +561,8 @@ const HomeStoreScreen = ({navigation}: any) => {
               handleClose={() => setIsShowQR(INIT_QR)}
             />
           )}
+
+          {DataComplete && <FoodComplete />}
         </View>
       </SafeAreaView>
     </LinearGradient>

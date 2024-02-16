@@ -8,19 +8,24 @@ import {
 } from 'react-native';
 import React, {useEffect} from 'react';
 import {COLORS, FONTFAMILY, FONTSIZE, SPACING} from '../theme/theme';
-import WebView from 'react-native-webview';
 import CustomIcon from './CustomIcon';
 import {useStore} from '../store/store';
 
 const PopupReceipt: React.FC<any> = ({}) => {
   const onReceipt = useStore((state: any) => state.onReceipt);
   const Receipt = useStore((state: any) => state.Receipt);
+  const onAddDataComplete = useStore((state: any) => state.onAddDataComplete);
+
   console.log(Receipt, 'Receipt');
-  const handleClose = () => onReceipt({isShow: false, data: {}});
+  const handleClose = () => {
+    onReceipt({isShow: false, data: {}});
+    onAddDataComplete(true);
+  };
 
   useEffect(() => {
     setTimeout(() => {
       handleClose();
+      onAddDataComplete(true);
     }, 10000);
   }, []);
 

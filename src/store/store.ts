@@ -38,6 +38,7 @@ export const useStore = create(
         type: ''
       },
       WebView: false,
+      DataComplete: false,
       Secret: "",
       Products: [],
       Receipt: {
@@ -260,6 +261,7 @@ export const useStore = create(
       onAddOnlineCart: (data: any) => set({ OrderOnlineCart: data }), // add order for tab online
       onAddAutoAccept: (data: any) => set({ AutoAccept: data }), // add order for tab online
       onAddToast: (data: any) => set({ Toast: data }), // add custom toast msg status
+      onAddDataComplete: (data: any) => set({ DataComplete: data }), // add data complete status
       onAddWebView: (data: any) => set({ WebView: data }),
       onAddSecret: (data: any) => set({ Secret: data }),
       onProducts: (data: any) => set({ Products: data }),

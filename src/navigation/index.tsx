@@ -1,5 +1,5 @@
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import {Fragment, useContext} from 'react';
+import {Fragment, useContext, useEffect} from 'react';
 import LoginScreen from '../screens/AuthScreen/Login';
 import HomeStoreScreen from '../screens/HomeStoreScreen';
 import {AuthContext, Cache} from '../utils';
@@ -13,6 +13,8 @@ const Stack = createNativeStackNavigator();
 const Navigation = () => {
   const {isAuth}: any = useContext(AuthContext);
 
+  const onAddDataComplete = useStore((state: any) => state.onAddDataComplete);
+
   const fetchTokenProvider = async () => {
     const token = await Cache.Token;
     const {secret}: any = await HttpClient.get(
@@ -24,6 +26,11 @@ const Navigation = () => {
     return secret;
   };
 
+  useEffect(() => {
+    if (isAuth) {
+      onAddDataComplete(true);
+    }
+  }, [isAuth]);
   return (
     <StripeTerminalProvider
       logLevel="verbose"

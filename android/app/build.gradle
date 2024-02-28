@@ -78,7 +78,7 @@ android {
         applicationId "com.merchant.selfcheckout"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 2
+        versionCode 3
         versionName "1.1"
         missingDimensionStrategy 'react-native-camera', 'general'
     }

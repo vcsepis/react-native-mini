@@ -44,7 +44,7 @@ const FoodComplete: React.FC<FoodComplete> = ({}) => {
 
               <View style={styles.Confirm}>
                 <TouchableOpacity
-                  onPress={() => {}}
+                  onPress={() => onAddDataComplete(false)}
                   style={styles.ButtonConfirm}>
                   <Text style={styles.TextSubmit}>TAKEAWAY</Text>
                 </TouchableOpacity>

@@ -40,6 +40,7 @@ const FoodComponent: React.FC<Iprops> = ({handleGetStore}) => {
   const [product, setProduct] = useState([]);
   const [categoryId, setCategoryId] = useState(0);
   const [searchText, setSearchText] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
   const [recognizing, setRecognizing] = useState({
     started: false,
     ended: false,
@@ -49,7 +50,9 @@ const FoodComponent: React.FC<Iprops> = ({handleGetStore}) => {
   const Category = useStore((state: any) => state.Category);
   const onIsShowProduct = useStore((state: any) => state.onIsShowProduct);
   const addProductCurrent = useStore((state: any) => state.addProductCurrent);
-  const [refreshing, setRefreshing] = React.useState(false);
+  const DataPress = useStore((state: any) => state.DataPress);
+  const onAddDataId = useStore((state: any) => state.onAddDataId);
+  const onAddDataPress = useStore((state: any) => state.onAddDataPress);
   const Products = useStore((state: any) => state.Products);
 
   useEffect(() => {
@@ -145,6 +148,18 @@ const FoodComponent: React.FC<Iprops> = ({handleGetStore}) => {
     }
   };
 
+  const handlePressCategpry = (data: any) => {
+    const dataCheck = DataPress.data?.length
+      ? [...DataPress.data, data]
+      : [data];
+    onAddDataPress({
+      ...DataPress,
+      isShow: true,
+      data: dataCheck,
+    });
+    onAddDataId({id: data.id});
+  };
+
   if (!Category?.length)
     return (
       <View style={styles.Root}>
@@ -205,6 +220,7 @@ const FoodComponent: React.FC<Iprops> = ({handleGetStore}) => {
                         ? COLORS.primaryGreenRGB
                         : COLORS.primaryWhiteHex,
                   }}
+                  onLongPress={() => handlePressCategpry(item)}
                   onPress={() => handleCategory(item?.id)}>
                   <Text
                     style={{

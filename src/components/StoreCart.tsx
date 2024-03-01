@@ -50,7 +50,12 @@ const StoreCart: React.FC<StoreCartProps> = ({
   const OrderOnlineCart = useStore((state: any) => state.OrderOnlineCart);
   const onAddOrderOnline = useStore((state: any) => state.onAddOrderOnline); // add data process when accepted
   const OrderOnline = useStore((state: any) => state.OrderOnline); // data process when accepted order
+  const DataId = useStore((state: any) => state.DataId); // get status calog
   const onAddOnlineCart = useStore((state: any) => state.onAddOnlineCart);
+  const DataStatus = useStore((state: any) => state.DataStatus);
+  const onAddFoodDataSuggest = useStore(
+    (state: any) => state.onAddFoodDataSuggest,
+  );
   const TargetDevice = useStore((state: any) => state.TargetDevice);
 
   const handlePressProduct = (product: any, index: any) => {
@@ -141,6 +146,9 @@ const StoreCart: React.FC<StoreCartProps> = ({
     }
 
     onAddCalculateCart({total, data: StoreCart});
+
+    if (DataStatus) return onAddFoodDataSuggest(true);
+
     handleToggle();
   };
 

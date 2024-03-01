@@ -32,6 +32,9 @@ export const useStore = create(
       OrderOnline: [],
       OrderOnlineCart: [],
       AutoAccept: false,
+      DataId: { id: '' },
+      DataStatus: true,
+      FoodDataSuggest: false,
       Toast: {
         isShow: false,
         message: '',
@@ -39,6 +42,10 @@ export const useStore = create(
       },
       WebView: false,
       DataComplete: false,
+      DataPress: {
+        isShow: false,
+        data: []
+      },
       Secret: "",
       Products: [],
       Receipt: {
@@ -260,8 +267,12 @@ export const useStore = create(
       onAddOrderOnline: (data: any) => set({ OrderOnline: data }), // add order tab online
       onAddOnlineCart: (data: any) => set({ OrderOnlineCart: data }), // add order for tab online
       onAddAutoAccept: (data: any) => set({ AutoAccept: data }), // add order for tab online
+      onAddDataId: (data: any) => set({ DataId: data }), // add catalog for status
+      onAddDataStatus: (data: any) => set({ DataStatus: data }), // add catalog for status
+      onAddFoodDataSuggest: (data: any) => set({ FoodDataSuggest: data }), // add food suggest status
       onAddToast: (data: any) => set({ Toast: data }), // add custom toast msg status
       onAddDataComplete: (data: any) => set({ DataComplete: data }), // add data complete status
+      onAddDataPress: (data: any) => set({ DataPress: data }), // add data press status
       onAddWebView: (data: any) => set({ WebView: data }),
       onAddSecret: (data: any) => set({ Secret: data }),
       onProducts: (data: any) => set({ Products: data }),

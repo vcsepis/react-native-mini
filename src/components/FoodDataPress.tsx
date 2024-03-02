@@ -33,12 +33,18 @@ const FoodDataPress: React.FC<FoodDataPress> = ({}) => {
     setChecked(!checked);
   };
 
+  const currentData = DataPress?.currentData[0]?.id || '';
+
   const Data = DataPress.data?.filter(
     (item: any, index: number, self: any) =>
       self.findIndex((e: any) => e.id === item.id) === index,
   );
 
-  const checkStatus = Data?.some((item: any) => item.id === DataId.id);
+  const dataCheck = DataPress.data?.length
+    ? [...DataPress.data, DataPress.currentData[0]]
+    : [DataPress.currentData[0]];
+
+  const checkStatus = Data?.some((item: any) => item.id === currentData);
 
   useEffect(() => {
     if (checkStatus) {
@@ -90,11 +96,7 @@ const FoodDataPress: React.FC<FoodDataPress> = ({}) => {
                   onAddDataPress({
                     ...DataPress,
                     isShow: false,
-                    data: checked
-                      ? DataPress.data
-                      : DataPress.data.filter(
-                          (item: any) => item.id !== DataId.id,
-                        ),
+                    currentData: [],
                   });
                   onAddDataId({id: ''});
                 }}
@@ -107,10 +109,11 @@ const FoodDataPress: React.FC<FoodDataPress> = ({}) => {
                     ...DataPress,
                     isShow: false,
                     data: checked
-                      ? DataPress.data
+                      ? dataCheck
                       : DataPress.data.filter(
                           (item: any) => item?.id !== DataId.id,
                         ),
+                    currentData: [],
                   });
                   onAddDataId({id: ''});
                   onAddDataStatus(true);

@@ -149,13 +149,10 @@ const FoodComponent: React.FC<Iprops> = ({handleGetStore}) => {
   };
 
   const handlePressCategpry = (data: any) => {
-    const dataCheck = DataPress.data?.length
-      ? [...DataPress.data, data]
-      : [data];
     onAddDataPress({
       ...DataPress,
       isShow: true,
-      data: dataCheck,
+      currentData: [data],
     });
     onAddDataId({id: data.id});
   };

@@ -170,6 +170,11 @@ const FoodDataSuggest: React.FC<FoodDataSuggest> = ({handleToggle}) => {
                   }
 
                   if (DataPress.data?.length === 1) {
+                    onAddDataPress({
+                      ...DataPress,
+                      data: [],
+                      currentData: [],
+                    });
                     onAddFoodDataSuggest(false);
                     onAddCalculateCart({total, data: StoreCart});
                     onAddDataStatus(false);

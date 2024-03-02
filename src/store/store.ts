@@ -44,7 +44,8 @@ export const useStore = create(
       DataComplete: false,
       DataPress: {
         isShow: false,
-        data: []
+        data: [],
+        currentData: [],
       },
       Secret: "",
       Products: [],

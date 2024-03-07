@@ -251,7 +251,7 @@ const HomeStoreScreen = ({navigation}: any) => {
       };
 
       const resOrder: any = await axios.post(
-        `https://apporedev.episcloud.workers.dev`,
+        `https://apporedev.episcloud.workers.dev/api/message`,
         bodyOrder,
         {},
       );

@@ -248,10 +248,11 @@ const HomeStoreScreen = ({navigation}: any) => {
       const bodyOrder = {
         userID: res.order.storeId,
         message: res.order.code,
+        event: 'order.online',
       };
 
       const resOrder: any = await axios.post(
-        `https://apporedev.episcloud.workers.dev/api/message`,
+        `https://apporedev.episcloud.workers.dev/api/messages`,
         bodyOrder,
         {},
       );

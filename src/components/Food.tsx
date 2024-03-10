@@ -75,11 +75,15 @@ const FoodComponent: React.FC<Iprops> = ({handleGetStore}) => {
       index: undefined,
       price: item?.price,
       quantity: 1,
-      variants: item.variants?.length
-        ? item.variants?.map((item: any) => ({
+      variants: item?.variants?.length
+        ? item?.variants.map((item: any) => ({
             ...item,
-            options: item?.options?.length
-              ? item?.options?.map((option: any) => ({...option, quantity: 0}))
+            options: item.options.length
+              ? item.options.map((option: any) => ({
+                  ...option,
+                  checked: false,
+                  quantity: 0,
+                }))
               : [],
           }))
         : [],

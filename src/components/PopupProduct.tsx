@@ -24,6 +24,7 @@ import {
 import CustomIcon from './CustomIcon';
 import {useStore} from '../store/store';
 import IconDrop from '../assets/icon/ic_arrow_right.svg';
+import Checkbox from './CheckBox';
 
 interface PopUpProductProps {}
 
@@ -107,27 +108,69 @@ const PopUpProduct: React.FC<PopUpProductProps> = ({}) => {
   };
 
   const checkMinLengthValid = products?.variants?.map((item: any) => {
-    const {id, minLength, options, name} = item;
+    let checkMinLength;
+
+    const {id, minLength, options, name, checked} = item;
 
     const isValid = options.some(
       (option: any) => option.quantity === minLength,
     );
 
+    if (minLength === 1) {
+      checkMinLength = isValid ? 'Pass' : 'Fail';
+    } else if (minLength > 1) {
+      const isCheck = options?.filter((opt: any) => opt?.checked);
+      checkMinLength = isCheck?.length === minLength ? 'Pass' : 'Fail';
+    }
+
     return {
       id,
-      isValid: isValid ? 'Pass' : 'Fail',
+      isValid: checkMinLength,
       name,
       minLength,
     };
   });
 
+  const handleChecked = (idxVariant: any, idxOption: any, checked: any) => {
+    const updatedData = {...products};
+    updatedData.variants[idxVariant].options[idxOption].checked = checked;
+
+    if (updatedData.variants[idxVariant].minLength > 0) {
+      if (updatedData.variants[idxVariant].options[idxOption].checked) {
+        const sumChecked = updatedData.variants[idxVariant].options.filter(
+          (item: any) => item.checked,
+        );
+        updatedData.variants[idxVariant].options = updatedData.variants[
+          idxVariant
+        ].options?.map((item: any, index: number) => ({
+          ...item,
+          quantity: item.checked ? 1 : 0,
+          disabled:
+            sumChecked.length === updatedData.variants[idxVariant].minLength
+              ? !item.checked
+              : false,
+        }));
+      } else {
+        updatedData.variants[idxVariant].options = updatedData.variants[
+          idxVariant
+        ].options?.map((item: any, index: number) => ({
+          ...item,
+          disabled: false,
+          quantity: 0,
+        }));
+      }
+    }
+
+    setProducts(updatedData);
+  };
+  console.log(JSON.stringify(products?.variants), 'products?.variants');
   const onSubmit = () => {
     const total = totalPrice();
 
     const checkValue = checkMinLengthValid.length
       ? checkMinLengthValid.filter((item: any) => item.isValid === 'Fail')
       : [];
-
+    console.log(checkMinLengthValid, 'checkMinLengthValid');
     if (checkValue.length > 0) {
       return handleMsg(
         `${checkValue[0]?.name} required ${checkValue[0]?.minLength} options`,
@@ -343,7 +386,7 @@ const PopUpProduct: React.FC<PopUpProductProps> = ({}) => {
                 }}>
                 {products?.variants?.length ? (
                   products?.variants?.map((item: any, idxVariant: number) => (
-                    <View style={{width: '49%'}}>
+                    <View style={{width: '48%'}}>
                       <View
                         style={{
                           marginHorizontal: SPACING.space_10,
@@ -421,42 +464,56 @@ const PopUpProduct: React.FC<PopUpProductProps> = ({}) => {
                               </View>
                             </View>
 
-                            <View style={styles.ContainerInputSpiner}>
-                              <TouchableOpacity
-                                disabled={option.quantity === 0}
-                                style={styles.InputSpinerAction}
+                            {item?.minLength > 0 ? (
+                              <Checkbox
                                 onPress={() =>
-                                  handleMinusVariantQuantity(
+                                  handleChecked(
                                     idxVariant,
                                     idxOption,
+                                    !option?.checked,
                                   )
-                                }>
-                                <CustomIcon
-                                  name="minus"
-                                  color={COLORS.primaryLightGreyHex}
-                                  size={FONTSIZE.size_10}
-                                />
-                              </TouchableOpacity>
-                              <View style={styles.CartItemQuantityContainer}>
-                                <Text style={styles.CartItemQuantityText}>
-                                  {option.quantity}
-                                </Text>
+                                }
+                                isChecked={option?.checked}
+                                disabled={option?.disabled}
+                              />
+                            ) : (
+                              <View style={styles.ContainerInputSpiner}>
+                                <TouchableOpacity
+                                  disabled={option.quantity === 0}
+                                  style={styles.InputSpinerAction}
+                                  onPress={() =>
+                                    handleMinusVariantQuantity(
+                                      idxVariant,
+                                      idxOption,
+                                    )
+                                  }>
+                                  <CustomIcon
+                                    name="minus"
+                                    color={COLORS.primaryLightGreyHex}
+                                    size={FONTSIZE.size_10}
+                                  />
+                                </TouchableOpacity>
+                                <View style={styles.CartItemQuantityContainer}>
+                                  <Text style={styles.CartItemQuantityText}>
+                                    {option.quantity}
+                                  </Text>
+                                </View>
+                                <TouchableOpacity
+                                  style={styles.InputSpinerAction}
+                                  onPress={() =>
+                                    handleAddVariantQuantity(
+                                      idxVariant,
+                                      idxOption,
+                                    )
+                                  }>
+                                  <CustomIcon
+                                    name="add"
+                                    color={COLORS.primaryLightGreyHex}
+                                    size={FONTSIZE.size_10}
+                                  />
+                                </TouchableOpacity>
                               </View>
-                              <TouchableOpacity
-                                style={styles.InputSpinerAction}
-                                onPress={() =>
-                                  handleAddVariantQuantity(
-                                    idxVariant,
-                                    idxOption,
-                                  )
-                                }>
-                                <CustomIcon
-                                  name="add"
-                                  color={COLORS.primaryLightGreyHex}
-                                  size={FONTSIZE.size_10}
-                                />
-                              </TouchableOpacity>
-                            </View>
+                            )}
                           </View>
                         ))}
                     </View>
